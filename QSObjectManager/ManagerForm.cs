@@ -12,7 +12,7 @@ namespace QSObjectManager
         private IList<NameAndIdPair> _lstApp;
         private IList<NameAndIdPair> _storys;
         private int SelectedIpp { get; set; }
-        private readonly IniFile _iniFile = new IniFile();
+        private readonly IniFile _iniFile = new IniFile("QSObjectManager.ini");
 
         private IList<NameAndIdPair> _lstAppsInStore;
         private IList<NameAndIdPair> _lstStorysInStore;
