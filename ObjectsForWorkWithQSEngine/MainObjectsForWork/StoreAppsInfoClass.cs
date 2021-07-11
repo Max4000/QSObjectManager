@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -6,8 +7,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class StoreAppsInfoClass
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rootStorePath"></param>
+        /// <returns></returns>
         public static IList<NameAndIdPair> GetAppsFromStore(string rootStorePath)
         {
+            if (string.IsNullOrEmpty(rootStorePath))
+                return null;
             IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
             
             foreach (var file in Directory.GetFiles(rootStorePath,"*.txt"))
@@ -18,6 +26,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return lstResult;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mFileApp"></param>
+        /// <returns></returns>
         public static NameAndIdPair GetNameAnIdAppFromFile(string mFileApp)
         {
 
@@ -36,10 +49,16 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return new NameAndIdPair(appName, appId);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rootPathStore"></param>
+        /// <param name="nameid"></param>
+        /// <returns></returns>
         public static IList<NameAndIdPair> GetHistoryListForSelectedApp(string rootPathStore,NameAndIdPair nameid)
         {
             string file = Path.GetFileNameWithoutExtension(nameid.Name);
-            string fileApp = ImportUtilClass.SeachFileAppInStore(rootPathStore, file);
+            string fileApp = ImportUtilClass.SearchFileAppInStore(rootPathStore, file);
             Path.GetFileNameWithoutExtension(fileApp);
 
             Encoding utf8 = Encoding.GetEncoding(65001);

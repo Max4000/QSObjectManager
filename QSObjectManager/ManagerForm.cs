@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
 using UtilClasses;
 
-namespace QSUsersHistoryManager
+namespace QSObjectManager
 {
     public partial class ManagerForm : Form
     {
@@ -75,11 +75,8 @@ namespace QSUsersHistoryManager
             }
             catch (Exception)
             {
-                //Console.WriteLine(exception);
-
-                Form frm = new MessageForm("Проверьте условия подключения к Dev Hub");
-                frm.ShowDialog();
-                frm.Dispose();
+                
+                ShowMessageForm("Проверьте условия подключения к Dev Hub","Ошибка");
 
             }
         }
@@ -88,6 +85,14 @@ namespace QSUsersHistoryManager
         {
             if (_locationObject != null)
                 _locationObject.Dispose();
+        }
+
+        private void ShowMessageForm(string message, string caption)
+        {
+            
+            MessageBoxButtons buttons = MessageBoxButtons.OK;
+            MessageBox.Show(message, caption, buttons);
+            
         }
 
         private void buttonDisconnect_Click(object sender, EventArgs e)
@@ -154,6 +159,9 @@ namespace QSUsersHistoryManager
                 this.textBoxHistoryPath.Text = _iniFile.Read("PathHistorysRoot", "Paths");
             }
 
+            //if (this.textBoxHistoryPath.Text.Length == 0)
+            //    this.tabPageRestore.Visible = false;
+
 
         }
 
@@ -166,6 +174,9 @@ namespace QSUsersHistoryManager
                 _iniFile.Write("PathHistorysRoot", this.textBoxHistoryPath.Text, "Paths");
                 
             }
+
+            //if (this.textBoxHistoryPath.Text.Length > 0)
+            //    this.tabPageRestore.Visible = true;
 
         }
 
@@ -209,18 +220,21 @@ namespace QSUsersHistoryManager
         private void tabPage2_Enter(object sender, EventArgs e)
         {
             this._lstAppsInStore = StoreAppsInfoClass.GetAppsFromStore(_iniFile.Read("PathHistorysRoot", "Paths"));
-            foreach (var item in _lstAppsInStore)
-            {
-                listBoxAppsInStoreOnRestoreTab.Items.Add(item);
-            }
+
+            if (_lstAppsInStore != null)
+                foreach (var item in _lstAppsInStore)
+                {
+                    listBoxAppsInStoreOnRestoreTab.Items.Add(item);
+                }
 
         }
 
         private void tabPage2_Leave(object sender, EventArgs e)
         {
-            this._lstAppsInStore.Clear();
-            listBoxAppsInStoreOnRestoreTab.Items.Clear();
-            listBoxHistorysInStoreOnRestoreTab.Items.Clear();
+            
+            if (_lstAppsInStore != null) _lstAppsInStore.Clear();
+            if (listBoxAppsInStoreOnRestoreTab != null) listBoxAppsInStoreOnRestoreTab.Items.Clear();
+            if (listBoxHistorysInStoreOnRestoreTab != null) listBoxHistorysInStoreOnRestoreTab.Items.Clear();
             _selectedIndexAppInStore = -1;
         }
 
@@ -228,7 +242,7 @@ namespace QSUsersHistoryManager
         {
             if (listBoxAppsInStoreOnRestoreTab.SelectedIndices.Count > 1)
             {
-                new MessageForm("Есть возможность выбора не более одного приложения").ShowDialog();
+                ShowMessageForm("Есть возможность выбора не более одного приложения","Ошибка");
                 _selectedIndexAppInStore = -1;
                 return;
             }

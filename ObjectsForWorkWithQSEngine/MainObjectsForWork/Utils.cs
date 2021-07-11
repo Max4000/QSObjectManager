@@ -7,6 +7,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class Utils
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
         public static IList<NameAndIdPair> GetApps(ILocation location)
         {
             IList<NameAndIdPair> arr = new List<NameAndIdPair>();
@@ -19,6 +24,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return arr;
         }
 
+        /// <summary>
+        /// Returns list of stories for full id application
+        /// </summary>
+        /// <param name="location">object location for Dev Hub</param>
+        /// <param name="appid">full id app</param>
+        /// <returns>list of stories</returns>
         public static IList<NameAndIdPair> GetStorys(ILocation location, string appid)
         {
             IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
@@ -46,17 +57,36 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class NameAndIdPair
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public string Name;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string Id;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="id"></param>
         public NameAndIdPair(string name, string id)
         {
             Name = name;
             Id = id;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return Name;

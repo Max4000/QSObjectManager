@@ -17,11 +17,21 @@ namespace UtilClasses
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         static extern int GetPrivateProfileString(string section, string key, string @default, StringBuilder retVal, int size, string filePath);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="iniPath"></param>
         public IniFile(string iniPath = null)
         {
             _path = new FileInfo(iniPath ?? _exe + ".ini").FullName;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="section"></param>
+        /// <returns></returns>
         public string Read(string key, string section = null)
         {
             var retVal = new StringBuilder(255);
@@ -29,21 +39,42 @@ namespace UtilClasses
             return retVal.ToString();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="section"></param>
         public void Write(string key, string value, string section = null)
         {
             WritePrivateProfileString(section ?? _exe, key, value, _path);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="section"></param>
         public void DeleteKey(string key, string section = null)
         {
             Write(key, null, section ?? _exe);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="section"></param>
         public void DeleteSection(string section = null)
         {
             Write(null, null, section ?? _exe);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="section"></param>
+        /// <returns></returns>
         public bool KeyExists(string key, string section = null)
         {
             return Read(key, section).Length > 0;

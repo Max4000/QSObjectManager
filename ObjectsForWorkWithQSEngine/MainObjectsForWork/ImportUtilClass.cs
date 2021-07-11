@@ -8,6 +8,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class ImportUtilClass
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rootPathStorys"></param>
+        /// <param name="location"></param>
+        /// <param name="selectedApp"></param>
+        /// <param name="storyList"></param>
         public static void ImportStorysFromAppQs(string rootPathStorys, ILocation location, NameAndIdPair selectedApp,
             IList<NameAndIdPair> storyList)
         {
@@ -23,39 +30,58 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             string mFileApp = rootPathStorys + @"\" + mNameSelectedApp +"_"+ nowString + ".txt";
 
-            string seachFile = SeachFileAppInStore(rootPathStorys, mNameSelectedApp);
-            
+            string seachFile = "";
+            try
+            {
+                seachFile = SearchFileAppInStore(rootPathStorys, mNameSelectedApp);
+            }
+            catch
+            {
+                // ignored
+            }
+
+
             if (seachFile.Length > 0)
             {
-                DeleteHieaderOfAppFromDisk(rootPathStorys, seachFile);
+                DeleteHeadierOfAppFromDisk(rootPathStorys, seachFile);
             }
             WriteHiderOfAppToFile(rootPathStorys,location,mFileApp,selectedApp,storyList);
             
         }
 
-
-        public static string SeachFileAppInStore(string rootPathStorys,string selectedAppNmae)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rootPathStories"></param>
+        /// <param name="selectedAppName"></param>
+        /// <returns></returns>
+        public static string SearchFileAppInStore(string rootPathStories, string selectedAppName)
         {
-            foreach (var file in Directory.GetFiles(rootPathStorys,"*.txt"))
-            {
+            if (rootPathStories == null) throw new ArgumentNullException(nameof(rootPathStories));
+            if (selectedAppName == null) throw new ArgumentNullException(nameof(selectedAppName));
 
+            foreach (var file in Directory.GetFiles(rootPathStories, "*.txt"))
+            {
                 var mFile = Path.GetFileNameWithoutExtension(file);
 
                 var mFile2 = mFile.Substring(0, mFile.Length - 18);
 
-                if (String.CompareOrdinal(selectedAppNmae, mFile2) == 0)
+                if (String.CompareOrdinal(selectedAppName, mFile2) == 0)
                 {
                     return file;
                 }
-
             }
 
             return "";
-
         }
 
 
-        private static void DeleteHieaderOfAppFromDisk(string rootPathStory, string mFileApp)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rootPathStory"></param>
+        /// <param name="mFileApp"></param>
+        private static void DeleteHeadierOfAppFromDisk(string rootPathStory, string mFileApp)
         {
 
             Encoding utf8 = Encoding.GetEncoding(65001);
@@ -109,14 +135,22 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
 /*
-        private static void WriteHiderOfAppToFile(string rootPathStorys, string fileapp, NameAndIdPair selectedApp,
+        private static void WriteHiderOfAppToFile(string rootPathStories, string fileapp, NameAndIdPair selectedApp,
             IList<NameAndIdPair> storyList)
         {
-            WriteHiderOfAppToFile(rootPathStorys, null, fileapp, selectedApp, storyList);
+            WriteHiderOfAppToFile(rootPathStories, null, fileapp, selectedApp, storyList);
         }
 */
 
         // ReSharper disable once UnusedParameter.Local
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rootPathStorys"></param>
+        /// <param name="location"></param>
+        /// <param name="fileapp"></param>
+        /// <param name="selectedApp"></param>
+        /// <param name="storyList"></param>
         private static void WriteHiderOfAppToFile(string rootPathStorys, ILocation location, string fileapp, NameAndIdPair selectedApp,
             IList<NameAndIdPair> storyList)
         {
@@ -170,9 +204,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public StreamWriter Writer { get; }
 
-        public AppEntryWriter(string mfile)
+        public AppEntryWriter(string file)
         {
-            Writer = new StreamWriter(new FileStream(mfile, FileMode.Create),
+            Writer = new StreamWriter(new FileStream(file, FileMode.Create),
                 encoding: Encoding.UTF8);
         }
 

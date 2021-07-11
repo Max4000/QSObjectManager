@@ -1,5 +1,5 @@
 ﻿
-namespace QSUsersHistoryManager
+namespace QSObjectManager
 {
     partial class ManagerForm
     {
@@ -140,9 +140,12 @@ namespace QSUsersHistoryManager
             // 
             // statusStrip1
             // 
+            this.statusStrip1.AutoSize = false;
+            this.statusStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.statusStrip1.Location = new System.Drawing.Point(0, 473);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1221, 22);
+            this.statusStrip1.Stretch = false;
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -189,6 +192,7 @@ namespace QSUsersHistoryManager
             // groupBoxCommentsFromLocalStore
             // 
             this.groupBoxCommentsFromLocalStore.Controls.Add(this.textBoxCommentFromLocalStore);
+            this.groupBoxCommentsFromLocalStore.Enabled = false;
             this.groupBoxCommentsFromLocalStore.Location = new System.Drawing.Point(795, 124);
             this.groupBoxCommentsFromLocalStore.Name = "groupBoxCommentsFromLocalStore";
             this.groupBoxCommentsFromLocalStore.Size = new System.Drawing.Size(410, 198);
@@ -408,6 +412,7 @@ namespace QSUsersHistoryManager
             // groupBoxCommentsOnRestoreTab
             // 
             this.groupBoxCommentsOnRestoreTab.Controls.Add(this.textBoxCommentsOnRestoreTab);
+            this.groupBoxCommentsOnRestoreTab.Enabled = false;
             this.groupBoxCommentsOnRestoreTab.Location = new System.Drawing.Point(792, 124);
             this.groupBoxCommentsOnRestoreTab.Name = "groupBoxCommentsOnRestoreTab";
             this.groupBoxCommentsOnRestoreTab.Size = new System.Drawing.Size(410, 206);
@@ -620,6 +625,7 @@ namespace QSUsersHistoryManager
             // 
             // textBoxHistoryPath
             // 
+            this.textBoxHistoryPath.Enabled = false;
             this.textBoxHistoryPath.Location = new System.Drawing.Point(329, 33);
             this.textBoxHistoryPath.Name = "textBoxHistoryPath";
             this.textBoxHistoryPath.Size = new System.Drawing.Size(345, 23);

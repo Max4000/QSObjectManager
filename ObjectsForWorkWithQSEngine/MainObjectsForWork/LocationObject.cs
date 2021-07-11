@@ -7,6 +7,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     {
         private readonly ILocation _location;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="addr"></param>
         public LocationObject(string addr)
         {
             var uri = new Uri(addr);
@@ -16,8 +20,14 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ILocation LocationPersonalEdition => _location;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             _location?.Dispose();

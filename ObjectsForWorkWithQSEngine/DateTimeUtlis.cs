@@ -5,6 +5,10 @@ namespace ObjectsForWorkWithQSEngine
 {
     public class DateTimeUtlis
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static string NowToString()
         {
             DateTime now = DateTime.Now;
@@ -24,6 +28,10 @@ namespace ObjectsForWorkWithQSEngine
                    LPad(sec.ToString(),2,"0")+LPad(msec.ToString(),3,"0");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static string NowToNormalString()
         {
             DateTime now = DateTime.Now;
@@ -39,6 +47,13 @@ namespace ObjectsForWorkWithQSEngine
                    " " + LPad(howr.ToString(), 2, "0") + ":" + LPad(min.ToString(), 2, "0");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="width"></param>
+        /// <param name="pad"></param>
+        /// <returns></returns>
         private static string LPad(string source, int width, string pad)
         {
             StringBuilder strResult = new StringBuilder(10);
