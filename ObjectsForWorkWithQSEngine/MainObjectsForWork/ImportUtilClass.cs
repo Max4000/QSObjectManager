@@ -9,12 +9,16 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     public class ImportUtilClass
     {
         /// <summary>
-        /// 
+        /// Получает в качестве аргументов папку с хранилищем, ссылку на объект Dev Hub,
+        /// пару с коротким именем приложения и его полным идентифкатором
+        /// и список пар пользовательских историй которые надо сохранить
+        /// находит в репозитарии информаицю об этом приложении удалает ее если она есть
+        /// и сохраняет вновь всю информацию на диске
         /// </summary>
-        /// <param name="rootPathStorys"></param>
-        /// <param name="location"></param>
-        /// <param name="selectedApp"></param>
-        /// <param name="storyList"></param>
+        /// <param name="rootPathStorys">папка с репозитарием</param>
+        /// <param name="location">ссылка на объект Dev Hub</param>
+        /// <param name="selectedApp">пару с коротким именем приложения и его полным идентифкатором</param>
+        /// <param name="storyList">список пар пользовательских историй</param>
         public static void ImportStorysFromAppQs(string rootPathStorys, ILocation location, NameAndIdPair selectedApp,
             IList<NameAndIdPair> storyList)
         {
@@ -45,16 +49,19 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             {
                 DeleteHeadierOfAppFromDisk(rootPathStorys, seachFile);
             }
-            WriteHiderOfAppToFile(rootPathStorys,location,mFileApp,selectedApp,storyList);
+            WriteHiderOfAppToFile(rootPathStorys, location, mFileApp, selectedApp, storyList);
             
         }
 
         /// <summary>
-        /// 
+        /// Получает в качестве аргументов путь на репозитарий
+        /// и короткое наименование приложения
+        /// находит если есть в хранилище  txt файл с меткой времени
+        /// этого приложения и возвращает полный путь и имя  файла с меткой времени
         /// </summary>
-        /// <param name="rootPathStories"></param>
-        /// <param name="selectedAppName"></param>
-        /// <returns></returns>
+        /// <param name="rootPathStories">папка с хранилищем</param>
+        /// <param name="selectedAppName">короткое имя приложения</param>
+        /// <returns>полный путь и имя  файла с меткой времени</returns>
         public static string SearchFileAppInStore(string rootPathStories, string selectedAppName)
         {
             if (rootPathStories == null) throw new ArgumentNullException(nameof(rootPathStories));
@@ -77,10 +84,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
         /// <summary>
-        /// 
+        /// Получает в качестве аргументов полное имя файла приложения в хранилище с меткой
+        /// времени, папку с репозитарием, читает инфорамацию в файле и удаляет все пользовательские
+        /// истории из хранилища после чего удаляет сам txt файл с меткой времени из хранилища
         /// </summary>
-        /// <param name="rootPathStory"></param>
-        /// <param name="mFileApp"></param>
+        /// <param name="rootPathStory">Путь на репозитарий</param>
+        /// <param name="mFileApp">полное наименование файла приложения с меткой времени в хрнаилище</param>
         private static void DeleteHeadierOfAppFromDisk(string rootPathStory, string mFileApp)
         {
 
@@ -144,13 +153,16 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         // ReSharper disable once UnusedParameter.Local
         /// <summary>
-        /// 
+        /// Получает в качестве параметров путь на хранилище, ссылку на объект связи с Dev Hub,
+        /// новое полное имя с меткой времени txt файла, пару короткое имя приложения и его идентификатор
+        /// и список пар историй которые надо сохранить на диске
+        /// и сохранаяет всю информацию на диске
         /// </summary>
-        /// <param name="rootPathStorys"></param>
-        /// <param name="location"></param>
-        /// <param name="fileapp"></param>
-        /// <param name="selectedApp"></param>
-        /// <param name="storyList"></param>
+        /// <param name="rootPathStorys">папка с репозитарием</param>
+        /// <param name="location">ссылку на объект Dev Hub</param>
+        /// <param name="fileapp">полное новое наименование с меткой времени файла инфорамции о приложении</param>
+        /// <param name="selectedApp">пара корокоем файла приложения и его полный идентификатор</param>
+        /// <param name="storyList">список пар историй</param>
         private static void WriteHiderOfAppToFile(string rootPathStorys, ILocation location, string fileapp, NameAndIdPair selectedApp,
             IList<NameAndIdPair> storyList)
         {

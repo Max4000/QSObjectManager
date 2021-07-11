@@ -212,7 +212,7 @@ namespace QSObjectManager
             string pathToRootFolder = _iniFile.Read("PathHistorysRoot", "Paths");
 
             ImportUtilClass.ImportStorysFromAppQs(pathToRootFolder, _locationObject.LocationPersonalEdition,
-                _lstApp[SelectedIpp], listStoryNames);
+                _lstApp[SelectedIpp].Clone(), listStoryNames);
 
 
         }

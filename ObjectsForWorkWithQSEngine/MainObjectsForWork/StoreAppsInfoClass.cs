@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -8,10 +7,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     public class StoreAppsInfoClass
     {
         /// <summary>
-        /// 
+        /// Читает все txt файлы в репозитарии
+        /// и возвращает список пар коротких имен файлов и их полных идентификаторов
         /// </summary>
         /// <param name="rootStorePath"></param>
-        /// <returns></returns>
+        /// <returns>список пар коротких имен файлов и их полных идентификаторов</returns>
         public static IList<NameAndIdPair> GetAppsFromStore(string rootStorePath)
         {
             if (string.IsNullOrEmpty(rootStorePath))
@@ -27,10 +27,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
         /// <summary>
-        /// 
+        /// Читает короткое имя приложения  и его полный идентификатор
+        /// из txt файла с меткой времени
         /// </summary>
         /// <param name="mFileApp"></param>
-        /// <returns></returns>
+        /// <returns>Пару с коротким именем файла и его полным идентифкатором</returns>
         public static NameAndIdPair GetNameAnIdAppFromFile(string mFileApp)
         {
 
@@ -50,11 +51,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
         /// <summary>
-        /// 
+        /// Функция возвращает список пар
+        /// историй с наимиенованиями и их полными иеднтафикаторами
         /// </summary>
-        /// <param name="rootPathStore"></param>
-        /// <param name="nameid"></param>
-        /// <returns></returns>
+        /// <param name="rootPathStore">Путь на репозитарий с обхектами</param>
+        /// <param name="nameid">Пара короткое имя приложения и его полный идентификатор</param>
+        /// <returns>Список пар коротких имен историй и и их идентификторов</returns>
         public static IList<NameAndIdPair> GetHistoryListForSelectedApp(string rootPathStore,NameAndIdPair nameid)
         {
             string file = Path.GetFileNameWithoutExtension(nameid.Name);
