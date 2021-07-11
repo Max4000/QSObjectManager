@@ -52,7 +52,12 @@ namespace QSObjectManager
         {
             try
             {
+
+                this.buttonConnectToLocalHub.Enabled = false;
+
                 _locationObject = new LocationObject(this.textBox1.Text);
+
+                this.buttonConnectToLocalHub.Enabled = true;
 
                 _lstApp = Utils.GetApps(_locationObject.LocationPersonalEdition);
 
@@ -219,7 +224,14 @@ namespace QSObjectManager
 
         private void tabPage2_Enter(object sender, EventArgs e)
         {
-            this._lstAppsInStore = StoreAppsInfoClass.GetAppsFromStore(_iniFile.Read("PathHistorysRoot", "Paths"));
+            try
+            {
+                this._lstAppsInStore = StoreAppsInfoClass.GetAppsFromStore(_iniFile.Read("PathHistorysRoot", "Paths"));
+            }
+            catch
+            {
+                ShowMessageForm("Что то не так с каталогом - првоерьте его содержимое он должен содержать объекты или быть пустым", "Ошибка");
+            }
 
             if (_lstAppsInStore != null)
                 foreach (var item in _lstAppsInStore)
