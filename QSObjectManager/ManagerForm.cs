@@ -3,27 +3,39 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
 using UtilClasses;
+using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
 {
-    public partial class ManagerForm : Form
+    public partial class ManagerForm : Form, IProgramOptionsEvent
     {
         private LocationObject _locationObject;
         private IList<NameAndIdPair> _lstApp;
         private IList<NameAndIdPair> _storys;
         private int SelectedIpp { get; set; }
-        private readonly IniFile _iniFile = new IniFile("QSObjectManager.ini");
+        
+
+        private IniFileClass iniFileObject;
 
         private IList<NameAndIdPair> _lstAppsInStore;
         private IList<NameAndIdPair> _lstStorysInStore;
         private int _selectedIndexAppInStore;
 
+        private ProgramOptions programOptions;
+
         private bool _iSconnected;
 
+        public event NewProgramOptionsHandler NewProgramOptionsSend;
 
         public ManagerForm()
         {
             InitializeComponent();
+        }
+
+        public void OnNewOptions(ProgramOptionsEventArgs e)
+        {
+            if (NewProgramOptionsSend != null)
+                NewProgramOptionsSend(this, e);
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -154,19 +166,12 @@ namespace QSObjectManager
         private void ManagerForm_Load(object sender, EventArgs e)
         {
             SetVisibleLists(false);
-            if (!_iniFile.KeyExists("PathHistorysRoot", "Paths"))
-            {
-                _iniFile.Write("PathHistorysRoot", "", "Paths");
-                this.textBoxHistoryPath.Text = "";
-            }
-            else
-            {
-                this.textBoxHistoryPath.Text = _iniFile.Read("PathHistorysRoot", "Paths");
-            }
+            
+            this.iniFileObject = new IniFileClass(this);
 
-            //if (this.textBoxHistoryPath.Text.Length == 0)
-            //    this.tabPageRestore.Visible = false;
+            this.programOptions = iniFileObject.GetOptions();
 
+            textBoxHistoryPath.Text = programOptions.RepositoryPath;
 
         }
 
@@ -176,13 +181,11 @@ namespace QSObjectManager
             if (folderBrowserDialogPathsHistoru.ShowDialog() == DialogResult.OK)
             {
                 this.textBoxHistoryPath.Text = folderBrowserDialogPathsHistoru.SelectedPath;
-                _iniFile.Write("PathHistorysRoot", this.textBoxHistoryPath.Text, "Paths");
+                this.programOptions.RepositoryPath = textBoxHistoryPath.Text;
+
+                OnNewOptions(new ProgramOptionsEventArgs(this.programOptions.Clone()));
                 
             }
-
-            //if (this.textBoxHistoryPath.Text.Length > 0)
-            //    this.tabPageRestore.Visible = true;
-
         }
 
         private void textBoxHistoryPath_TextChanged(object sender, EventArgs e)
@@ -209,7 +212,7 @@ namespace QSObjectManager
                 }
             }
 
-            string pathToRootFolder = _iniFile.Read("PathHistorysRoot", "Paths");
+            string pathToRootFolder = programOptions.RepositoryPath;
 
             ImportUtilClass.ImportStorysFromAppQs(pathToRootFolder, _locationObject.LocationPersonalEdition,
                 _lstApp[SelectedIpp].Clone(), listStoryNames);
@@ -226,7 +229,7 @@ namespace QSObjectManager
         {
             try
             {
-                this._lstAppsInStore = StoreAppsInfoClass.GetAppsFromStore(_iniFile.Read("PathHistorysRoot", "Paths"));
+                this._lstAppsInStore = StoreAppsInfoClass.GetAppsFromStore(programOptions.RepositoryPath);
             }
             catch
             {
@@ -261,9 +264,9 @@ namespace QSObjectManager
 
             _selectedIndexAppInStore = listBoxAppsInStoreOnRestoreTab.SelectedIndex;
 
-            this._lstStorysInStore = StoreAppsInfoClass.GetHistoryListForSelectedApp(_iniFile.Read("PathHistorysRoot", "Paths"),new NameAndIdPair(
-                _lstAppsInStore[_selectedIndexAppInStore].Name,
-                _lstAppsInStore[_selectedIndexAppInStore].Id));
+            this._lstStorysInStore = StoreAppsInfoClass.GetHistoryListForSelectedApp(programOptions.RepositoryPath,
+                _lstAppsInStore[_selectedIndexAppInStore].Clone());
+                
 
             this.listBoxHistorysInStoreOnRestoreTab.Items.Clear();
 
