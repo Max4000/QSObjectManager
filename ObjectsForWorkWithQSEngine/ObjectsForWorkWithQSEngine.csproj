@@ -15,4 +15,8 @@
     <PackageReference Include="QlikSense.NetSDK" Version="15.4.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UtilClasses\UtilClasses.csproj" />
+  </ItemGroup>
+
 </Project>

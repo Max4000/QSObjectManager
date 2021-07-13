@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
-using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
@@ -15,13 +14,15 @@ namespace QSObjectManager
         private int SelectedIpp { get; set; }
         
 
-        private IniFileClass iniFileObject;
+        private IniFileClass _iniFileObject;
 
         private IList<NameAndIdPair> _lstAppsInStore;
         private IList<NameAndIdPair> _lstStorysInStore;
         private int _selectedIndexAppInStore;
 
-        private ProgramOptions programOptions;
+        private ProgramOptions _programOptions;
+        private StoreAppsInfoClass _storeAppsInfoObject;
+        private ImportUtilClass _importUtilObject;
 
         private bool _iSconnected;
 
@@ -167,11 +168,16 @@ namespace QSObjectManager
         {
             SetVisibleLists(false);
             
-            this.iniFileObject = new IniFileClass(this);
+            this._iniFileObject = new IniFileClass(this);
 
-            this.programOptions = iniFileObject.GetOptions();
+            this._programOptions = _iniFileObject.GetOptions();
 
-            textBoxHistoryPath.Text = programOptions.RepositoryPath;
+            textBoxHistoryPath.Text = _programOptions.RepositoryPath;
+
+            _storeAppsInfoObject = new StoreAppsInfoClass(this);
+            _importUtilObject = new ImportUtilClass(this);
+
+            OnNewOptions(new ProgramOptionsEventArgs(this._programOptions.Clone()));
 
         }
 
@@ -181,9 +187,9 @@ namespace QSObjectManager
             if (folderBrowserDialogPathsHistoru.ShowDialog() == DialogResult.OK)
             {
                 this.textBoxHistoryPath.Text = folderBrowserDialogPathsHistoru.SelectedPath;
-                this.programOptions.RepositoryPath = textBoxHistoryPath.Text;
+                this._programOptions.RepositoryPath = textBoxHistoryPath.Text;
 
-                OnNewOptions(new ProgramOptionsEventArgs(this.programOptions.Clone()));
+                OnNewOptions(new ProgramOptionsEventArgs(this._programOptions.Clone()));
                 
             }
         }
@@ -212,9 +218,7 @@ namespace QSObjectManager
                 }
             }
 
-            string pathToRootFolder = programOptions.RepositoryPath;
-
-            ImportUtilClass.ImportStorysFromAppQs(pathToRootFolder, _locationObject.LocationPersonalEdition,
+            _importUtilObject.ImportStorysFromAppQs(_locationObject.LocationPersonalEdition,
                 _lstApp[SelectedIpp].Clone(), listStoryNames);
 
 
@@ -229,7 +233,7 @@ namespace QSObjectManager
         {
             try
             {
-                this._lstAppsInStore = StoreAppsInfoClass.GetAppsFromStore(programOptions.RepositoryPath);
+                this._lstAppsInStore = _storeAppsInfoObject.GetAppsFromStore();
             }
             catch
             {
@@ -264,7 +268,7 @@ namespace QSObjectManager
 
             _selectedIndexAppInStore = listBoxAppsInStoreOnRestoreTab.SelectedIndex;
 
-            this._lstStorysInStore = StoreAppsInfoClass.GetHistoryListForSelectedApp(programOptions.RepositoryPath,
+            this._lstStorysInStore = _storeAppsInfoObject.GetHistoryListForSelectedApp(
                 _lstAppsInStore[_selectedIndexAppInStore].Clone());
                 
 

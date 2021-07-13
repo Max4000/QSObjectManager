@@ -1,13 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Qlik.Engine;
+using UtilClasses;
+using UtilClasses.ProgramOptionsClasses;
+using UtilClasses.ServiceClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class ImportUtilClass
     {
+        private readonly ProgramOptions _programOptions = new();
+
+        public ImportUtilClass(IProgramOptionsEvent optionsEvent)
+        {
+            IProgramOptionsEvent programOptionsEvent = optionsEvent;
+            programOptionsEvent.NewProgramOptionsSend += ProgramOptionsEvent_NewProgramOptionsSend;
+        }
+
+        private void ProgramOptionsEvent_NewProgramOptionsSend(object sender, ProgramOptionsEventArgs e)
+        {
+            e.ProgramOptions.Copy(this._programOptions);
+        }
+
         /// <summary>
         /// Получает в качестве аргументов папку с хранилищем, ссылку на объект Dev Hub,
         /// пару с коротким именем приложения и его полным идентифкатором
@@ -15,14 +30,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         /// находит в репозитарии информаицю об этом приложении удалает ее если она есть
         /// и сохраняет вновь всю информацию на диске
         /// </summary>
-        /// <param name="rootPathStorys">папка с репозитарием</param>
         /// <param name="location">ссылка на объект Dev Hub</param>
         /// <param name="selectedApp">пару с коротким именем приложения и его полным идентифкатором</param>
         /// <param name="storyList">список пар пользовательских историй</param>
-        public static void ImportStorysFromAppQs(string rootPathStorys, ILocation location, NameAndIdPair selectedApp,
+        public  void ImportStorysFromAppQs( ILocation location, NameAndIdPair selectedApp,
             IList<NameAndIdPair> storyList)
         {
-            if (!Directory.Exists(rootPathStorys))
+            if (!Directory.Exists(_programOptions.RepositoryPath))
             {
                 
                 return;
@@ -32,12 +46,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             string nowString = DateTimeUtlis.NowToString();
 
-            string mFileApp = rootPathStorys + @"\" + mNameSelectedApp +"_"+ nowString + ".txt";
+            string mFileApp = _programOptions.RepositoryPath + @"\" + mNameSelectedApp +"_"+ nowString + ".txt";
 
             string seachFile = "";
             try
             {
-                seachFile = SearchFileAppInStore(rootPathStorys, mNameSelectedApp);
+                seachFile = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, mNameSelectedApp,"*.txt");
             }
             catch
             {
@@ -47,50 +61,21 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             if (seachFile.Length > 0)
             {
-                DeleteHeadierOfAppFromDisk(rootPathStorys, seachFile);
+                DeleteHeadierOfAppFromDisk(seachFile);
             }
-            WriteHiderOfAppToFile(rootPathStorys, location, mFileApp, selectedApp, storyList);
+            WriteHiderOfAppToFile( location, mFileApp, selectedApp, storyList);
             
         }
 
-        /// <summary>
-        /// Получает в качестве аргументов путь на репозитарий
-        /// и короткое наименование приложения
-        /// находит если есть в хранилище  txt файл с меткой времени
-        /// этого приложения и возвращает полный путь и имя  файла с меткой времени
-        /// </summary>
-        /// <param name="rootPathStories">папка с хранилищем</param>
-        /// <param name="selectedAppName">короткое имя приложения</param>
-        /// <returns>полный путь и имя  файла с меткой времени</returns>
-        public static string SearchFileAppInStore(string rootPathStories, string selectedAppName)
-        {
-            if (rootPathStories == null) throw new ArgumentNullException(nameof(rootPathStories));
-            if (selectedAppName == null) throw new ArgumentNullException(nameof(selectedAppName));
-
-            foreach (var file in Directory.GetFiles(rootPathStories, "*.txt"))
-            {
-                var mFile = Path.GetFileNameWithoutExtension(file);
-
-                var mFile2 = mFile.Substring(0, mFile.Length - 18);
-
-                if (String.CompareOrdinal(selectedAppName, mFile2) == 0)
-                {
-                    return file;
-                }
-            }
-
-            return "";
-        }
-
+       
 
         /// <summary>
         /// Получает в качестве аргументов полное имя файла приложения в хранилище с меткой
         /// времени, папку с репозитарием, читает инфорамацию в файле и удаляет все пользовательские
         /// истории из хранилища после чего удаляет сам txt файл с меткой времени из хранилища
         /// </summary>
-        /// <param name="rootPathStory">Путь на репозитарий</param>
         /// <param name="mFileApp">полное наименование файла приложения с меткой времени в хрнаилище</param>
-        private static void DeleteHeadierOfAppFromDisk(string rootPathStory, string mFileApp)
+        private  void DeleteHeadierOfAppFromDisk(string mFileApp)
         {
 
             Encoding utf8 = Encoding.GetEncoding(65001);
@@ -129,11 +114,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             string mFile = Path.GetFileNameWithoutExtension(mFileApp);
 
 
-            if (Directory.Exists(rootPathStory+ "\\"+ mFile + "\\" + "UserStories"))
-                Directory.Delete(rootPathStory + "\\" + mFile + "\\" + "UserStories");
+            if (Directory.Exists(_programOptions.RepositoryPath+ "\\"+ mFile + "\\" + "UserStories"))
+                Directory.Delete(_programOptions.RepositoryPath + "\\" + mFile + "\\" + "UserStories");
 
-            if (Directory.Exists(rootPathStory + "\\" + mFile))
-                Directory.Delete(rootPathStory + "\\" + mFile);
+            if (Directory.Exists(_programOptions.RepositoryPath + "\\" + mFile))
+                Directory.Delete(_programOptions.RepositoryPath + "\\" + mFile);
 
 
             File.Delete(mFileApp);
@@ -158,18 +143,17 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         /// и список пар историй которые надо сохранить на диске
         /// и сохранаяет всю информацию на диске
         /// </summary>
-        /// <param name="rootPathStorys">папка с репозитарием</param>
         /// <param name="location">ссылку на объект Dev Hub</param>
         /// <param name="fileapp">полное новое наименование с меткой времени файла инфорамции о приложении</param>
         /// <param name="selectedApp">пара корокоем файла приложения и его полный идентификатор</param>
         /// <param name="storyList">список пар историй</param>
-        private static void WriteHiderOfAppToFile(string rootPathStorys, ILocation location, string fileapp, NameAndIdPair selectedApp,
+        private void WriteHiderOfAppToFile(ILocation location, string fileapp, NameAndIdPair selectedApp,
             IList<NameAndIdPair> storyList)
         {
             if (!File.Exists(fileapp))
             {
 
-                var fileComments = rootPathStorys +"\\"+ Path.GetFileNameWithoutExtension(fileapp)+".cmt";
+                var fileComments = _programOptions.RepositoryPath +"\\"+ Path.GetFileNameWithoutExtension(fileapp)+".cmt";
                 
                 using var writerHeaderApp = new AppEntryWriter(fileapp);
                 using var writerCmt = new AppEntryWriter(fileComments);
@@ -181,7 +165,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 string mNameSelectedApp = Path.GetFileNameWithoutExtension(fileapp);
 
-                string mStorysHistoryPath = rootPathStorys + "\\" + mNameSelectedApp + "\\"+ "UserStories";
+                string mStorysHistoryPath = _programOptions.RepositoryPath + "\\" + mNameSelectedApp + "\\"+ "UserStories";
 
                 Directory.CreateDirectory(mStorysHistoryPath);
 
@@ -211,40 +195,5 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     }
 
-    public class AppEntryWriter : IDisposable
-    {
-
-        public StreamWriter Writer { get; }
-
-        public AppEntryWriter(string file)
-        {
-            Writer = new StreamWriter(new FileStream(file, FileMode.Create),
-                encoding: Encoding.UTF8);
-        }
-
-        ~AppEntryWriter()
-        {
-            Dispose(false);
-        }
-
-        private void ReleaseUnmanagedResources()
-        {
-            // уЕшьTssODO release unmanaged resources here
-        }
-
-        private void Dispose(bool disposing)
-        {
-            ReleaseUnmanagedResources();
-            if (disposing)
-            {
-                Writer?.Dispose();
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-    }
+    
 }

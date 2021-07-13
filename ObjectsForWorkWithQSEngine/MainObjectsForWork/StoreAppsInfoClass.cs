@@ -1,29 +1,43 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using UtilClasses.ProgramOptionsClasses;
+using UtilClasses.ServiceClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class StoreAppsInfoClass
     {
+        private string RepositoryPath { get; set; }
+
         /// <summary>
         /// Читает все txt файлы в репозитарии
         /// и возвращает список пар коротких имен файлов и их полных идентификаторов
         /// </summary>
-        /// <param name="rootStorePath"></param>
         /// <returns>список пар коротких имен файлов и их полных идентификаторов</returns>
-        public static IList<NameAndIdPair> GetAppsFromStore(string rootStorePath)
+        public  IList<NameAndIdPair> GetAppsFromStore()
         {
-            if (string.IsNullOrEmpty(rootStorePath))
+            if (string.IsNullOrEmpty(RepositoryPath))
                 return null;
             IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
             
-            foreach (var file in Directory.GetFiles(rootStorePath,"*.txt"))
+            foreach (var file in Directory.GetFiles(RepositoryPath, "*.txt"))
             {
                 lstResult.Add(GetNameAnIdAppFromFile(file));
             }
 
             return lstResult;
+        }
+
+        public StoreAppsInfoClass(IProgramOptionsEvent optionsEvent)
+        {
+            IProgramOptionsEvent programOptionsEvent = optionsEvent;
+            programOptionsEvent.NewProgramOptionsSend += ProgramOptionsEvent_NewProgramOptionsSend;
+        }
+
+        private void ProgramOptionsEvent_NewProgramOptionsSend(object sender, ProgramOptionsEventArgs e)
+        {
+            this.RepositoryPath = e.ProgramOptions.RepositoryPath;
         }
 
         /// <summary>
@@ -32,7 +46,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         /// </summary>
         /// <param name="mFileApp"></param>
         /// <returns>Пару с коротким именем файла и его полным идентифкатором</returns>
-        public static NameAndIdPair GetNameAnIdAppFromFile(string mFileApp)
+        public  NameAndIdPair GetNameAnIdAppFromFile(string mFileApp)
         {
 
             Encoding utf8 = Encoding.GetEncoding(65001);
@@ -54,13 +68,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         /// Функция возвращает список пар
         /// историй с наимиенованиями и их полными иеднтафикаторами
         /// </summary>
-        /// <param name="rootPathStore">Путь на репозитарий с обхектами</param>
         /// <param name="nameid">Пара короткое имя приложения и его полный идентификатор</param>
         /// <returns>Список пар коротких имен историй и и их идентификторов</returns>
-        public static IList<NameAndIdPair> GetHistoryListForSelectedApp(string rootPathStore,NameAndIdPair nameid)
+        public  IList<NameAndIdPair> GetHistoryListForSelectedApp(NameAndIdPair nameid)
         {
             string file = Path.GetFileNameWithoutExtension(nameid.Name);
-            string fileApp = ImportUtilClass.SearchFileAppInStore(rootPathStore, file);
+            string fileApp = FindFiles.SearchFileAppInStore(RepositoryPath, file,"*.txt");
             Path.GetFileNameWithoutExtension(fileApp);
 
             Encoding utf8 = Encoding.GetEncoding(65001);

@@ -13,9 +13,9 @@ namespace UtilClasses.ProgramOptionsClasses
 
         private readonly IniFile _iniFileObj;
 
-        public IniFileClass(IProgramOptionsEvent observable)
+        public IniFileClass(IProgramOptionsEvent optionsEvent)
         {
-            IProgramOptionsEvent observableObject = observable;
+            IProgramOptionsEvent observableObject = optionsEvent;
 
             _iniFileObj = new IniFile("QSObjectManager.ini");
 
