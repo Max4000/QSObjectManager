@@ -7,6 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-            
+        <StackPanel Margin="10">
+            <ProgressBar Name="Progress" Width="200" Height="20" Minimum="0" Maximum="1" Margin="10" Orientation="Horizontal" />
+            <TextBlock HorizontalAlignment="Center" Name="StatusText" Margin="10" Height="50" Foreground="Black" Text="Loading..."/>
+        </StackPanel>
     </Grid>
 </UserControl>

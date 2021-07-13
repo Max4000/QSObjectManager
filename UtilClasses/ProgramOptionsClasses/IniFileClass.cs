@@ -15,13 +15,13 @@ namespace UtilClasses.ProgramOptionsClasses
 
         public IniFileClass(IProgramOptionsEvent optionsEvent)
         {
-            IProgramOptionsEvent observableObject = optionsEvent;
+            IProgramOptionsEvent programOptionsEvent = optionsEvent;
 
             _iniFileObj = new IniFile("QSObjectManager.ini");
 
             ReadOptionsFromFile();
 
-            observableObject.NewProgramOptionsSend += _observableObject_NewProgramOptionsSend;
+            programOptionsEvent.NewProgramOptionsSend += NewProgramOptionsReceived;
 
         }
 
@@ -39,7 +39,7 @@ namespace UtilClasses.ProgramOptionsClasses
 
         }
 
-        private void _observableObject_NewProgramOptionsSend(object sender, ProgramOptionsEventArgs e)
+        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(this.Options);
             
