@@ -19,4 +19,8 @@
     <ProjectReference Include="..\UtilClasses\UtilClasses.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RepositoryObjects\" />
+  </ItemGroup>
+
 </Project>
