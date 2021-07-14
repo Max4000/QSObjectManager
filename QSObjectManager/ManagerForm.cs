@@ -58,7 +58,7 @@ namespace QSObjectManager
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -83,12 +83,12 @@ namespace QSObjectManager
             try
             {
 
-                this.buttonConnectToLocalHub.Enabled = false;
+                buttonConnectToLocalHub.Enabled = false;
 
-                _locationObject = new LocationObject(this.textBox1.Text);
+                _locationObject = new LocationObject(textBox1.Text);
                 _locationObject.Connect();
 
-                this.buttonConnectToLocalHub.Enabled = true;
+                buttonConnectToLocalHub.Enabled = true;
 
                 _lstApp = Utils.GetApps(_locationObject.LocationPersonalEdition);
 
@@ -154,7 +154,7 @@ namespace QSObjectManager
             SelectedIpp = -1;
             _iSconnected = false;
             buttonConnectToLocalHub.Visible = true;
-            this.buttonConnectToServer.Visible = true;
+            buttonConnectToServer.Visible = true;
             buttonDisconnectFromLoacalHub.Visible = _iSconnected;
             buttonDisconnectFromServer.Visible = _iSconnected;
         }
@@ -190,9 +190,9 @@ namespace QSObjectManager
         {
             SetVisibleLists(false);
             
-            this._iniFileObject = new IniFileClass(this);
+            _iniFileObject = new IniFileClass(this);
 
-            this._programOptions = _iniFileObject.GetOptions();
+            _programOptions = _iniFileObject.GetOptions();
 
             textBoxHistoryPath.Text = _programOptions.RepositoryPath;
 
@@ -200,19 +200,19 @@ namespace QSObjectManager
             
             QsAppWriter = new QsAppWriterClass(this, this,this);
 
-            OnNewOptions(new ProgramOptionsEventArgs(this._programOptions.Clone()));
+            OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Clone()));
 
         }
 
         private void buttonHistoryPath_Click(object sender, EventArgs e)
         {
-            folderBrowserDialogPathsHistoru.SelectedPath = this.textBoxHistoryPath.Text;
+            folderBrowserDialogPathsHistoru.SelectedPath = textBoxHistoryPath.Text;
             if (folderBrowserDialogPathsHistoru.ShowDialog() == DialogResult.OK)
             {
-                this.textBoxHistoryPath.Text = folderBrowserDialogPathsHistoru.SelectedPath;
-                this._programOptions.RepositoryPath = textBoxHistoryPath.Text;
+                textBoxHistoryPath.Text = folderBrowserDialogPathsHistoru.SelectedPath;
+                _programOptions.RepositoryPath = textBoxHistoryPath.Text;
 
-                OnNewOptions(new ProgramOptionsEventArgs(this._programOptions.Clone()));
+                OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Clone()));
                 
             }
         }
@@ -237,15 +237,11 @@ namespace QSObjectManager
 
                 if (ts >= 0)
                 {
-                    listStoryNames.Add(new NameAndIdPair(this._storys[ts].Name,this._storys[ts].Id));
+                    listStoryNames.Add(new NameAndIdPair(_storys[ts].Name,_storys[ts].Id));
                 }
             }
 
             OnNewWriteInfo(new WriteInfoEventArgs(new WriteInfo(_lstApp[SelectedIpp].Copy(), listStoryNames)));
-            
-            
-
-
         }
 
         private void tabPage1_Leave(object sender, EventArgs e)
@@ -257,7 +253,7 @@ namespace QSObjectManager
         {
             try
             {
-                this._lstAppsInStore = _qsAppRestoreObject.GetAppsFromStore();
+                _lstAppsInStore = _qsAppRestoreObject.GetAppsFromStore();
             }
             catch
             {
@@ -300,14 +296,14 @@ namespace QSObjectManager
 
             OnNewSelectedApp(new SelectedAppEventArgs(_lstAppsInStore[_selectedIndexAppInStore]));
 
-            this._lstStorysInStore = _qsAppRestoreObject.GetHistoryListForSelectedApp();
+            _lstStorysInStore = _qsAppRestoreObject.GetHistoryListForSelectedApp();
                 
 
-            this.listBoxHistorysInStoreOnRestoreTab.Items.Clear();
+            listBoxHistorysInStoreOnRestoreTab.Items.Clear();
 
             foreach (var item in _lstStorysInStore)
             {
-                this.listBoxHistorysInStoreOnRestoreTab.Items.Add(item);
+                listBoxHistorysInStoreOnRestoreTab.Items.Add(item);
             }
 
         }
