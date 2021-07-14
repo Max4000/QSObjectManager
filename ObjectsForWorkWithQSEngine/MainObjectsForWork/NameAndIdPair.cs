@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public class NameAndIdPair
+    public class NameAndIdPair 
     {
         /// <summary>
         /// 
@@ -35,7 +35,7 @@
             return Name;
         }
 
-        public NameAndIdPair Clone()
+        public NameAndIdPair Copy()
         {
             return new NameAndIdPair(this.Name, this.Id);
         }

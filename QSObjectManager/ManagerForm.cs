@@ -6,7 +6,7 @@ using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
 {
-    public partial class ManagerForm : Form, IProgramOptionsEvent
+    public partial class ManagerForm : Form, IProgramOptionsEvent, IWriteInfoEvent, IConnectionStatusInfoEvent
     {
         private LocationObject _locationObject;
         private IList<NameAndIdPair> _lstApp;
@@ -22,11 +22,14 @@ namespace QSObjectManager
 
         private ProgramOptions _programOptions;
         private StoreAppsInfoClass _storeAppsInfoObject;
-        private ImportUtilClass _importUtilObject;
+
+        public QsAppWriterClass QsAppWriter { get; private set; }
 
         private bool _iSconnected;
 
         public event NewProgramOptionsHandler NewProgramOptionsSend;
+        public event NewWriterInfosHandler NewWriteInfoSend;
+        public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
 
         public ManagerForm()
         {
@@ -37,6 +40,12 @@ namespace QSObjectManager
         {
             if (NewProgramOptionsSend != null)
                 NewProgramOptionsSend(this, e);
+        }
+
+        public void OnNewConnectioStatusInfo(ConnectionStatusInfoEventArgs e)
+        {
+            if (NewConnectionStatusInfoSend != null)
+                NewConnectionStatusInfoSend(this, e);
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -69,6 +78,7 @@ namespace QSObjectManager
                 this.buttonConnectToLocalHub.Enabled = false;
 
                 _locationObject = new LocationObject(this.textBox1.Text);
+                _locationObject.Connect();
 
                 this.buttonConnectToLocalHub.Enabled = true;
 
@@ -89,6 +99,7 @@ namespace QSObjectManager
                 buttonDisconnectFromServer.Visible = _iSconnected;
                 buttonConnectToLocalHub.Visible = false;
                 buttonConnectToServer.Visible = false;
+                OnNewConnectioStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
 
             }
             catch (Exception)
@@ -129,6 +140,9 @@ namespace QSObjectManager
                 _locationObject.Dispose();
 
             _locationObject = null;
+
+            OnNewConnectioStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
+
             SelectedIpp = -1;
             _iSconnected = false;
             buttonConnectToLocalHub.Visible = true;
@@ -175,7 +189,8 @@ namespace QSObjectManager
             textBoxHistoryPath.Text = _programOptions.RepositoryPath;
 
             _storeAppsInfoObject = new StoreAppsInfoClass(this);
-            _importUtilObject = new ImportUtilClass(this);
+            
+            QsAppWriter = new QsAppWriterClass(this, this,this);
 
             OnNewOptions(new ProgramOptionsEventArgs(this._programOptions.Clone()));
 
@@ -218,8 +233,10 @@ namespace QSObjectManager
                 }
             }
 
-            _importUtilObject.ImportStorysFromAppQs(_locationObject.LocationPersonalEdition,
-                _lstApp[SelectedIpp].Clone(), listStoryNames);
+            OnNewWriteInfo(new WriteInfoEventArgs(new WriteInfo(_lstApp[SelectedIpp].Copy(), listStoryNames)));
+            
+            //_importUtilObject.ImportStorysFromAppQs(_locationObject.LocationPersonalEdition,
+            //    _lstApp[SelectedIpp].Copy(), listStoryNames);
 
 
         }
@@ -248,6 +265,12 @@ namespace QSObjectManager
 
         }
 
+        void OnNewWriteInfo(WriteInfoEventArgs e)
+        {
+            if (NewWriteInfoSend != null)
+                NewWriteInfoSend(this, e);
+        }
+
         private void tabPage2_Leave(object sender, EventArgs e)
         {
             
@@ -269,7 +292,7 @@ namespace QSObjectManager
             _selectedIndexAppInStore = listBoxAppsInStoreOnRestoreTab.SelectedIndex;
 
             this._lstStorysInStore = _storeAppsInfoObject.GetHistoryListForSelectedApp(
-                _lstAppsInStore[_selectedIndexAppInStore].Clone());
+                _lstAppsInStore[_selectedIndexAppInStore].Copy());
                 
 
             this.listBoxHistorysInStoreOnRestoreTab.Items.Clear();
