@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Qlik.Engine;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
@@ -8,21 +8,24 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public class ConnectionStatusInfo
     {
-        public LocationObject _LocationObject;
+        public LocationObject LocationObject;
         
         public ConnectionStatusInfo(LocationObject locationObject)
         {
-            this._LocationObject = locationObject;
+            this.LocationObject = locationObject;
             
         }
 
+/*
         public ConnectionStatusInfo()
         {
 
         }
+*/
+        // ReSharper disable once RedundantAssignment
         public void Copy(ref LocationObject anotherLocationObject)
         {
-            anotherLocationObject = this._LocationObject;
+            anotherLocationObject = this.LocationObject;
             
         }
 
@@ -31,12 +34,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     public class ConnectionStatusInfoEventArgs : EventArgs
     {
 
-        public readonly ConnectionStatusInfo _ConnectionStatusInfo;
+        public readonly ConnectionStatusInfo ConnectionStatusInfo;
 
         //Конструкторы
         public ConnectionStatusInfoEventArgs(ConnectionStatusInfo refLocatioobject)
         {
-            _ConnectionStatusInfo = refLocatioobject;
+            ConnectionStatusInfo = refLocatioobject;
         }
     }
 
@@ -49,6 +52,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
 
+    [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
     public class LocationObject : IDisposable
     {
         private ILocation _location;
@@ -65,10 +69,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
          
         }
 
-        public void SetAddress(string addr)
-        {
-            _addr = addr;
-        }
+        //public void SetAddress(string addr)
+        //{
+        //    _addr = addr;
+        //}
 
         public bool Connect()
         {
@@ -81,21 +85,23 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
+/*
         public void Disconnect()
         {
             _location.Dispose();
             _location = null;
         }
+*/
 
         public bool IsConnected()
         {
             return _location != null;
         }
 
-        public LocationObject()
-        {
-            _location = null;
-        }
+        //public LocationObject()
+        //{
+        //    _location = null;
+        //}
 
 
         /// <summary>

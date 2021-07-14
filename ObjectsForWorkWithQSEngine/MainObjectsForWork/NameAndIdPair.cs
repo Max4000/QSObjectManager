@@ -26,6 +26,11 @@
             Id = id;
         }
 
+        public NameAndIdPair()
+        {
+            
+        }
+
         /// <summary>
         /// 
         /// </summary>

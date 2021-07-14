@@ -6,7 +6,7 @@ using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
 {
-    public partial class ManagerForm : Form, IProgramOptionsEvent, IWriteInfoEvent, IConnectionStatusInfoEvent
+    public partial class ManagerForm : Form, IProgramOptionsEvent, IWriteInfoEvent, IConnectionStatusInfoEvent, ISelectAppEvent
     {
         private LocationObject _locationObject;
         private IList<NameAndIdPair> _lstApp;
@@ -21,7 +21,7 @@ namespace QSObjectManager
         private int _selectedIndexAppInStore;
 
         private ProgramOptions _programOptions;
-        private StoreAppsInfoClass _storeAppsInfoObject;
+        private QsAppRestoreClass _qsAppRestoreObject;
 
         public QsAppWriterClass QsAppWriter { get; private set; }
 
@@ -30,6 +30,7 @@ namespace QSObjectManager
         public event NewProgramOptionsHandler NewProgramOptionsSend;
         public event NewWriterInfosHandler NewWriteInfoSend;
         public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
+        public event NewAppSelectedHandler NewAppSelectedSend;
 
         public ManagerForm()
         {
@@ -41,6 +42,13 @@ namespace QSObjectManager
             if (NewProgramOptionsSend != null)
                 NewProgramOptionsSend(this, e);
         }
+
+        public void OnNewSelectedApp(SelectedAppEventArgs e)
+        {
+            if (NewAppSelectedSend != null)
+                NewAppSelectedSend(this, e);
+        }
+
 
         public void OnNewConnectioStatusInfo(ConnectionStatusInfoEventArgs e)
         {
@@ -188,7 +196,7 @@ namespace QSObjectManager
 
             textBoxHistoryPath.Text = _programOptions.RepositoryPath;
 
-            _storeAppsInfoObject = new StoreAppsInfoClass(this);
+            _qsAppRestoreObject = new QsAppRestoreClass(this,this,this);
             
             QsAppWriter = new QsAppWriterClass(this, this,this);
 
@@ -235,8 +243,7 @@ namespace QSObjectManager
 
             OnNewWriteInfo(new WriteInfoEventArgs(new WriteInfo(_lstApp[SelectedIpp].Copy(), listStoryNames)));
             
-            //_importUtilObject.ImportStorysFromAppQs(_locationObject.LocationPersonalEdition,
-            //    _lstApp[SelectedIpp].Copy(), listStoryNames);
+            
 
 
         }
@@ -250,7 +257,7 @@ namespace QSObjectManager
         {
             try
             {
-                this._lstAppsInStore = _storeAppsInfoObject.GetAppsFromStore();
+                this._lstAppsInStore = _qsAppRestoreObject.GetAppsFromStore();
             }
             catch
             {
@@ -291,8 +298,9 @@ namespace QSObjectManager
 
             _selectedIndexAppInStore = listBoxAppsInStoreOnRestoreTab.SelectedIndex;
 
-            this._lstStorysInStore = _storeAppsInfoObject.GetHistoryListForSelectedApp(
-                _lstAppsInStore[_selectedIndexAppInStore].Copy());
+            OnNewSelectedApp(new SelectedAppEventArgs(_lstAppsInStore[_selectedIndexAppInStore]));
+
+            this._lstStorysInStore = _qsAppRestoreObject.GetHistoryListForSelectedApp();
                 
 
             this.listBoxHistorysInStoreOnRestoreTab.Items.Clear();
@@ -308,6 +316,8 @@ namespace QSObjectManager
         {
 
         }
+
+        
     }
 }
 
