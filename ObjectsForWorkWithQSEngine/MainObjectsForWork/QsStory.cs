@@ -241,7 +241,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                             StoreItemToFile(pathEndNameItemFile,item);
 
-                            OnNewStoryItemWriteToDisk(new StoryItemInfoEventArgs(new StoryItemInfo(){Container = item,Id = item.Info.Id,LocalRootFolder = pathToStore}));
+                            OnNewStoryItemWriteToDisk(new StoryItemInfoEventArgs(new StoryItemInfo(){Container = item,Id = item.Info.Id,LocalRootFolder = pathToStore,Story = _currentStoryToWrite}));
 
                         xmlWriter.WriteEndElement();
                     }
@@ -413,6 +413,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     public class StoryItemInfo
     {
         public IStoryChildListContainer Container;
+        public IStory Story;
         public string Id;
         public string LocalRootFolder;
         public void Copy(ref StoryItemInfo anotherItem)
@@ -420,6 +421,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             anotherItem.Container = this.Container;
             anotherItem.Id = this.Id;
             anotherItem.LocalRootFolder = this.LocalRootFolder;
+            anotherItem.Story = this.Story;
         }
 
     }

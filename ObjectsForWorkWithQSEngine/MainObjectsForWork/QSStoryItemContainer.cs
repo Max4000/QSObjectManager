@@ -4,6 +4,8 @@ using System.Xml;
 using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 
+#pragma warning disable CS0618
+
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class QsStoryItemContainer
@@ -41,8 +43,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             string fileXml = itemPath + "\\" + ItemInfo.Id + ".xml";
 
             string fileData = itemPath + "\\" + "Data" + ".json";
-            string fileInfo = itemPath + "\\" + "Info" + ".json";
-            string fileMeta = itemPath + "\\" + "Meta" + ".json";
+            string fileInfo = itemPath + "\\" + "INxContainerEntry.Info" + ".json";
+            string fileMeta = itemPath + "\\" + "INxContainerEntry.Meta" + ".json";
 
             Directory.CreateDirectory(itemPath);
             
@@ -70,9 +72,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     xmlWriter.WriteStartElement("item");
 
-                        xmlWriter.WriteAttributeString("id", "Info");
+                        xmlWriter.WriteAttributeString("id", "INxContainerEntry.Info");
                         xmlWriter.WriteAttributeString("Type", "NxInfo");
-                        xmlWriter.WriteAttributeString("name", "Info.json");
+                        xmlWriter.WriteAttributeString("name", "INxContainerEntry.Info.json");
 
                         WriteInfoToFile(fileInfo);
 
@@ -80,15 +82,42 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     xmlWriter.WriteStartElement("item");
 
-                        xmlWriter.WriteAttributeString("id", "Meta");
+                        xmlWriter.WriteAttributeString("id", "INxContainerEntry.Meta");
                         xmlWriter.WriteAttributeString("Type", "NxMeta");
-                        xmlWriter.WriteAttributeString("name", "Meta.json");
+                        xmlWriter.WriteAttributeString("name", "INxContainerEntry.Meta.json");
 
                         WriteMetaToFile(fileMeta);
 
                     xmlWriter.WriteEndElement();
 
-            xmlWriter.WriteEndElement();
+ 
+                    //ISlide slide = ItemInfo.Story.GetSlide(ItemInfo.Id);
+
+
+                    xmlWriter.WriteStartElement("item");
+
+                        xmlWriter.WriteAttributeString("id", "INxContainerEntry.Meta");
+                        xmlWriter.WriteAttributeString("Type", "NxMeta");
+                        xmlWriter.WriteAttributeString("name", ItemInfo.Container.ToString());
+
+                        WriteMetaToFile(fileMeta);
+
+                    xmlWriter.WriteEndElement();
+
+
+                    //xmlWriter.WriteStartElement("item");
+
+                    //    xmlWriter.WriteAttributeString("id", "INxContainerEntry.Data");
+                    //    xmlWriter.WriteAttributeString("Type", "JsonObject");
+                    //    xmlWriter.WriteAttributeString("name", "INxContainerEntry.Data.json");
+
+                    //    string fileData2 = itemPath + "\\" + "INxContainerEntry.Data" + ".json";
+
+                    //    WriteINxContainerEntryDataToFile(fileData2);
+
+                    //xmlWriter.WriteEndElement();
+
+                xmlWriter.WriteEndElement();
             
             xmlWriter.WriteEndElement();
 
@@ -99,6 +128,22 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
+        //private void WriteINxContainerEntryDataToFile(string fileData)
+        //{
+        //    if (ItemInfo.Container != null)
+        //    {
+        //        if (ItemInfo != null && ItemInfo.Container.Data != null)
+        //        {
+        //            string json = ItemInfo.Container.Data.PrintStructure(Newtonsoft.Json.Formatting.Indented);
+
+        //            using var propertyFile = new AppEntryWriter(fileData);
+
+        //            propertyFile.Writer.Write(json);
+        //            propertyFile.Writer.Close();
+        //        }
+
+        //    }
+        //}
         private void WriteMetaToFile(string fileData)
         {
             if (ItemInfo.Container != null)
