@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using Qlik.Engine;
 using Qlik.Sense.Client;
+using Qlik.Sense.Client.Storytelling;
+
 #pragma warning disable 618
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
@@ -43,9 +45,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             foreach (var item in listOfStories.Items)
             {
 
-#pragma warning disable 618
+
                 var mStory = app?.GetStory(item.Info.Id);
-#pragma warning restore 618
+
                 if (mStory != null)
                 {
                     string name = mStory.Layout.Meta.Title;
@@ -55,6 +57,20 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             return lstResult;
         }
+
+        public static IStory GetStoryFromApp(ILocation location, string appid,string storeId)
+        {
+            
+            IAppIdentifier appId = location.AppWithId(appid);
+            
+            using IApp app = location.App(appId);
+
+            return app?.GetStory(storeId);
+
+        }
+        
+
+
     }
 
 

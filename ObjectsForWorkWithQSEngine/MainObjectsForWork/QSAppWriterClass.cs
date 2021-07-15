@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Xml;
 using UtilClasses.ProgramOptionsClasses;
 using UtilClasses.ServiceClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsAppWriterClass
+    public class QsAppWriterClass : IProgramOptionsEvent , IConnectionStatusInfoEvent, IWriteStoryToDiskt,IDeleteStoryFromDisk
     {
         private readonly WriteInfo _wrtWriteInfo = new();
         public ProgramOptions Options { get; } = new();
@@ -15,6 +16,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private LocationObject _location;
 
         private XmlTextWriter _xmlWriter;
+
+        public QsStory Story { get; }
+
+        public event NewProgramOptionsHandler NewProgramOptionsSend;
+        public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
+        public event NewWriteStoryToDisktHandler NewWriteStoryToDiskSend;
+        public event NewDeleteStoryFromDisktHandler NewDeleteStoryFromkSend;
 
         /// <summary>
         /// 
@@ -34,11 +42,46 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             obj3.NewConnectionStatusInfoSend += NewConnectionStatusInfoReceived;
 
+            Story = new QsStory(this, this,this,this);
+
         }
 
         private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
             e.ConnectionStatusInfo.Copy(ref this._location);
+            OnNewConnectioStatusInfo(e);
+        }
+
+        private void OnNewStoryInfoNoToDisk(WriteStoryToDiskEventArgs e)
+        {
+
+            if (NewWriteStoryToDiskSend != null)
+                NewWriteStoryToDiskSend(this, e);
+        }
+
+        private void OnNewStoryDeleteFromDisk(DeleteStorisFromAppArgs e)
+        {
+            if (NewDeleteStoryFromkSend != null)
+                NewDeleteStoryFromkSend(this, e);
+        }
+
+        private void DeleteStoriesFromDisk(string seachFile)
+        {
+            if (!string.IsNullOrEmpty(seachFile))
+            {
+                string appFolder = Options.RepositoryPath + "\\" + Path.GetFileNameWithoutExtension(seachFile);
+
+                string storiesFolder = appFolder + "\\" + "stories";
+
+
+                foreach (var dir in Directory.GetDirectories(storiesFolder))
+                {
+                    OnNewStoryDeleteFromDisk(new DeleteStorisFromAppArgs(new DeleteStorisFromAppRecordInfo()
+                        {CurrentAppFolder = appFolder, CurrentStoreFolder = dir}));
+
+                    Directory.Delete(dir);
+                }
+            }
         }
 
         private void DoWrite()
@@ -56,12 +99,23 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
             string  seachFile = FindFiles.SearchFileAppInStore(Options.RepositoryPath, mNameSelectedApp, "*.xml");
-            
+
             if (!string.IsNullOrEmpty(seachFile))
+            {
+                DeleteStoriesFromDisk(seachFile);
+
+                string appFolder = Options.RepositoryPath + "\\" + Path.GetFileNameWithoutExtension(seachFile);
+
+                Directory.Delete(appFolder + "\\" + "stories");
+                
+                Directory.Delete(appFolder);
+                
                 DeleteHeadierOfAppFromDisk(seachFile);
+            }
 
+            string fileXml = GetNewNameAppXmLfile();
 
-            _xmlWriter = new XmlTextWriter(GetNewNameAppXmLfile(), null)
+            _xmlWriter = new XmlTextWriter(fileXml, Encoding.UTF8)
             {
                 Formatting = Formatting.Indented
             };
@@ -70,11 +124,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             _xmlWriter.WriteStartDocument();
 
             //Write the ProcessingInstruction node.
-            var pItext = "type='text/xsl' href='application.xsl'";
-            _xmlWriter.WriteProcessingInstruction("xml-stylesheet", pItext);
+            //var pItext = "type='text/xsl' href='application.xsl'";
+            //_xmlWriter.WriteProcessingInstruction("xml-stylesheet", pItext);
 
-            //Write the DocumentType node.
-            _xmlWriter.WriteDocType("book", null, null, "<!ENTITY h 'hardcover'>");
+            ////Write the DocumentType node.
+            //_xmlWriter.WriteDocType("book", null, null, "<!ENTITY h 'hardcover'>");
 
             _xmlWriter.WriteComment("Файл содержит описание приложения "+ _wrtWriteInfo.SelectedApp.Name);
 
@@ -95,8 +149,22 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                         foreach (var story in this._wrtWriteInfo.SelectedStories)
                         {
                             _xmlWriter.WriteStartElement("story");
+                                
                                 _xmlWriter.WriteElementString("storyName", story.Name); 
                                 _xmlWriter.WriteElementString("id",story.Id);
+
+                                WriteStoryToDiskInfo storeInfo = new WriteStoryToDiskInfo
+                                {
+                                    StoreFolder = Path.GetFileNameWithoutExtension(fileXml),
+                                    CurrentApp = _wrtWriteInfo.SelectedApp.Copy(),
+                                    CuurentStory = story.Copy(),
+                                    CurrentXmlTextWriter = _xmlWriter
+                                };
+
+
+                                OnNewStoryInfoNoToDisk(new WriteStoryToDiskEventArgs(storeInfo));       
+                                
+
                             _xmlWriter.WriteEndElement();
                         }
 
@@ -131,13 +199,29 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(this.Options);
+            OnNewOptions(e);
         }
 
+       
         private void NewWriteInfoReceive(object sender, WriteInfoEventArgs e)
         {
             e.WriteInfo.Copy(_wrtWriteInfo);
             DoWrite();
         }
+        public void OnNewOptions(ProgramOptionsEventArgs e)
+        {
+            if (NewProgramOptionsSend != null)
+                NewProgramOptionsSend(this, e);
+        }
+
+        public void OnNewConnectioStatusInfo(ConnectionStatusInfoEventArgs e)
+        {
+            if (NewConnectionStatusInfoSend != null)
+                NewConnectionStatusInfoSend(this, e);
+        }
+
+
+        
     }
 
     public class WriteInfo
