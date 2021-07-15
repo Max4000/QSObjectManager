@@ -82,6 +82,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             string pathEndNameLayoutFile = pathToStore + "\\" + "Layout.json";
             string pathEndNameThumbnailFile = pathToStore + "\\" + "Thumbnail.json";
             string pathEndNameMetaAttributesFile = pathToStore + "\\" + "MetaAttributes.json";
+            string pathEndNameNxInfoFile = pathToStore + "\\" + "NxInfo.json";
+            string pathEndNameNxLayoutErrorsFile = pathToStore + "\\" + "NxLayoutErrors.json";
 
             XmlTextWriter xmlWriter = new XmlTextWriter(fileXml, Encoding.UTF8)
             {
@@ -163,6 +165,52 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                         xmlWriter.WriteEndElement();
 
+                        xmlWriter.WriteStartElement("item");
+
+                            xmlWriter.WriteAttributeString("id", "NxInfo");
+                            xmlWriter.WriteAttributeString("Type", "NxInfo");
+                            xmlWriter.WriteAttributeString("name", "NxInfo.json");
+
+                            StoreNxInfoToFile(pathEndNameNxInfoFile);
+
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("item");
+
+                            xmlWriter.WriteAttributeString("id", "NxLayoutErrors");
+                            xmlWriter.WriteAttributeString("Type", "NxLayoutErrors");
+                            xmlWriter.WriteAttributeString("name", "NxLayoutErrors.json");
+
+                            StoreNxLayoutErrorsToFile(pathEndNameNxLayoutErrorsFile);
+
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("item");
+
+                            xmlWriter.WriteAttributeString("id", "NxSelectionInfo");
+                            xmlWriter.WriteAttributeString("Type", "NxSelectionInfo");
+                            xmlWriter.WriteAttributeString("name", "NxLayoutErrors.json");
+
+
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("item");
+
+                            xmlWriter.WriteAttributeString("id", "Layout.SelectionInfo.InSelections");
+                            xmlWriter.WriteAttributeString("Type", "bool");
+                            xmlWriter.WriteAttributeString("name", _currentStoryToWrite.Layout.SelectionInfo.InSelections.ToString());
+
+
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("item");
+
+                            xmlWriter.WriteAttributeString("id", "Layout.SelectionInfo.MadeSelections");
+                            xmlWriter.WriteAttributeString("Type", "bool");
+                            xmlWriter.WriteAttributeString("name", _currentStoryToWrite.Layout.SelectionInfo.MadeSelections.ToString());
+
+
+                        xmlWriter.WriteEndElement();
 
 
             xmlWriter.WriteEndElement();//properties
@@ -175,6 +223,40 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             xmlWriter.Close();
 
         }
+
+        private void StoreNxLayoutErrorsToFile(string file)
+        {
+
+            if (_currentStoryToWrite != null)
+            {
+                NxLayoutErrors nxLayoutErrors = _currentStoryToWrite.NxLayoutErrors;
+
+                string json = nxLayoutErrors.PrintStructure(Newtonsoft.Json.Formatting.Indented);
+
+                using var propertyFile = new AppEntryWriter(file);
+
+                propertyFile.Writer.Write(json);
+                propertyFile.Writer.Close();
+            }
+        }
+
+
+        private void StoreNxInfoToFile(string file)
+        {
+
+            if (_currentStoryToWrite != null)
+            {
+                NxInfo layoutInfo = _currentStoryToWrite.Layout.Info;
+
+                string json = layoutInfo.PrintStructure(Newtonsoft.Json.Formatting.Indented);
+
+                using var propertyFile = new AppEntryWriter(file);
+
+                propertyFile.Writer.Write(json);
+                propertyFile.Writer.Close();
+            }
+        }
+
 
         private void StoreMetaAttributesToFile(string file)
         {
