@@ -13,7 +13,7 @@ using UtilClasses.ProgramOptionsClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsStory
+    public class QsStory : IProgramOptionsEvent, IWriteStoryItemToDisk
     {
         public ProgramOptions Options { get; } = new();
 
@@ -23,6 +23,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private IApp _app;
         private IStory _currentStoryToWrite;
+
+        public QsStoryItemContainer ItemContainer { get; }
+
+        public event NewProgramOptionsHandler NewProgramOptionsSend;
+        public event NewWriteStoryItemToDisktHandler NewStoryItemToDiskSend;
 
         public QsStory(IProgramOptionsEvent programOptionsEvent, IConnectionStatusInfoEvent connectionStatusInfoEvent, 
             IWriteStoryToDiskt writeStoryToDiskt,IDeleteStoryFromDisk deleteStory)
@@ -37,10 +42,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             writeInfo.NewWriteStoryToDiskSend += NewWriteStoryToDiskReceived;
 
             IDeleteStoryFromDisk delStory = deleteStory;
-            delStory.NewDeleteStoryFromkSend += NewDeleteStoryFromkReceived;
+            delStory.NewDeleteStoryFromkSend += NewDeleteStoryFromkDiskReceived;
+
+            ItemContainer = new QsStoryItemContainer(this, this);
         }
 
-        private void NewDeleteStoryFromkReceived(object sender, DeleteStorisFromAppArgs e)
+        private void NewDeleteStoryFromkDiskReceived(object sender, DeleteStorisFromAppArgs e)
         {
             string storiFilder = e.DeleteInfo.CurrentStoreFolder;
 
@@ -209,11 +216,37 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             xmlWriter.WriteAttributeString("Type", "bool");
                             xmlWriter.WriteAttributeString("name", _currentStoryToWrite.Layout.SelectionInfo.MadeSelections.ToString());
 
-
                         xmlWriter.WriteEndElement();
 
 
-            xmlWriter.WriteEndElement();//properties
+                    xmlWriter.WriteEndElement();//properties
+                    xmlWriter.WriteStartElement("Items");
+                    
+                    int i = -1;
+
+                    foreach (var item in _currentStoryToWrite.Items)
+                    {
+                        i++;
+
+                        string mfile = "Item" + i.ToString() + ".json";
+                        string pathEndNameItemFile = pathToStore + "\\" + mfile;
+
+                        xmlWriter.WriteStartElement("item");
+
+                            xmlWriter.WriteAttributeString("id1", i.ToString());
+                            xmlWriter.WriteAttributeString("id2", item.Info.Id);
+                            xmlWriter.WriteAttributeString("Type1", "StoryChildListContainer");
+                            xmlWriter.WriteAttributeString("Type2", item.Info.Type);
+                            xmlWriter.WriteAttributeString("name", mfile);
+
+                            StoreItemToFile(pathEndNameItemFile,item);
+
+                            OnNewStoryItemWriteToDisk(new StoryItemInfoEventArgs(new StoryItemInfo(){Container = item,Id = item.Info.Id,LocalRootFolder = pathToStore}));
+
+                        xmlWriter.WriteEndElement();
+                    }
+
+                    xmlWriter.WriteEndElement();//items
 
 
             xmlWriter.WriteEndElement();//story
@@ -224,20 +257,53 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
+        private void StoreItemToFile(string file , IStoryChildListContainer item)
+        {
+
+            if (_currentStoryToWrite != null)
+            {
+                if (item != null)
+                {
+                    string json = item.PrintStructure(Newtonsoft.Json.Formatting.Indented);
+
+                    using var propertyFile = new AppEntryWriter(file);
+
+                    propertyFile.Writer.Write(json);
+                    propertyFile.Writer.Close();
+                }
+
+            }
+        }
+
         private void StoreNxLayoutErrorsToFile(string file)
         {
 
             if (_currentStoryToWrite != null)
             {
-                NxLayoutErrors nxLayoutErrors = _currentStoryToWrite.NxLayoutErrors;
+                NxLayoutErrors nxLayoutErrors = _currentStoryToWrite.Layout.Error;
 
-                string json = nxLayoutErrors.PrintStructure(Newtonsoft.Json.Formatting.Indented);
+                if (nxLayoutErrors != null)
+                {
+                    string json = nxLayoutErrors.PrintStructure(Newtonsoft.Json.Formatting.Indented);
 
-                using var propertyFile = new AppEntryWriter(file);
+                    using var propertyFile = new AppEntryWriter(file);
 
-                propertyFile.Writer.Write(json);
-                propertyFile.Writer.Close();
+                    propertyFile.Writer.Write(json);
+                    propertyFile.Writer.Close();
+                }
+                else
+                {
+                    using var propertyFile = new AppEntryWriter(file);
+                    propertyFile.Writer.Write("");
+                    propertyFile.Writer.Close();
+                }
             }
+        }
+
+        private void OnNewStoryItemWriteToDisk(StoryItemInfoEventArgs e)
+        {
+            if (this.NewStoryItemToDiskSend != null)
+                NewStoryItemToDiskSend(this, e);
         }
 
 
@@ -336,9 +402,45 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(Options);
+            
+            if (NewProgramOptionsSend != null)
+                NewProgramOptionsSend(this, e);
+        }
+
+        
+    }
+
+    public class StoryItemInfo
+    {
+        public IStoryChildListContainer Container;
+        public string Id;
+        public string LocalRootFolder;
+        public void Copy(ref StoryItemInfo anotherItem)
+        {
+            anotherItem.Container = this.Container;
+            anotherItem.Id = this.Id;
+            anotherItem.LocalRootFolder = this.LocalRootFolder;
         }
 
     }
+
+    public class StoryItemInfoEventArgs : EventArgs
+    {
+        public readonly StoryItemInfo ItemInfo;
+
+        public StoryItemInfoEventArgs(StoryItemInfo item)
+        {
+            ItemInfo = item;
+        }
+    }
+
+    public interface IWriteStoryItemToDisk
+    {
+        event NewWriteStoryItemToDisktHandler NewStoryItemToDiskSend;
+    }
+
+    public delegate void NewWriteStoryItemToDisktHandler(object sender, StoryItemInfoEventArgs e);
+
 
 
     public class WriteStoryToDiskInfo
