@@ -24,6 +24,49 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public event NewWriteStoryToDisktHandler NewWriteStoryToDiskSend;
         public event NewDeleteStoryFromDisktHandler NewDeleteStoryFromkSend;
 
+        private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
+        {
+            e.ConnectionStatusInfo.Copy(ref this._location);
+            OnNewConnectioStatusInfo(e);
+        }
+
+        private void OnNewStoryInfoToDisk(WriteStoryToDiskEventArgs e)
+        {
+
+            if (NewWriteStoryToDiskSend != null)
+                NewWriteStoryToDiskSend(this, e);
+        }
+
+        private void OnNewStoryDeleteFromDisk(DeleteStorisFromAppArgs e)
+        {
+            if (NewDeleteStoryFromkSend != null)
+                NewDeleteStoryFromkSend(this, e);
+        }
+
+        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
+        {
+            e.ProgramOptions.Copy(this.Options);
+            OnNewOptions(e);
+        }
+
+
+        private void NewWriteInfoReceive(object sender, WriteInfoEventArgs e)
+        {
+            e.WriteInfo.Copy(_wrtWriteInfo);
+            DoWrite();
+        }
+        public void OnNewOptions(ProgramOptionsEventArgs e)
+        {
+            if (NewProgramOptionsSend != null)
+                NewProgramOptionsSend(this, e);
+        }
+
+        public void OnNewConnectioStatusInfo(ConnectionStatusInfoEventArgs e)
+        {
+            if (NewConnectionStatusInfoSend != null)
+                NewConnectionStatusInfoSend(this, e);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -46,24 +89,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
-        private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
-        {
-            e.ConnectionStatusInfo.Copy(ref this._location);
-            OnNewConnectioStatusInfo(e);
-        }
-
-        private void OnNewStoryInfoNoToDisk(WriteStoryToDiskEventArgs e)
-        {
-
-            if (NewWriteStoryToDiskSend != null)
-                NewWriteStoryToDiskSend(this, e);
-        }
-
-        private void OnNewStoryDeleteFromDisk(DeleteStorisFromAppArgs e)
-        {
-            if (NewDeleteStoryFromkSend != null)
-                NewDeleteStoryFromkSend(this, e);
-        }
+       
 
         private void DeleteStoriesFromDisk(string seachFile)
         {
@@ -120,19 +146,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 Formatting = Formatting.Indented
             };
 
-            //Write the XML delcaration.
+            
             _xmlWriter.WriteStartDocument();
-
-            //Write the ProcessingInstruction node.
-            //var pItext = "type='text/xsl' href='application.xsl'";
-            //_xmlWriter.WriteProcessingInstruction("xml-stylesheet", pItext);
-
-            ////Write the DocumentType node.
-            //_xmlWriter.WriteDocType("book", null, null, "<!ENTITY h 'hardcover'>");
 
             _xmlWriter.WriteComment("Файл содержит описание приложения "+ _wrtWriteInfo.SelectedApp.Name);
 
-            //Write a root element.
+            
             _xmlWriter.WriteStartElement("application");
 
             
@@ -162,7 +181,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                 };
 
 
-                                OnNewStoryInfoNoToDisk(new WriteStoryToDiskEventArgs(storeInfo));       
+                                OnNewStoryInfoToDisk(new WriteStoryToDiskEventArgs(storeInfo));       
                                 
 
                             _xmlWriter.WriteEndElement();
@@ -196,32 +215,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
-        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
-        {
-            e.ProgramOptions.Copy(this.Options);
-            OnNewOptions(e);
-        }
-
-       
-        private void NewWriteInfoReceive(object sender, WriteInfoEventArgs e)
-        {
-            e.WriteInfo.Copy(_wrtWriteInfo);
-            DoWrite();
-        }
-        public void OnNewOptions(ProgramOptionsEventArgs e)
-        {
-            if (NewProgramOptionsSend != null)
-                NewProgramOptionsSend(this, e);
-        }
-
-        public void OnNewConnectioStatusInfo(ConnectionStatusInfoEventArgs e)
-        {
-            if (NewConnectionStatusInfoSend != null)
-                NewConnectionStatusInfoSend(this, e);
-        }
-
-
-        
     }
 
     public class WriteInfo
@@ -231,8 +224,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public WriteInfo(NameAndIdPair selectedApp, IList<NameAndIdPair> selectedStories)
         {
-            this.SelectedApp = selectedApp;
-            this.SelectedStories = selectedStories;
+            SelectedApp = selectedApp;
+            SelectedStories = selectedStories;
         }
 
         public WriteInfo()
@@ -241,7 +234,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
         public void Copy(WriteInfo anotherWriteInfo)
         {
-            anotherWriteInfo.SelectedApp = this.SelectedApp.Copy();
+            anotherWriteInfo.SelectedApp = SelectedApp.Copy();
             anotherWriteInfo.SelectedStories = new List<NameAndIdPair>();
             foreach (var story in this.SelectedStories)
             {

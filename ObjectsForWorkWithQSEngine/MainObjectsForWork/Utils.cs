@@ -68,9 +68,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return app?.GetStory(storeId);
 
         }
-        
-
-
     }
 
 

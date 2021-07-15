@@ -302,7 +302,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private void OnNewStoryItemWriteToDisk(StoryItemInfoEventArgs e)
         {
-            if (this.NewStoryItemToDiskSend != null)
+            if (NewStoryItemToDiskSend != null)
                 NewStoryItemToDiskSend(this, e);
         }
 
@@ -418,10 +418,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public string LocalRootFolder;
         public void Copy(ref StoryItemInfo anotherItem)
         {
-            anotherItem.Container = this.Container;
-            anotherItem.Id = this.Id;
-            anotherItem.LocalRootFolder = this.LocalRootFolder;
-            anotherItem.Story = this.Story;
+            anotherItem.Container = Container;
+            anotherItem.Id = Id;
+            anotherItem.LocalRootFolder = LocalRootFolder;
+            anotherItem.Story = Story;
         }
 
     }
