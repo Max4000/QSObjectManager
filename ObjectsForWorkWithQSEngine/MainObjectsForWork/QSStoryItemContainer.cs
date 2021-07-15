@@ -93,6 +93,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
  
                     //ISlide slide = ItemInfo.Story.GetSlide(ItemInfo.Id);
 
+                    //ISlideProperties properties = slide.
+
 
                     xmlWriter.WriteStartElement("item");
 
