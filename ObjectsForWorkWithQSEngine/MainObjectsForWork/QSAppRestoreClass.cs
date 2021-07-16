@@ -11,7 +11,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     {
         private string RepositoryPath { get; set; }
 
-        private LocationObject _location;
+        private IConnect _location;
 
         private NameAndIdPair _selectedApp;
 

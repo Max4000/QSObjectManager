@@ -8,7 +8,7 @@ namespace QSObjectManager
 {
     public partial class ManagerForm : Form, IProgramOptionsEvent, IWriteInfoEvent, IConnectionStatusInfoEvent, ISelectAppEvent
     {
-        private LocationObject _locationObject;
+        private IConnect _locationObject;
         private IList<NameAndIdPair> _lstApp;
         private IList<NameAndIdPair> _storys;
         private int SelectedIpp { get; set; }
@@ -71,7 +71,7 @@ namespace QSObjectManager
             groupBoxAppsFromDevHub.Visible = en;
             groupBoxStorysFromDevHub.Visible = en;
             groupBoxActionsForImportToLocalStore.Visible = en;
-            groupBoxCommentsFromLocalStore.Visible = en;
+            
             buttonSaveHistoryToLocalStore.Visible = en;
 
             buttonDisconnectFromLoacalHub.Visible = _iSconnected;
@@ -85,12 +85,12 @@ namespace QSObjectManager
 
                 buttonConnectToLocalHub.Enabled = false;
 
-                _locationObject = new LocationObject(textBox1.Text);
+                _locationObject = new LocalConnection(textBox1.Text);
                 _locationObject.Connect();
 
                 buttonConnectToLocalHub.Enabled = true;
 
-                _lstApp = Utils.GetApps(_locationObject.LocationPersonalEdition);
+                _lstApp = Utils.GetApps(_locationObject.GetConnection());
 
                 ListBoxAppsFromDevHub.Items.Clear();
                 
@@ -170,7 +170,7 @@ namespace QSObjectManager
                 NameAndIdPair appPair = _lstApp[ListBoxAppsFromDevHub.SelectedIndex];
                 SelectedIpp = ListBoxAppsFromDevHub.SelectedIndex;
 
-                _storys = Utils.GetStorys(_locationObject.LocationPersonalEdition, appPair.Id);
+                _storys = Utils.GetStorys(_locationObject.GetConnection(), appPair.Id);
 
                 foreach (var story in _storys)
                 {
@@ -313,7 +313,40 @@ namespace QSObjectManager
 
         }
 
-        
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox5_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox6_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonDisconnectFromServerOnRestoreTab_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 

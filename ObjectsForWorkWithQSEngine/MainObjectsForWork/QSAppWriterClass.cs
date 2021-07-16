@@ -13,7 +13,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private readonly WriteInfo _wrtWriteInfo = new();
         public ProgramOptions Options { get; } = new();
 
-        private LocationObject _location;
+        private IConnect _location;
 
         private XmlTextWriter _xmlWriter;
 

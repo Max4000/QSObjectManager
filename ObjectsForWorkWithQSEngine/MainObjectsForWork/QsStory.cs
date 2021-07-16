@@ -17,7 +17,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     {
         public ProgramOptions Options { get; } = new();
 
-        private LocationObject _location;
+        private IConnect _location;
 
         private WriteStoryToDiskInfo _storyToDiskInfo = new();
 
@@ -82,7 +82,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             string fileXml = pathToStore + "\\" + _storyToDiskInfo.CuurentStory.Id + ".xml";
 
-            _currentStoryToWrite = Utils.GetStoryFromApp(_location.LocationPersonalEdition, _storyToDiskInfo.CurrentApp.Id,
+            _currentStoryToWrite = Utils.GetStoryFromApp(_location.GetConnection(), _storyToDiskInfo.CurrentApp.Id,
                 _storyToDiskInfo.CuurentStory.Id);
 
             string pathEndNamePropertiesFile = pathToStore + "\\" + "Properties.json";
@@ -375,9 +375,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private void StorePropertiesToFile(string file)
         {
 
-            IAppIdentifier appId = _location.LocationPersonalEdition.AppWithId(_storyToDiskInfo.CurrentApp.Id);
+            IAppIdentifier appId = _location.GetConnection().AppWithId(_storyToDiskInfo.CurrentApp.Id);
 
-            _app = _location.LocationPersonalEdition.App(appId);
+            _app = _location.GetConnection().App(appId);
 
             _currentStoryToWrite = _app?.GetStory(_storyToDiskInfo.CuurentStory.Id);
 
