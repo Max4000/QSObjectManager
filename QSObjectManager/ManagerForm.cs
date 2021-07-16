@@ -32,6 +32,9 @@ namespace QSObjectManager
         public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
         public event NewAppSelectedHandler NewAppSelectedSend;
 
+        private bool _connectedToLocalServer;
+        private bool _connectedToRemoteServer;
+
         public ManagerForm()
         {
             InitializeComponent();
@@ -61,11 +64,6 @@ namespace QSObjectManager
             Close();
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void SetVisibleLists(bool en)
         {
             groupBoxAppsFromDevHub.Visible = en;
@@ -74,30 +72,49 @@ namespace QSObjectManager
             
             buttonSaveHistoryToLocalStore.Visible = en;
 
-            buttonDisconnectFromLoacalHub.Visible = _iSconnected;
+            buttonDisconnectFromLoacalHub.Visible = en;
             buttonDisconnectFromServer.Visible = en;
+
+            if (_connectedToLocalServer)
+                groupBoxConnectToServerOnSaveTab.Visible = false;
+            if (_connectedToRemoteServer)
+                groupBoxConnectToLocalCоmputer.Visible = false;
+
+            if (!_connectedToLocalServer)
+                groupBoxConnectToServerOnSaveTab.Visible = true;
+            if (!_connectedToRemoteServer)
+                groupBoxConnectToLocalCоmputer.Visible = true;
         }
 
-        private void ConnectToEngineButtonClick(object sender, EventArgs e)
+        private void buttonConnectToServer_Click(object sender, EventArgs e)
         {
             try
             {
-
-                buttonConnectToLocalHub.Enabled = false;
-
-                _locationObject = new LocalConnection(textBox1.Text);
+                _locationObject = new RemoteConnection(textBox4.Text);
                 _locationObject.Connect();
+                _connectedToRemoteServer = true;
+            }
+            catch(Exception)
+            {
+                ShowMessageForm("Проверьте условия подключения к Dev Hub", "Ошибка");
+                _connectedToRemoteServer = false;
+            }
+            UpdateForm();
+        }
 
-                buttonConnectToLocalHub.Enabled = true;
-
+        private void UpdateForm()
+        {
+            if (_locationObject.IsConnected())
+            {
                 _lstApp = Utils.GetApps(_locationObject.GetConnection());
 
                 ListBoxAppsFromDevHub.Items.Clear();
-                
+
                 foreach (var app in _lstApp)
                 {
                     ListBoxAppsFromDevHub.Items.Add(app);
                 }
+
 
                 SetVisibleLists(true);
 
@@ -107,15 +124,32 @@ namespace QSObjectManager
                 buttonDisconnectFromServer.Visible = _iSconnected;
                 buttonConnectToLocalHub.Visible = false;
                 buttonConnectToServer.Visible = false;
+
                 OnNewConnectioStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
+            }
+
+        }
+
+        private void ConnectToLocalEngineButtonClick(object sender, EventArgs e)
+        {
+            try
+            {
+
+                _locationObject = new LocalConnection(textBox1.Text);
+                _locationObject.Connect();
+
+                _connectedToLocalServer = true;
 
             }
             catch (Exception)
             {
                 
                 ShowMessageForm("Проверьте условия подключения к Dev Hub","Ошибка");
+                _connectedToLocalServer = false;
 
             }
+
+            UpdateForm();
         }
 
         private void ManagerForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -142,6 +176,9 @@ namespace QSObjectManager
             if (ListBoxAppsFromDevHub != null) ListBoxAppsFromDevHub.Items.Clear();
             if (listBoxStrorysFromDevHub != null) listBoxStrorysFromDevHub.Items.Clear();
 
+            _connectedToLocalServer = false;
+            _connectedToRemoteServer = false;
+
             SetVisibleLists(false);
 
             if (_locationObject != null)
@@ -153,10 +190,23 @@ namespace QSObjectManager
 
             SelectedIpp = -1;
             _iSconnected = false;
+            
             buttonConnectToLocalHub.Visible = true;
             buttonConnectToServer.Visible = true;
             buttonDisconnectFromLoacalHub.Visible = _iSconnected;
             buttonDisconnectFromServer.Visible = _iSconnected;
+
+            buttonDisconnectFromLocalHostOnRestoreTab.Visible = _iSconnected;
+            buttonDisconnectFromServerOnRestoreTab.Visible = _iSconnected;
+            
+            buttonConnectionToLocalHostOnRestoreTab.Visible = true;
+            buttonConnectToServerOnRestoreTab.Visible = true;
+            
+            groupBoxConnectoionToLocalHostOnRestoreTab.Visible = true;
+
+            groupBoxConnectionToRemoteServer.Visible = true;
+
+            buttonRestoreHistoryOnRestoreTab.Visible = false;
         }
 
         private void ListBoxApps_SelectedIndexChanged(object sender, EventArgs e)
@@ -200,7 +250,7 @@ namespace QSObjectManager
             
             QsAppWriter = new QsAppWriterClass(this, this,this);
 
-            OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Clone()));
+            OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
 
         }
 
@@ -212,14 +262,9 @@ namespace QSObjectManager
                 textBoxHistoryPath.Text = folderBrowserDialogPathsHistoru.SelectedPath;
                 _programOptions.RepositoryPath = textBoxHistoryPath.Text;
 
-                OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Clone()));
+                OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
                 
             }
-        }
-
-        private void textBoxHistoryPath_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void SaveHistory_Click(object sender, EventArgs e)
@@ -244,12 +289,12 @@ namespace QSObjectManager
             OnNewWriteInfo(new WriteInfoEventArgs(new WriteInfo(_lstApp[SelectedIpp].Copy(), listStoryNames)));
         }
 
-        private void tabPage1_Leave(object sender, EventArgs e)
+        private void tabPageImport_Leave(object sender, EventArgs e)
         {
             Disconnect();
         }
 
-        private void tabPage2_Enter(object sender, EventArgs e)
+        private void tabPageRestore_Enter(object sender, EventArgs e)
         {
             try
             {
@@ -274,7 +319,7 @@ namespace QSObjectManager
                 NewWriteInfoSend(this, e);
         }
 
-        private void tabPage2_Leave(object sender, EventArgs e)
+        private void tabPageRestore_Leave(object sender, EventArgs e)
         {
             
             if (_lstAppsInStore != null) _lstAppsInStore.Clear();
@@ -308,44 +353,84 @@ namespace QSObjectManager
 
         }
 
-        private void groupBox7_Enter(object sender, EventArgs e)
+        private void buttonDisconnectFromServer_Click(object sender, EventArgs e)
         {
+            Disconnect();
+        }
+
+        private void buttonConnectionToLocalHostOnRestoreTab_Click(object sender, EventArgs e)
+        {
+            try
+            {
+
+                _locationObject = new LocalConnection(textBoxAdressLocalHostOnRestoreTab.Text);
+                _locationObject.Connect();
+
+                _connectedToLocalServer = true;
+
+            }
+            catch (Exception)
+            {
+
+                ShowMessageForm("Проверьте условия подключения к Dev Hub", "Ошибка");
+                _connectedToLocalServer = false;
+
+            }
+
+            UpdateFormOnRestoreTab();
+        }
+
+        private void buttonConnectToServerOnRestoreTab_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                _locationObject = new RemoteConnection(textBox4.Text);
+                _locationObject.Connect();
+                _connectedToRemoteServer = true;
+            }
+            catch (Exception)
+            {
+                ShowMessageForm("Проверьте условия подключения к Dev Hub", "Ошибка");
+                _connectedToRemoteServer = false;
+            }
+            UpdateFormOnRestoreTab();
+        }
+
+        private void UpdateFormOnRestoreTab()
+        {
+            if (_locationObject.IsConnected())
+            {
+                
+                SetVisibleElementsOnRestoreTab();
+
+                _iSconnected = true;
+
+                buttonDisconnectFromLocalHostOnRestoreTab.Visible = _iSconnected;
+                buttonDisconnectFromServerOnRestoreTab.Visible = _iSconnected;
+                buttonConnectionToLocalHostOnRestoreTab.Visible = false;
+                buttonConnectToServerOnRestoreTab.Visible = false;
+
+                buttonRestoreHistoryOnRestoreTab.Visible = _iSconnected;
+
+                OnNewConnectioStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
+            }
 
         }
 
-        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        private void SetVisibleElementsOnRestoreTab()
         {
-
+            groupBoxConnectionToRemoteServer.Visible = !_connectedToLocalServer;
+            groupBoxConnectoionToLocalHostOnRestoreTab.Visible = !_connectedToRemoteServer;
         }
 
-        private void label6_Click(object sender, EventArgs e)
+        private void buttonDisconnectFromLocalHostOnRestoreTab_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void label7_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox5_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox6_TextChanged(object sender, EventArgs e)
-        {
-
+            Disconnect();
         }
 
         private void buttonDisconnectFromServerOnRestoreTab_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
+            Disconnect();
         }
     }
 }

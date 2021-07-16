@@ -9,7 +9,7 @@ namespace UtilClasses.ProgramOptionsClasses
 {
     public class IniFileClass
     {
-        public ProgramOptions Options { get; } = new ProgramOptions();
+        public ProgramOptions Options { get; } = new();
 
         private readonly IniFile _iniFileObj;
 
@@ -30,26 +30,26 @@ namespace UtilClasses.ProgramOptionsClasses
             if (!_iniFileObj.KeyExists("PathHistorysRoot", "Paths"))
             {
                 _iniFileObj.Write("PathHistorysRoot", "", "Paths");
-                this.Options.RepositoryPath = "";
+                Options.RepositoryPath = "";
             }
             else
             {
-                this.Options.RepositoryPath = _iniFileObj.Read("PathHistorysRoot", "Paths");
+                Options.RepositoryPath = _iniFileObj.Read("PathHistorysRoot", "Paths");
             }
 
         }
 
         private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
-            e.ProgramOptions.Copy(this.Options);
+            e.ProgramOptions.Copy(Options);
             
-            UpdateOptionsInIniFile(this.Options);
+            UpdateOptionsInIniFile(Options);
 
         }
 
         public ProgramOptions GetOptions()
         {
-            return this.Options.Clone();
+            return Options.Copy();
         }
 
 
@@ -76,12 +76,12 @@ namespace UtilClasses.ProgramOptionsClasses
 
         public void Copy(ProgramOptions anotherOptions)
         {
-            anotherOptions.RepositoryPath = this.RepositoryPath;
+            anotherOptions.RepositoryPath = RepositoryPath;
         }
 
-        public ProgramOptions Clone()
+        public ProgramOptions Copy()
         {
-            return new(this.RepositoryPath);
+            return new(RepositoryPath);
         }
 
 

@@ -121,12 +121,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public RemoteConnection(string addr, string domen, string userId)
         {
-            _addr = addr;
+            
             _domen = domen;
             _userId = userId;
         }
-       
-       
+
+        public RemoteConnection(string addr)
+        {
+            _addr = addr; ;
+        }
     }
 
 
