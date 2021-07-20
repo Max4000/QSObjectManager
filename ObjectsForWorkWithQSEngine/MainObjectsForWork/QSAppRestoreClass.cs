@@ -15,7 +15,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private NameAndIdPair _selectedApp;
 
+        private RestoreInfo _restoreInfo =new ();
+
         /// <summary>
+        // ReSharper disable once CommentTypo
         /// Читает все txt файлы в репозитарии
         /// и возвращает список пар коротких имен файлов и их полных идентификаторов
         /// </summary>
@@ -34,7 +37,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return lstResult;
         }
 
-        public QsAppRestoreClass(IProgramOptionsEvent optionsEvent , IConnectionStatusInfoEvent connectionEvent, ISelectAppEvent selectAppEvent )
+        public QsAppRestoreClass(IProgramOptionsEvent optionsEvent , IConnectionStatusInfoEvent connectionEvent, ISelectAppEvent selectAppEvent , IRestoreInfoEvent restoreEvent)
         {
             IProgramOptionsEvent programOptionsEvent = optionsEvent;
             programOptionsEvent.NewProgramOptionsSend += NewProgramOptionsSendReceive;
@@ -46,11 +49,20 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             selectApp.NewAppSelectedSend += NewAppSelectedReceive;
 
+            IRestoreInfoEvent restoreInfoEvent = restoreEvent;
+
+            restoreInfoEvent.NewRestoreInfoSend += NewRestoreInfoReceived;
+
+        }
+
+        private void NewRestoreInfoReceived(object sender, RestoreInfoEventArgs e)
+        {
+            e.RestoreInfo.Copy(_restoreInfo);
         }
 
         private void NewAppSelectedReceive(object sender, SelectedAppEventArgs e)
         {
-            this._selectedApp = e.SlectedApp.Copy();
+            this._selectedApp = e.SelectedApp.Copy();
         }
 
         private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
@@ -129,14 +141,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     {
                         switch (nodeProperty.Name)
                         {
-                            //case "name":
-                            //{
-                            //    break;
-                            //}
-                            //case "id":
-                            //{
-                            //    break;
-                            //}
+                            
                             case "stories":
                             {
                                 XmlNode stories = nodeProperty;
@@ -178,12 +183,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     public class SelectedAppEventArgs : EventArgs
     {
 
-        public readonly NameAndIdPair SlectedApp;
+        public readonly NameAndIdPair SelectedApp;
 
         //Конструкторы
         public SelectedAppEventArgs(NameAndIdPair record)
         {
-            SlectedApp = record;
+            SelectedApp = record;
         }
     }
 
@@ -193,4 +198,51 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     }
 
     public delegate void NewAppSelectedHandler(object sender, SelectedAppEventArgs e);
+
+    
+    public class RestoreInfo
+    {
+        public NameAndIdPair SelectedApp;
+        public IList<NameAndIdPair> SelectedStories;
+
+        public RestoreInfo(NameAndIdPair selectedApp, IList<NameAndIdPair> selectedStories)
+        {
+            SelectedApp = selectedApp;
+            SelectedStories = selectedStories;
+        }
+
+        public RestoreInfo()
+        {
+
+        }
+        public void Copy(RestoreInfo anotherWriteInfo)
+        {
+            anotherWriteInfo.SelectedApp = SelectedApp.Copy();
+            anotherWriteInfo.SelectedStories = new List<NameAndIdPair>();
+            foreach (var story in this.SelectedStories)
+            {
+                anotherWriteInfo.SelectedStories.Add(story.Copy());
+            }
+        }
+
+    }
+
+    public class RestoreInfoEventArgs : EventArgs
+    {
+
+        public readonly RestoreInfo RestoreInfo;
+
+        //Конструкторы
+        public RestoreInfoEventArgs(RestoreInfo record)
+        {
+            RestoreInfo = record;
+        }
+    }
+
+    public interface IRestoreInfoEvent
+    {
+        event NewRsstoreInfosHandler NewRestoreInfoSend;
+    }
+
+    public delegate void NewRsstoreInfosHandler(object sender, RestoreInfoEventArgs e);
 }

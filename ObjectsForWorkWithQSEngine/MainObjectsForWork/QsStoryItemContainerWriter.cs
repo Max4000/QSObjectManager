@@ -1,20 +1,21 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
 using Qlik.Sense.Client.Storytelling;
-using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 
 #pragma warning disable CS0618
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsStoryItemContainer
+    public class QsStoryItemContainerWriter
     {
         public ProgramOptions Options { get; } = new();
         public StoryItemInfo ItemInfo = new();
-        public QsStoryItemContainer(IProgramOptionsEvent programOptionsEvent, IWriteStoryItemToDisk writeStoryItem)
+        public DeleteItemFromDiskInfo  DeleteItem= new ();
+        public QsStoryItemContainerWriter(IProgramOptionsEvent programOptionsEvent, IWriteStoryItemToDisk writeStoryItem,IDeleteInfoFromDisk deleteInfoFromDisk)
         {
             
             IProgramOptionsEvent programopt = programOptionsEvent;
@@ -25,6 +26,24 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             storyItem.NewStoryItemToDiskSend += NewWriteStoryItemToDiskReseive;
 
+            IDeleteInfoFromDisk deleteInfo = deleteInfoFromDisk;
+
+            deleteInfo.NewDeleteItemFromDiskSend += NewDeleteItemFromDiskReseieved;
+
+        }
+
+        private void NewDeleteItemFromDiskReseieved(object sender, DeleteItemFromDiskEventArgs e)
+        {
+            e.DeleteInfo.Copy(DeleteItem);
+            DoDelete();
+        }
+
+        public void DoDelete()
+        {
+            foreach (var file in Directory.GetFiles(DeleteItem.ItemFolder))
+            {
+                File.Delete(file);
+            }
         }
 
         private void NewWriteStoryItemToDiskReseive(object sender, StoryItemInfoEventArgs e)
@@ -62,132 +81,59 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 xmlWriter.WriteStartElement("properties");
 
-                    xmlWriter.WriteStartElement("item");
+                    
+                    Utils.PrintStructureToFile("item", "Data", "SlideObjectView", "Data.json", xmlWriter,
+                        fileData, ItemInfo.Container.Data);
+                    
+                    Utils.PrintStructureToFile("item", "INxContainerEntry.Info", "NxInfo", "INxContainerEntry.Info.json", xmlWriter,
+                        fileInfo, ItemInfo.Container.Info);
 
-                        xmlWriter.WriteAttributeString("id", "Data");
-                        xmlWriter.WriteAttributeString("Type", "SlideObjectView");
-                        xmlWriter.WriteAttributeString("name", "Data.json");
+                    Utils.PrintStructureToFile("item", "INxContainerEntry.Meta", "NxMeta", "INxContainerEntry.Meta.json", xmlWriter,
+                        fileMeta, ItemInfo.Container.Meta);
 
-                        WriteDataToFile(fileData);
+                //xmlWriter.WriteEndElement();
 
-                    xmlWriter.WriteEndElement();
 
-                    xmlWriter.WriteStartElement("item");
-
-                        xmlWriter.WriteAttributeString("id", "INxContainerEntry.Info");
-                        xmlWriter.WriteAttributeString("Type", "NxInfo");
-                        xmlWriter.WriteAttributeString("name", "INxContainerEntry.Info.json");
-
-                        WriteInfoToFile(fileInfo);
-
-                    xmlWriter.WriteEndElement();
-
-                    xmlWriter.WriteStartElement("item");
-
-                        xmlWriter.WriteAttributeString("id", "INxContainerEntry.Meta");
-                        xmlWriter.WriteAttributeString("Type", "NxMeta");
-                        xmlWriter.WriteAttributeString("name", "INxContainerEntry.Meta.json");
-
-                        WriteMetaToFile(fileMeta);
-
-                    xmlWriter.WriteEndElement();
-
-                xmlWriter.WriteEndElement();//item
+            xmlWriter.WriteEndElement();//item
 
             ISlide slide = ItemInfo.Story.GetSlide(ItemInfo.Id);
 
             xmlWriter.WriteStartElement("slide");
 
                 xmlWriter.WriteStartElement("properties");
+                    
+                    Utils.CreateElement("item", "Rank", "float", slide.Layout.Rank.ToString(CultureInfo.InvariantCulture), xmlWriter);
 
-                    xmlWriter.WriteStartElement("item");
+                    string pathToFileNxInfo = itemPath + "\\" + "ISlide.NxInfo.json";
+                    
+                    Utils.PrintStructureToFile("item", "NxInfo", "NxInfo", "ISlide.NxInfo.json", xmlWriter,
+                        pathToFileNxInfo, ItemInfo.Container.Info);
 
-                        xmlWriter.WriteAttributeString("id", "Rank");
-                        xmlWriter.WriteAttributeString("Type", "float");
-                        xmlWriter.WriteAttributeString("name", slide.Layout.Rank.ToString(CultureInfo.InvariantCulture));
+                    string pathToFileNxMeta = itemPath + "\\" + "ISlide.NxMeta.json";
 
-                    xmlWriter.WriteEndElement();
+                    Utils.PrintStructureToFile("item", "NxMeta", "NxMeta", "ISlide.NxMeta.json", xmlWriter,
+                        pathToFileNxMeta, slide.Layout.Meta);
 
-                    xmlWriter.WriteStartElement("item");
+                    string pathToFileNxLayoutErrors = itemPath + "\\" + "ISlide.NxLayoutErrors.json";
+                    
+                    Utils.PrintStructureToFile("item", "NxLayoutErrors", "NxLayoutErrors", "ISlide.NxLayoutErrors.json", xmlWriter,
+                        pathToFileNxLayoutErrors, slide.Layout.Error);
 
-                        xmlWriter.WriteAttributeString("id", "NxInfo");
-                        xmlWriter.WriteAttributeString("Type", "NxInfo");
-                        xmlWriter.WriteAttributeString("name", "ISlide.NxInfo.json");
+                    Utils.CreateElement("item", "NxSelectionInfo.InSelections", "bool", slide.Layout.SelectionInfo.InSelections.ToString(), xmlWriter);
+                    
+                    Utils.CreateElement("item", "NxSelectionInfo.MadeSelections", "bool", slide.Layout.SelectionInfo.MadeSelections.ToString(), xmlWriter);
 
-                        string pathToFileNxInfo = itemPath + "\\" + "ISlide.NxInfo.json" ;
-
-                        WriteSlideNxInfoToFile(pathToFileNxInfo, slide);
-
-
-                    xmlWriter.WriteEndElement();
-
-                    xmlWriter.WriteStartElement("item");
-
-                        xmlWriter.WriteAttributeString("id", "NxMeta");
-                        xmlWriter.WriteAttributeString("Type", "NxMeta");
-                        xmlWriter.WriteAttributeString("name", "ISlide.NxMeta.json");
-
-                        string pathToFileNxMeta = itemPath + "\\" + "ISlide.NxMeta.json" ;
-
-                        WriteSlideNxMetaToFile(pathToFileNxMeta, slide);
+                    string pathToFileLayout = itemPath + "\\" + "ISlide.Layout.json";
+                    
+                    Utils.PrintStructureToFile("item", "Layout", "SlideLayout", "ISlide.Layout.json", xmlWriter,
+                        pathToFileLayout, slide.Layout);
 
 
-                    xmlWriter.WriteEndElement();
+                    string pathToFileProperties = itemPath + "\\" + "ISlide.Properties.json";
 
-                    xmlWriter.WriteStartElement("item");
+                    Utils.PrintStructureToFile("item", "slide.Properties.ChildListDef", "SlideChildListDef", "ISlide.Properties.json", xmlWriter,
+                        pathToFileProperties, slide.Properties);
 
-                        xmlWriter.WriteAttributeString("id", "NxLayoutErrors");
-                        xmlWriter.WriteAttributeString("Type", "NxLayoutErrors");
-                        xmlWriter.WriteAttributeString("name", "ISlide.NxLayoutErrors.json");
-
-                        string pathToFileNxLayoutErrors = itemPath + "\\" + "ISlide.NxLayoutErrors.json" ;
-
-                        WriteSlideNxLayoutErrorsToFile(pathToFileNxLayoutErrors, slide);
-
-
-                    xmlWriter.WriteEndElement();
-
-                    xmlWriter.WriteStartElement("item");
-
-                        xmlWriter.WriteAttributeString("id", "NxSelectionInfo.InSelections");
-                        xmlWriter.WriteAttributeString("Type", "bool");
-                        xmlWriter.WriteAttributeString("name", slide.Layout.SelectionInfo.InSelections.ToString());
-
-
-                    xmlWriter.WriteEndElement();
-
-                    xmlWriter.WriteStartElement("item");
-
-                        xmlWriter.WriteAttributeString("id", "NxSelectionInfo.MadeSelections");
-                        xmlWriter.WriteAttributeString("Type", "bool");
-                        xmlWriter.WriteAttributeString("name", slide.Layout.SelectionInfo.MadeSelections.ToString());
-
-
-                    xmlWriter.WriteEndElement();
-
-                    xmlWriter.WriteStartElement("item");
-
-                        xmlWriter.WriteAttributeString("id", "Layout");
-                        xmlWriter.WriteAttributeString("Type", "SlideLayout");
-                        xmlWriter.WriteAttributeString("name", "ISlide.Layout.json");
-
-                        string pathToFileLayout = itemPath + "\\" + "ISlide.Layout.json";
-
-                        WriteSlideLayoutToFile(pathToFileLayout, slide);
-
-                    xmlWriter.WriteEndElement();
-
-                    xmlWriter.WriteStartElement("item");
-
-                        xmlWriter.WriteAttributeString("id", "slide.Properties.ChildListDef");
-                        xmlWriter.WriteAttributeString("Type", "SlideChildListDef");
-                        xmlWriter.WriteAttributeString("name", "ISlide.Properties.json");
-
-                        string pathToFileProperties = itemPath + "\\" + "ISlide.Properties.json";
-
-                        WriteSlidePropertiesChildListDefToFile(pathToFileProperties, slide);
-
-                    xmlWriter.WriteEndElement();
 
                 xmlWriter.WriteEndElement();
             
@@ -201,6 +147,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
+/*
         private void WriteSlidePropertiesChildListDefToFile(string fileData, ISlide slide)
         {
             if (slide.Properties != null)
@@ -222,7 +169,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 propertyFile.Writer.Close();
             }
         }
+*/
 
+/*
         private void WriteSlideLayoutToFile(string fileData, ISlide slide)
         {
             if (slide.Layout != null)
@@ -244,7 +193,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 propertyFile.Writer.Close();
             }
         }
+*/
 
+/*
         private void WriteSlideNxLayoutErrorsToFile(string fileData, ISlide slide)
         {
             if (slide.Layout.Error != null)
@@ -266,6 +217,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 propertyFile.Writer.Close();
             }
         }
+*/
+/*
         private void WriteSlideNxMetaToFile(string fileData, ISlide slide)
         {
             if (slide.Layout.Meta != null)
@@ -280,8 +233,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             }
         }
+*/
 
 
+/*
         private void WriteSlideNxInfoToFile(string fileData ,ISlide slide)
         {
             if (slide.Layout.Info != null)
@@ -296,7 +251,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             }
         }
+*/
         
+/*
         private void WriteMetaToFile(string fileData)
         {
             if (ItemInfo.Container != null)
@@ -313,7 +270,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             }
         }
+*/
 
+/*
         private void WriteDataToFile(string fileData)
         {
             if (ItemInfo.Container != null)
@@ -330,7 +289,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             }
         }
+*/
 
+/*
         private void WriteInfoToFile(string fileData)
         {
             if (ItemInfo.Container != null)
@@ -347,6 +308,37 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             }
         }
+*/
 
     }
+
+    public class DeleteItemFromDiskInfo
+    {
+        public string ItemFolder;
+        
+        public void Copy(DeleteItemFromDiskInfo anotherInfo)
+        {
+            anotherInfo.ItemFolder = ItemFolder;
+        }
+    }
+
+    public class DeleteItemFromDiskEventArgs : EventArgs
+    {
+
+        public readonly DeleteItemFromDiskInfo DeleteInfo;
+
+        //Конструкторы
+        public DeleteItemFromDiskEventArgs(DeleteItemFromDiskInfo record)
+        {
+            DeleteInfo = record;
+        }
+    }
+
+    public interface IDeleteInfoFromDisk
+    {
+        event NewIDeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
+    }
+
+    public delegate void NewIDeleteInfoFromDisktHandler(object sender, DeleteItemFromDiskEventArgs e);
+
 }

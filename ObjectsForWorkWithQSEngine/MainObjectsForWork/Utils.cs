@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Xml;
 using Qlik.Engine;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
+using UtilClasses;
 
 #pragma warning disable 618
 
@@ -67,6 +69,41 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             return app?.GetStory(storeId);
 
+        }
+
+        public static void CreateElement(string nameOfElement, string id, string type, string name, XmlTextWriter xmlTextWriter)
+        {
+            xmlTextWriter.WriteStartElement(nameOfElement);
+
+            xmlTextWriter.WriteAttributeString("id", id);
+            xmlTextWriter.WriteAttributeString("Type", type);
+            xmlTextWriter.WriteAttributeString("name", name);
+
+
+            xmlTextWriter.WriteEndElement();
+        }
+
+
+        public static void PrintStructureToFile(string nameOfElement, string id, string type, string name, XmlTextWriter xmlTextWriter, string fileName, IAbstractStructure abstractStructure)
+        {
+            CreateElement(nameOfElement, id, type, name, xmlTextWriter);
+
+            if (abstractStructure != null)
+            {
+                string json = abstractStructure.PrintStructure(Newtonsoft.Json.Formatting.Indented);
+
+                using var propertyFile = new AppEntryWriter(fileName);
+
+                propertyFile.Writer.Write(json);
+                propertyFile.Writer.Close();
+            }
+            else
+            {
+                using var propertyFile = new AppEntryWriter(fileName);
+
+                propertyFile.Writer.Write("");
+                propertyFile.Writer.Close();
+            }
         }
     }
 

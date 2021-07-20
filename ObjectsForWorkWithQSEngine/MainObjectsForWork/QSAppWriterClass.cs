@@ -8,7 +8,7 @@ using UtilClasses.ServiceClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsAppWriterClass : IProgramOptionsEvent , IConnectionStatusInfoEvent, IWriteStoryToDiskt,IDeleteStoryFromDisk
+    public class QsAppWriterClass : IProgramOptionsEvent , IConnectionStatusInfoEvent, IWriteStoryToDisk,IDeleteStoryFromDisk
     {
         private readonly WriteInfo _wrtWriteInfo = new();
         public ProgramOptions Options { get; } = new();
@@ -17,7 +17,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private XmlTextWriter _xmlWriter;
 
-        public QsStory Story { get; }
+        public QsStoryWriter StoryWriter { get; }
 
         public event NewProgramOptionsHandler NewProgramOptionsSend;
         public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
@@ -85,7 +85,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             obj3.NewConnectionStatusInfoSend += NewConnectionStatusInfoReceived;
 
-            Story = new QsStory(this, this,this,this);
+            StoryWriter = new QsStoryWriter(this, this,this,this);
 
         }
 
@@ -102,7 +102,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 foreach (var dir in Directory.GetDirectories(storiesFolder))
                 {
-                    OnNewStoryDeleteFromDisk(new DeleteStorisFromAppArgs(new DeleteStorisFromAppRecordInfo()
+
+                    OnNewStoryDeleteFromDisk(new DeleteStorisFromAppArgs(new DeleteStoryFromAppRecordInfo()
                         {CurrentAppFolder = appFolder, CurrentStoreFolder = dir}));
 
                     Directory.Delete(dir);
@@ -176,7 +177,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                 {
                                     StoreFolder = Path.GetFileNameWithoutExtension(fileXml),
                                     CurrentApp = _wrtWriteInfo.SelectedApp.Copy(),
-                                    CuurentStory = story.Copy(),
+                                    CurrentStory = story.Copy(),
                                     CurrentXmlTextWriter = _xmlWriter
                                 };
 

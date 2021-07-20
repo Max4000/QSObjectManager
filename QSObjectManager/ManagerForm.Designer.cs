@@ -414,6 +414,7 @@ namespace QSObjectManager
             this.buttonRestoreHistoryOnRestoreTab.TabIndex = 7;
             this.buttonRestoreHistoryOnRestoreTab.Text = "Восстановить истории";
             this.buttonRestoreHistoryOnRestoreTab.UseVisualStyleBackColor = true;
+            this.buttonRestoreHistoryOnRestoreTab.Click += new System.EventHandler(this.buttonRestoreHistoryOnRestoreTab_Click);
             // 
             // groupConnectionOnRestoreTab
             // 
@@ -589,6 +590,7 @@ namespace QSObjectManager
             this.listBoxHistorysInStoreOnRestoreTab.ItemHeight = 15;
             this.listBoxHistorysInStoreOnRestoreTab.Location = new System.Drawing.Point(3, 19);
             this.listBoxHistorysInStoreOnRestoreTab.Name = "listBoxHistorysInStoreOnRestoreTab";
+            this.listBoxHistorysInStoreOnRestoreTab.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.listBoxHistorysInStoreOnRestoreTab.Size = new System.Drawing.Size(491, 184);
             this.listBoxHistorysInStoreOnRestoreTab.TabIndex = 0;
             // 

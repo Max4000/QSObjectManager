@@ -6,7 +6,7 @@ using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
 {
-    public partial class ManagerForm : Form, IProgramOptionsEvent, IWriteInfoEvent, IConnectionStatusInfoEvent, ISelectAppEvent
+    public partial class ManagerForm : Form, IProgramOptionsEvent, IWriteInfoEvent, IConnectionStatusInfoEvent, ISelectAppEvent,IRestoreInfoEvent
     {
         private IConnect _locationObject;
         private IList<NameAndIdPair> _lstApp;
@@ -31,6 +31,7 @@ namespace QSObjectManager
         public event NewWriterInfosHandler NewWriteInfoSend;
         public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
         public event NewAppSelectedHandler NewAppSelectedSend;
+        public event NewRsstoreInfosHandler NewRestoreInfoSend;
 
         private bool _connectedToLocalServer;
         private bool _connectedToRemoteServer;
@@ -38,6 +39,12 @@ namespace QSObjectManager
         public ManagerForm()
         {
             InitializeComponent();
+        }
+
+        public void OnNewRestoreInfo(RestoreInfoEventArgs e)
+        {
+            if (NewRestoreInfoSend != null)
+                NewRestoreInfoSend(this, e);
         }
 
         public void OnNewOptions(ProgramOptionsEventArgs e)
@@ -246,7 +253,7 @@ namespace QSObjectManager
 
             textBoxHistoryPath.Text = _programOptions.RepositoryPath;
 
-            _qsAppRestoreObject = new QsAppRestoreClass(this,this,this);
+            _qsAppRestoreObject = new QsAppRestoreClass(this,this,this,this);
             
             QsAppWriter = new QsAppWriterClass(this, this,this);
 
@@ -326,6 +333,7 @@ namespace QSObjectManager
             if (listBoxAppsInStoreOnRestoreTab != null) listBoxAppsInStoreOnRestoreTab.Items.Clear();
             if (listBoxHistorysInStoreOnRestoreTab != null) listBoxHistorysInStoreOnRestoreTab.Items.Clear();
             _selectedIndexAppInStore = -1;
+            Disconnect();
         }
 
         private void listBoxAppsInStore_SelectedIndexChanged(object sender, EventArgs e)
@@ -431,6 +439,26 @@ namespace QSObjectManager
         private void buttonDisconnectFromServerOnRestoreTab_Click(object sender, EventArgs e)
         {
             Disconnect();
+        }
+
+        private void buttonRestoreHistoryOnRestoreTab_Click(object sender, EventArgs e)
+        {
+            if (!(_locationObject != null && listBoxHistorysInStoreOnRestoreTab.SelectedIndices.Count > 0))
+                return;
+
+            IList<NameAndIdPair> listStoryNames = new List<NameAndIdPair>();
+
+            foreach (var item in listBoxHistorysInStoreOnRestoreTab.SelectedIndices)
+            {
+                var ts = item is int i ? i : -1;
+
+                if (ts >= 0)
+                {
+                    listStoryNames.Add(new NameAndIdPair(_lstStorysInStore[ts].Name, _lstStorysInStore[ts].Id));
+                }
+            }
+
+            OnNewRestoreInfo(new RestoreInfoEventArgs(new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames)));
         }
     }
 }
