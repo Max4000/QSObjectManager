@@ -10,7 +10,7 @@ using UtilClasses.ProgramOptionsClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsStoryRestorer :IProgramOptionsEvent, IConnectionStatusInfoEvent, IRestoreInfoEvent, IRestoreSlideInfoFromDisk
+    public class QsStoryRestorer : IRestoreSlideInfoFromDisk
     {
         public ProgramOptions Options { get; } = new();
         private IConnect _location;
@@ -21,11 +21,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         private QsStoryItemContainerRestorer QsStoryItemContainerRestorer { get; } 
 
-
-
-        public event NewProgramOptionsHandler NewProgramOptionsSend;
-        public event NewRestoreInfoHandler NewRestoreInfoSend;
-        public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
+        
         public event NewRestoreSlideInfoFromDiskHandler NewRestoreSlideInfoFromDiskSend;
 
         public QsStoryRestorer(IProgramOptionsEvent programOptions,
@@ -47,7 +43,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             story.NewRestoreStoryFromDiskSend += NewRestoreStoryFromDiskReceived;
 
-            QsStoryItemContainerRestorer = new QsStoryItemContainerRestorer(this, this, this,this);
+            QsStoryItemContainerRestorer = new QsStoryItemContainerRestorer(this);
 
         }
 
@@ -66,11 +62,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private void DoRestore()
         {
 
-            IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreStoryFromDiskInfo.CurrentApp.Id);
+            //IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreStoryFromDiskInfo.CurrentApp.Id);
 
-            var app = _location.GetConnection().App(appId);
+            //var app = _location.GetConnection().App(appId);
             
-            app?.DestroyGenericObject(_restoreStoryFromDiskInfo.CurrentStory.Id);
+            _restoreStoryFromDiskInfo.App.DestroyGenericObject(_restoreStoryFromDiskInfo.CurrentStory.Id);
 
             MetaAttributesDef metaAttributes =
                 JsonConvert.DeserializeObject<MetaAttributesDef>(
@@ -96,7 +92,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             
             mStory.Set("thumbnail", thumbail);
 
-            IStory story1 = app?.CreateStory(_restoreStoryFromDiskInfo.CurrentStory.Id, mStory);
+            IStory currentStory = _restoreStoryFromDiskInfo.App.CreateStory(_restoreStoryFromDiskInfo.CurrentStory.Id, mStory);
 
             #region Пока скрыто
 
@@ -135,7 +131,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                         {
                                             FullPathToSlideFolder = _restoreStoryFromDiskInfo.StoryFolder + "\\" + slideFolder,
                                             SlideFolder = slideFolder,
-                                            Story = story1
+                                            Story = currentStory
                                         };
 
                                         OnNewRestoreSlideInfoFromDisk(new RestoreSlideInfoEventArgs(restInfo));
@@ -148,7 +144,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 }
 
-            app?.SaveAs("Rtx");
+            //app?.SaveAs("Rtx");
             
         }
 
@@ -156,43 +152,32 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         {
             e.RestoreInfo.Copy(_restoreInfo);
 
-            OnNewRestoreInfoReceived(e);
+           
         }
 
-        private void OnNewRestoreInfoReceived(RestoreInfoEventArgs e)
-        {
-            if (NewRestoreInfoSend != null)
-                NewRestoreInfoSend(this, e);
-        }
+        
 
 
         private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
             e.ConnectionStatusInfo.Copy(ref _location);
-            OnNewConnectionStatusInfo(e);
+           
         }
 
-        public void OnNewConnectionStatusInfo(ConnectionStatusInfoEventArgs e)
-        {
-            if (NewConnectionStatusInfoSend != null)
-                NewConnectionStatusInfoSend(this, e);
-        }
+        
 
         private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(Options);
-            OnNewOptions(e);
+           
         }
 
-        public void OnNewOptions(ProgramOptionsEventArgs e)
-        {
-            if (NewProgramOptionsSend != null)
-                NewProgramOptionsSend(this, e);
-        }
+        
     }
 
     public class RestoreStoryFromDiskInfo
     {
+        public IApp App;
         public NameAndIdPair CurrentApp;
         public NameAndIdPair CurrentStory;
         public string StoryFolder;
@@ -200,6 +185,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public void Copy(RestoreStoryFromDiskInfo anotherInfo)
         {
+            anotherInfo.App = App;
             anotherInfo.CurrentApp = CurrentApp.Copy();
             anotherInfo.CurrentStory = CurrentStory.Copy();
             anotherInfo.StoryFolder = StoryFolder;

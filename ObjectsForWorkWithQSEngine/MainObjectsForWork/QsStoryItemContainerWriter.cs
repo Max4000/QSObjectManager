@@ -258,58 +258,71 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 
                     xmlWriterItem.WriteStartElement("Properties");
 
+                        #region GenericObjectProperties
+
+                            Utils.PrintStructureToFile("itemprop", "Info",
+                                "NxInfo", "Info.json", xmlWriterItem,
+                                itemPathFolder + "\\" + "Info.json", slideItem.Properties.Info);
+
+                            Utils.CreateElement("itemprop", "ExtendsId", "string",
+                                slideItem.Properties.ExtendsId, xmlWriterItem);
+
+
+                            Utils.PrintStructureToFile("itemprop", "MetaDef",
+                                "NxMetaDef", "MetaDef.json", xmlWriterItem,
+                                itemPathFolder + "\\" + "MetaDef.json", slideItem.Properties.MetaDef);
+
+                            Utils.CreateElement("itemprop", "StateName", "string",
+                                slideItem.Properties.StateName, xmlWriterItem);
+
+                        #endregion
+
                         Utils.CreateElement("itemprop", "id", "string",
                         slideItem.Id, xmlWriterItem);
 
-                        Utils.CreateElement("itemprop", "Title", "string",
-                            slideItem.Properties.Title, xmlWriterItem);
-                        
-                        Utils.CreateElement("itemprop", "Ratio", "bool",
-                            slideItem.Properties.Ratio.ToString(), xmlWriterItem);
-                
-                        string position = itemPathFolder + "\\" + "Position.json";
+                        #region SlideItemProperties
 
-                        Utils.PrintStructureToFile("itemprop", "Position",
-                            "SlidePosition", "Position.json", xmlWriterItem,
-                            position, slideItem.Properties.Position);
+                            Utils.CreateElement("itemprop", "Title", "string",
+                                slideItem.Layout.Title, xmlWriterItem);
+                            
+                            Utils.CreateElement("itemprop", "Ratio", "bool",
+                                slideItem.Layout.Ratio.ToString(), xmlWriterItem);
+                            
+                            Utils.PrintStructureToFile("itemprop", "Position",
+                                "SlidePosition", "Position.json", xmlWriterItem,
+                                itemPathFolder + "\\" + "Position.json", slideItem.Layout.Position);
 
-                        Utils.CreateElement("itemprop", "DataPath", "string",
-                            slideItem.Properties.DataPath, xmlWriterItem);
+                            Utils.CreateElement("itemprop", "DataPath", "string",
+                                slideItem.Layout.DataPath, xmlWriterItem);
 
-                        string srcPath = itemPathFolder + "\\" + "SrcPath.json";
+                            Utils.PrintStructureToFile("itemprop", "SrcPath",
+                                "StaticContentUrlContainerDef", "SrcPath.json", xmlWriterItem,
+                                //itemPathFolder + "\\" + "SrcPath.json", slideItem.Properties.SrcPath);
+                                itemPathFolder + "\\" + "SrcPath.json", slideItem.Layout.SrcPath);
 
-                        Utils.PrintStructureToFile("itemprop", "SrcPath",
-                            "StaticContentUrlContainerDef", "SrcPath.json", xmlWriterItem,
-                            srcPath, slideItem.Properties.Position);
-                        
-                        Utils.CreateElement("itemprop", "Visualization", "string",
-                            slideItem.Properties.Visualization, xmlWriterItem);
+                            Utils.CreateElement("itemprop", "Visualization", "string",
+                                slideItem.Layout.Visualization, xmlWriterItem);
 
-                        Utils.CreateElement("itemprop", "VisualizationType", "string",
-                            slideItem.Properties.VisualizationType, xmlWriterItem);
+                            Utils.CreateElement("itemprop", "VisualizationType", "string",
+                                slideItem.Layout.VisualizationType, xmlWriterItem);
 
-                        string style = itemPathFolder + "\\" + "Style.json";
+                            Utils.PrintStructureToFile("itemprop", "Style",
+                                "SlideStyle", "Style.json", xmlWriterItem,
+                                itemPathFolder + "\\" + "Style.json", slideItem.Layout.Style);
 
-                        Utils.PrintStructureToFile("itemprop", "Style",
-                            "SlideStyle", "Style.json", xmlWriterItem,
-                            style, slideItem.Properties.Style);
+                            Utils.CreateElement("itemprop", "SheetId", "string",
+                                slideItem.Layout.SheetId, xmlWriterItem);
 
-                        Utils.CreateElement("itemprop", "SheetId", "string",
-                            slideItem.Properties.SheetId, xmlWriterItem);
+                            Utils.PrintStructureToFile("itemprop", "SelectionState",
+                                "SelectionState", "SelectionState.json", xmlWriterItem,
+                                itemPathFolder + "\\" + "SelectionState.json", slideItem.Layout.SelectionState);
 
-                        string selectionState = itemPathFolder + "\\" + "SelectionState.json";
+                            Utils.PrintStructureToFile("itemprop", "EmbeddedSnapshotDef",
+                                "SnapshotProperties", "EmbeddedSnapshotDef.json", xmlWriterItem,
+                                itemPathFolder + "\\" + "EmbeddedSnapshotDef.json", 
+                                slideItem.Layout.EmbeddedSnapshotDef);
+                        #endregion
 
-                        Utils.PrintStructureToFile("itemprop", "SelectionState",
-                            "SelectionState", "SelectionState.json", xmlWriterItem,
-                            selectionState, slideItem.Properties.SelectionState);
-
-                        string embeddedSnapshotDef = itemPathFolder + "\\" + "EmbeddedSnapshotDef.json";
-
-                        Utils.PrintStructureToFile("itemprop", "EmbeddedSnapshotDef",
-                            "SnapshotProperties", "EmbeddedSnapshotDef.json", xmlWriterItem,
-                            embeddedSnapshotDef, slideItem.Properties.EmbeddedSnapshotDef);
-                        
-                
                     xmlWriterItem.WriteEndElement();
                 
                 xmlWriterItem.WriteEndElement();

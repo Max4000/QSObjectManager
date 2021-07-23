@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
+using Qlik.Engine;
 using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
@@ -25,7 +26,7 @@ namespace QSObjectManager
 
         public QsAppWriterClass QsAppWriter { get; private set; }
 
-        private bool _iSconnected;
+        private bool _isConnected;
 
         public event NewProgramOptionsHandler NewProgramOptionsSend;
         public event NewWriterInfosHandler NewWriteInfoSend;
@@ -35,6 +36,9 @@ namespace QSObjectManager
 
         private bool _connectedToLocalServer;
         private bool _connectedToRemoteServer;
+
+        private IApp _app;
+
 
         public ManagerForm()
         {
@@ -113,26 +117,36 @@ namespace QSObjectManager
         {
             if (_locationObject.IsConnected())
             {
-                _lstApp = Utils.GetApps(_locationObject.GetConnection());
-
-                ListBoxAppsFromDevHub.Items.Clear();
-
-                foreach (var app in _lstApp)
+                try
                 {
-                    ListBoxAppsFromDevHub.Items.Add(app);
+
+                    _lstApp = Utils.GetApps(_locationObject.GetConnection());
+
+                    ListBoxAppsFromDevHub.Items.Clear();
+
+                    foreach (var app in _lstApp)
+                    {
+                        ListBoxAppsFromDevHub.Items.Add(app);
+                    }
+
+
+                    SetVisibleLists(true);
+
+                    _isConnected = true;
+
+                    buttonDisconnectFromLoacalHub.Visible = _isConnected;
+                    buttonDisconnectFromServer.Visible = _isConnected;
+                    buttonConnectToLocalHub.Visible = false;
+                    buttonConnectToServer.Visible = false;
+
+                    OnNewConnectioStatusInfo(
+                        new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
                 }
-
-
-                SetVisibleLists(true);
-
-                _iSconnected = true;
-
-                buttonDisconnectFromLoacalHub.Visible = _iSconnected;
-                buttonDisconnectFromServer.Visible = _iSconnected;
-                buttonConnectToLocalHub.Visible = false;
-                buttonConnectToServer.Visible = false;
-
-                OnNewConnectioStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
+                catch (Exception)
+                {
+                    ShowMessageForm("Проверьте условия подключения к Dev Hub", "Ошибка");
+                    _locationObject.Disconnect();
+                }
             }
 
         }
@@ -196,15 +210,15 @@ namespace QSObjectManager
             OnNewConnectioStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
 
             SelectedIpp = -1;
-            _iSconnected = false;
+            _isConnected = false;
             
             buttonConnectToLocalHub.Visible = true;
             buttonConnectToServer.Visible = true;
-            buttonDisconnectFromLoacalHub.Visible = _iSconnected;
-            buttonDisconnectFromServer.Visible = _iSconnected;
+            buttonDisconnectFromLoacalHub.Visible = _isConnected;
+            buttonDisconnectFromServer.Visible = _isConnected;
 
-            buttonDisconnectFromLocalHostOnRestoreTab.Visible = _iSconnected;
-            buttonDisconnectFromServerOnRestoreTab.Visible = _iSconnected;
+            buttonDisconnectFromLocalHostOnRestoreTab.Visible = _isConnected;
+            buttonDisconnectFromServerOnRestoreTab.Visible = _isConnected;
             
             buttonConnectionToLocalHostOnRestoreTab.Visible = true;
             buttonConnectToServerOnRestoreTab.Visible = true;
@@ -227,7 +241,7 @@ namespace QSObjectManager
                 NameAndIdPair appPair = _lstApp[ListBoxAppsFromDevHub.SelectedIndex];
                 SelectedIpp = ListBoxAppsFromDevHub.SelectedIndex;
 
-                _storys = Utils.GetStorys(_locationObject.GetConnection(), appPair.Id);
+                _storys = Utils.GetStories(_locationObject.GetConnection(), appPair.Id);
 
                 foreach (var story in _storys)
                 {
@@ -411,14 +425,14 @@ namespace QSObjectManager
                 
                 SetVisibleElementsOnRestoreTab();
 
-                _iSconnected = true;
+                _isConnected = true;
 
-                buttonDisconnectFromLocalHostOnRestoreTab.Visible = _iSconnected;
-                buttonDisconnectFromServerOnRestoreTab.Visible = _iSconnected;
+                buttonDisconnectFromLocalHostOnRestoreTab.Visible = _isConnected;
+                buttonDisconnectFromServerOnRestoreTab.Visible = _isConnected;
                 buttonConnectionToLocalHostOnRestoreTab.Visible = false;
                 buttonConnectToServerOnRestoreTab.Visible = false;
 
-                buttonRestoreHistoryOnRestoreTab.Visible = _iSconnected;
+                buttonRestoreHistoryOnRestoreTab.Visible = _isConnected;
 
                 OnNewConnectioStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
             }
@@ -459,6 +473,11 @@ namespace QSObjectManager
             }
 
             OnNewRestoreInfo(new RestoreInfoEventArgs(new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames)));
+        }
+
+        private void AboutProgramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new AboutForm().ShowDialog();
         }
     }
 }

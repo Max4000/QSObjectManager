@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Xml;
 using Newtonsoft.Json;
+using Qlik.Engine;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
-using UtilClasses.ProgramOptionsClasses;
+
 #pragma warning disable 618
 
 
@@ -13,30 +14,16 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class QsStoryItemContainerRestorer
     {
-        public ProgramOptions Options { get; } = new();
-        private IConnect _location;
-
-        private readonly RestoreInfo _restoreInfo = new();
 
         private readonly RestoreSlideInfo _restoreSlideInfo = new();
 
         private readonly Dictionary<string, XmlPair> _currentItemDict = new();
 
-        public QsStoryItemContainerRestorer(IProgramOptionsEvent options, IConnectionStatusInfoEvent connection,
-            IRestoreInfoEvent restore, IRestoreSlideInfoFromDisk slideInfoFromDisk)
+        public QsStoryItemContainerRestorer(
+             IRestoreSlideInfoFromDisk slideInfoFromDisk)
         {
-            IProgramOptionsEvent programOptions = options;
-            programOptions.NewProgramOptionsSend += NewProgramOptionsReceived;
-
-            IConnectionStatusInfoEvent connect = connection;
-            connect.NewConnectionStatusInfoSend += NewConnectionStatusInfoReceived;
-
-            IRestoreInfoEvent restoreInfo = restore;
-
-            restoreInfo.NewRestoreInfoSend += NewRestoreInfoReceived;
-
+            
             IRestoreSlideInfoFromDisk slideinfo = slideInfoFromDisk;
-
             slideinfo.NewRestoreSlideInfoFromDiskSend += NewRestoreSlideInfoFromDiskReceived;
 
         }
@@ -78,9 +65,23 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 {
                     case "snapshot":
                     {
-                        using SlideItemProperties itemProperties = CreateSnapshotSlideItemProperties(slide, _currentItemDict["id"].Value, slideItem.Folder);
-                        
+                        using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
+                            _currentItemDict["id"].Value, slideItem.Folder, "snapshot");
+
                         slide.CreateSnapshotSlideItem(_currentItemDict["id"].Value, itemProperties);
+
+                        
+
+                        break;
+                    }
+                    case "image":
+                    {
+                        using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
+                            _currentItemDict["id"].Value, slideItem.Folder, "image");
+
+                        slide.CreateSlideItem(_currentItemDict["id"].Value, itemProperties) ;
+
+                       
 
                         break;
                     }
@@ -93,68 +94,108 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
-        private SlideItemProperties CreateSnapshotSlideItemProperties(ISlide slide, string id, string itemFolder)
+        private SlideItemProperties CreateSlideItemProperties(ISlide slide, string id, string itemFolder, string itemType)
         {
-
-
-            string pathToStyle = _restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Style.json";
-
+            SlideItemProperties result = null;
+            
             SlideStyle style = JsonConvert.DeserializeObject<SlideStyle>(
-                Utils.ReadJsonFile(pathToStyle));
-
-            string ids = style.Get<string>("id");
-
-            SlideItemProperties result = slide.CreateSnapshotSlideItemProperties(id, ids);
-
-            string title = this._currentItemDict["Title"].Value;
-            result.Set("title", title);
-
-            
-            string ratio = _currentItemDict["Ratio"].Value;
-            result.Set("ratio",bool.Parse(ratio));
-
-            
-            string pathToPosition = _restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Position.json";
-            SlidePosition  slideposition = JsonConvert.DeserializeObject<SlidePosition>(
-                Utils.ReadJsonFile(pathToPosition));
-            result.Set("position", slideposition);
-
-            string dataPath = this._currentItemDict["DataPath"].Value;
-            result.Set("dataPath", dataPath);
-
-            string staticContentUrlContainerDeffile =
-                _restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SrcPath.json";
+                Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Style.json"));
 
             StaticContentUrlContainerDef contUrl = JsonConvert.DeserializeObject<StaticContentUrlContainerDef>(
-                Utils.ReadJsonFile(staticContentUrlContainerDeffile));
+                Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SrcPath.json"));
 
-            result.Set("srcPath",contUrl);
+            StaticContentUrlDef url = contUrl?.Get<StaticContentUrlDef>("qStaticContentUrlDef");
 
-            string visual = this._currentItemDict["Visualization"].Value;
-            result.Set("visualization", visual);
+            switch (itemType)
+            {
+                case "snapshot":
+                {
+                    string ids = style.Get<string>("id");
 
-            string visualizationType = this._currentItemDict["VisualizationType"].Value;
-            result.Set("visualizationType", visualizationType);
+                    result = slide.CreateSnapshotSlideItemProperties(id, ids);
 
-            result.Set("style", style);
+                    break;
+                }
+                case "image":
+                {
 
-            string sheetId = this._currentItemDict["SheetId"].Value;
-            result.Set("sheetId", sheetId);
+                    string stringPathToImage = url?.Get<string>("qUrl");
+
+                    result = slide.CreateImageSlideItemProperties(id, stringPathToImage);
+
+                    result.Set("srcPath", contUrl);
+
+                    break;
+                }
+            }
+
+            
+            
+            if (result != null)
+            {
+
+                #region GenericObjectProperties
+
+                    NxInfo nxInfo = JsonConvert.DeserializeObject<NxInfo>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Info.json"));
+                    
+                    result.Set("qInfo",nxInfo);
+
+                    result.Set("qExtendsId",_currentItemDict["ExtendsId"].Value);
+
+                    NxMetaDef nxMetaDef = JsonConvert.DeserializeObject<NxMetaDef>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\MetaDef.json"));
+
+                    result.Set("qMetaDef",nxMetaDef);
+
+                    result.Set("qStateName", _currentItemDict["StateName"].Value);
+
+                #endregion
+
+                #region SlideItemProperties
+
+                    result.Set("title", _currentItemDict["Title"].Value);
+
+                    string ratio = _currentItemDict["Ratio"].Value;
+                    result.Set("ratio", bool.Parse(ratio));
+
+                    SlidePosition slideposition = JsonConvert.DeserializeObject<SlidePosition>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Position.json"));
+                    
+                    result.Set("position", slideposition);
+
+                    string dataPath = this._currentItemDict["DataPath"].Value;
+                    result.Set("dataPath", dataPath);
 
 
-            string selectionStateFile =
-                _restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SelectionState.json";
-            SelectionState selectionState = JsonConvert.DeserializeObject<SelectionState>(
-                Utils.ReadJsonFile(selectionStateFile));
+                    
 
-            result.Set("selectionState", selectionState);
+                    result.Set("visualization", _currentItemDict["Visualization"].Value);
 
-            string embeddedSnapshotDefile = _restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\EmbeddedSnapshotDef.json";
-            SnapshotProperties embeddedSnapshotDef = JsonConvert.DeserializeObject<SnapshotProperties>(
-                Utils.ReadJsonFile(embeddedSnapshotDefile));
+                    result.Set("visualizationType", _currentItemDict["VisualizationType"].Value);
 
-            result.Set("qEmbeddedSnapshotDef", embeddedSnapshotDef);
-            return result;
+                    result.Set("style", style);
+
+                    result.Set("sheetId", _currentItemDict["SheetId"].Value);
+
+
+                    SelectionState selectionState = JsonConvert.DeserializeObject<SelectionState>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SelectionState.json"));
+
+                    result.Set("selectionState", selectionState);
+
+                    
+                    SnapshotProperties embeddedSnapshotDef = JsonConvert.DeserializeObject<SnapshotProperties>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder +
+                                           "\\EmbeddedSnapshotDef.json"));
+
+                    result.Set("qEmbeddedSnapshotDef", embeddedSnapshotDef);
+
+                #endregion
+                return result;
+            }
+
+            return null;
         }
 
         private void ReadCurrentItemSlideXml(string itemFolder)
@@ -271,20 +312,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
-        private void NewRestoreInfoReceived(object sender, RestoreInfoEventArgs e)
-        {
-            e.RestoreInfo.Copy(_restoreInfo);
-        }
+        
+        
 
-        private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
-        {
-            e.ConnectionStatusInfo.Copy(ref _location);
-        }
-
-        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
-        {
-            e.ProgramOptions.Copy(this.Options);
-        }
+       
     }
 
     public class ItemPair

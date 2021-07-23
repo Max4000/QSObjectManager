@@ -36,7 +36,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         /// <param name="location">object location for Dev Hub</param>
         /// <param name="appid">full id app</param>
         /// <returns>list of stories</returns>
-        public static IList<NameAndIdPair> GetStorys(ILocation location, string appid)
+        public static IList<NameAndIdPair> GetStories(ILocation location, string appid)
         {
             IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
 

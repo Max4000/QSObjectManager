@@ -16,7 +16,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private NameAndIdPair _selectedApp;
 
-        private RestoreInfo _restoreInfo =new ();
+        private readonly RestoreInfo _restoreInfo =new ();
+
+        private IApp _app;
 
         public event NewProgramOptionsHandler NewProgramOptionsSend;
         public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
@@ -80,6 +82,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             if (!Directory.Exists(RepositoryPath))
                 return;
 
+            IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreInfo.SelectedApp.Id);
+
+            _app = _location.GetConnection().App(appId);
+
             string mNameSelectedApp = Path.GetFileNameWithoutExtension(_restoreInfo.SelectedApp.Name);
 
 
@@ -127,11 +133,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                                         if (string.CompareOrdinal(story.Id, searchStory.Id) == 0)
                                         {
-                                            RestoreStoryFromDiskInfo info = new RestoreStoryFromDiskInfo();
-
-                                            info.CurrentApp = this._restoreInfo.SelectedApp.Copy();
-                                            info.CurrentStory = searchStory.Copy();
-                                            info.StoryFolder = RepositoryPath + "\\"+ Path.GetFileNameWithoutExtension(searchFileAppInStore) + "\\stories\\"+ searchStory.Id;
+                                            RestoreStoryFromDiskInfo info = new RestoreStoryFromDiskInfo
+                                            {
+                                                App = _app,
+                                                CurrentApp = _restoreInfo.SelectedApp.Copy(),
+                                                CurrentStory = searchStory.Copy(),
+                                                StoryFolder = RepositoryPath + "\\" +
+                                                              Path.GetFileNameWithoutExtension(searchFileAppInStore) +
+                                                              "\\stories\\" + searchStory.Id
+                                            };
 
                                             RestoreStoryFromDiskEventArgs args = new RestoreStoryFromDiskEventArgs(info);
 
@@ -146,11 +156,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     }
                 }
 
-            //IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreInfo.SelectedApp.Id);
+            
 
-            //var _app = _location.GetConnection().App(appId);
-
-            //_app.SaveAs("Cov4");
+            _app.SaveAs("Cov4");
 
 
 
