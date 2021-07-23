@@ -27,8 +27,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public QsStoryItemContainerWriter ItemContainerWriter { get; }
 
         public event NewProgramOptionsHandler NewProgramOptionsSend;
-        public event NewWriteStoryItemToDisktHandler NewStoryItemToDiskSend;
-        public event NewIDeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
+        public event NewWriteStoryItemToDiskHandler NewStoryItemToDiskSend;
+        public event NewDeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
 
         public QsStoryWriter(IProgramOptionsEvent programOptionsEvent, IConnectionStatusInfoEvent connectionStatusInfoEvent, 
             IWriteStoryToDisk writeStoryToDisk,IDeleteStoryFromDisk deleteStory)
@@ -43,7 +43,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             writeInfo.NewWriteStoryToDiskSend += NewWriteStoryToDiskReceived;
 
             IDeleteStoryFromDisk delStory = deleteStory;
-            delStory.NewDeleteStoryFromkSend += NewDeleteStoryFromkDiskReceived;
+            delStory.NewDeleteStoryFromDiskSend += NewDeleteStoryFromDiskReceived;
 
             ItemContainerWriter = new QsStoryItemContainerWriter(this, this,this);
         }
@@ -54,7 +54,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 this.NewDeleteItemFromDiskSend(this,e);
         }
 
-        private void NewDeleteStoryFromkDiskReceived(object sender, DeleteStorisFromAppArgs e)
+        private void NewDeleteStoryFromDiskReceived(object sender, DeleteStoryFromAppArgs e)
         {
             string storiFilder = e.DeleteInfo.CurrentStoreFolder;
 
@@ -81,7 +81,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                     {
                                         string folderItem = attrs.GetNamedItem("id2")?.Value;
 
-                                        OnNewDeleteItemFromDisk(new DeleteItemFromDiskEventArgs(new DeleteItemFromDiskInfo(){ItemFolder = storiFilder +"\\"+folderItem}));
+                                        OnNewDeleteItemFromDisk(new DeleteItemFromDiskEventArgs(new DeleteItemFromDiskInfo()
+                                        {
+                                            ItemFolder = storiFilder +"\\"+folderItem,
+                                            ItemName = folderItem
+
+                                        }));
                                         Directory.Delete(storiFilder + "\\" + folderItem);
 
                                     }
@@ -94,7 +99,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 {
                     File.Delete(file);
                 }
-                //Directory.Delete(storiFilder);
+                
             }
             
         }
@@ -133,12 +138,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             _currentStoryToWrite = _app?.GetStory(_storyToDiskInfo.CurrentStory.Id);
             
-            string pathEndNamePropertiesFile = pathToStore + "\\" + "Properties.json";
-            string pathEndNameLayoutFile = pathToStore + "\\" + "Layout.json";
-            string pathEndNameThumbnailFile = pathToStore + "\\" + "Thumbnail.json";
+            //string pathEndNamePropertiesFile = pathToStore + "\\" + "Properties.json";
+            //string pathEndNameLayoutFile = pathToStore + "\\" + "Layout.json";
+            //string pathEndNameThumbnailFile = pathToStore + "\\" + "Thumbnail.json";
             //string pathEndNameMetaAttributesFile = pathToStore + "\\" + "MetaAttributes.json";
-            string pathEndNameNxInfoFile = pathToStore + "\\" + "NxInfo.json";
-            string pathEndNameNxLayoutErrorsFile = pathToStore + "\\" + "NxLayoutErrors.json";
+            //string pathEndNameNxInfoFile = pathToStore + "\\" + "NxInfo.json";
+            //string pathEndNameNxLayoutErrorsFile = pathToStore + "\\" + "NxLayoutErrors.json";
 
             XmlTextWriter xmlWriter = new XmlTextWriter(fileXml, Encoding.UTF8)
             {
@@ -147,6 +152,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             
             xmlWriter.WriteStartDocument();
+            // ReSharper disable once StringLiteralTypo
             xmlWriter.WriteComment("Файл содержит описание истории " + _storyToDiskInfo.CurrentStory.Name);
 
             xmlWriter.WriteStartElement("story");
@@ -155,28 +161,51 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     Utils.CreateElement("item","name","string",_storyToDiskInfo.CurrentStory.Name,xmlWriter);
                     Utils.CreateElement("item", "id", "string", _storyToDiskInfo.CurrentStory.Id, xmlWriter);
+                    
 
-                    Utils.PrintStructureToFile("item", "Properties", "StoryProperties", "Properties.json", xmlWriter,
-                        pathEndNamePropertiesFile, _currentStoryToWrite?.Properties);
-                    Utils.PrintStructureToFile("item", "Layout", "StoryLayout", "Layout.json", xmlWriter,
-                        pathEndNameLayoutFile, _currentStoryToWrite?.Layout);
-                    Utils.CreateElement("item", "Rank", "float", _currentStoryToWrite?.Layout.Rank.ToString(CultureInfo.InvariantCulture), xmlWriter);
+                    string pathEndNamePropertiesMetaDef = pathToStore + "\\" + "Properties.MetaDef.json";
 
-                    Utils.PrintStructureToFile("item", "Thumbnail", "StaticContentUrlContainer", "Thumbnail.json", xmlWriter,
-                        pathEndNameThumbnailFile, _currentStoryToWrite?.Thumbnail);
+                    Utils.PrintStructureToFile("item", "Properties.MetaDef", "MetaAttributesDef", "Properties.MetaDef.json", xmlWriter,
+                        pathEndNamePropertiesMetaDef, _currentStoryToWrite?.Properties.MetaDef);
 
-                    Utils.PrintStructureToFile("item", "NxInfo", "NxInfo", "NxInfo.json", xmlWriter,
-                        pathEndNameNxInfoFile, _currentStoryToWrite?.Layout.Info);
+                    
+                    string pathEndNamePropertiesChildListDef = pathToStore + "\\" + "Properties.ChildListDef.json";
 
-                    Utils.PrintStructureToFile("item", "NxLayoutErrors", "NxLayoutErrors", "NxLayoutErrors.json", xmlWriter,
-                        pathEndNameNxLayoutErrorsFile, _currentStoryToWrite?.Layout.Error);
+                    Utils.PrintStructureToFile("item", "Properties.ChildListDef", "StoryChildListDef", "Properties.ChildListDef.json", xmlWriter,
+                        pathEndNamePropertiesChildListDef, _currentStoryToWrite?.Properties.ChildListDef);
 
-                    Utils.CreateElement("item", "Layout.SelectionInfo.InSelections", "bool",
-                        _currentStoryToWrite?.Layout.SelectionInfo.InSelections.ToString(), xmlWriter);
+                    
+                    Utils.CreateElement("item", "Properties.Rank", "float",
+                        _currentStoryToWrite?.Properties.Rank.ToString(CultureInfo.InvariantCulture), xmlWriter);
 
-                    Utils.CreateElement("item", "Layout.SelectionInfo.MadeSelections", "bool",
-                        _currentStoryToWrite?.Layout.SelectionInfo.MadeSelections.ToString(), xmlWriter);
-            
+                    
+                    string pathEndNamePropertiesThumbnail = pathToStore + "\\" + "Properties.Thumbnail.json";
+
+                    Utils.PrintStructureToFile("item", "Properties.Thumbnail", "StaticContentUrlContainerDef", "Properties.Thumbnail.json", xmlWriter,
+                        pathEndNamePropertiesThumbnail, _currentStoryToWrite?.Properties.Thumbnail);
+
+                    #region Hidden code
+
+                    //Utils.PrintStructureToFile("item", "Layout", "StoryLayout", "Layout.json", xmlWriter,
+                    //    pathEndNameLayoutFile, _currentStoryToWrite?.Layout);
+                    //Utils.CreateElement("item", "Rank", "float", _currentStoryToWrite?.Layout.Rank.ToString(CultureInfo.InvariantCulture), xmlWriter);
+
+                    //Utils.PrintStructureToFile("item", "Thumbnail", "StaticContentUrlContainer", "Thumbnail.json", xmlWriter,
+                    //    pathEndNameThumbnailFile, _currentStoryToWrite?.Thumbnail);
+
+                    //Utils.PrintStructureToFile("item", "NxInfo", "NxInfo", "NxInfo.json", xmlWriter,
+                    //    pathEndNameNxInfoFile, _currentStoryToWrite?.Layout.Info);
+
+                    //Utils.PrintStructureToFile("item", "NxLayoutErrors", "NxLayoutErrors", "NxLayoutErrors.json", xmlWriter,
+                    //    pathEndNameNxLayoutErrorsFile, _currentStoryToWrite?.Layout.Error);
+
+                    //Utils.CreateElement("item", "Layout.SelectionInfo.InSelections", "bool",
+                    //    _currentStoryToWrite?.Layout.SelectionInfo.InSelections.ToString(), xmlWriter);
+
+                    //Utils.CreateElement("item", "Layout.SelectionInfo.MadeSelections", "bool",
+                    //    _currentStoryToWrite?.Layout.SelectionInfo.MadeSelections.ToString(), xmlWriter);
+                    #endregion
+
                     xmlWriter.WriteEndElement();//properties
                     
                     xmlWriter.WriteStartElement("Items");
@@ -188,8 +217,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                         {
                             i++;
 
-                            string mfile = "Item" + i.ToString() + ".json";
-                            string pathEndNameItemFile = pathToStore + "\\" + mfile;
+                            string file = "Item" + i.ToString() + ".json";
+                            string pathEndNameItemFile = pathToStore + "\\" + file;
 
                             xmlWriter.WriteStartElement("item");
 
@@ -197,7 +226,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             xmlWriter.WriteAttributeString("id2", item.Info.Id);
                             xmlWriter.WriteAttributeString("Type1", "StoryChildListContainer");
                             xmlWriter.WriteAttributeString("Type2", item.Info.Type);
-                            xmlWriter.WriteAttributeString("name", mfile);
+                            xmlWriter.WriteAttributeString("name", file);
 
                             StoreItemToFile(pathEndNameItemFile, item);
 
@@ -290,10 +319,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IWriteStoryItemToDisk
     {
-        event NewWriteStoryItemToDisktHandler NewStoryItemToDiskSend;
+        event NewWriteStoryItemToDiskHandler NewStoryItemToDiskSend;
     }
 
-    public delegate void NewWriteStoryItemToDisktHandler(object sender, StoryItemInfoEventArgs e);
+    public delegate void NewWriteStoryItemToDiskHandler(object sender, StoryItemInfoEventArgs e);
 
 
 
@@ -319,7 +348,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public readonly WriteStoryToDiskInfo WriteInfo;
 
-        //Конструкторы
+        
         public WriteStoryToDiskEventArgs(WriteStoryToDiskInfo record)
         {
             WriteInfo = record;
@@ -328,10 +357,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IWriteStoryToDisk
     {
-        event NewWriteStoryToDisktHandler NewWriteStoryToDiskSend;
+        event NewWriteStoryToDiskHandler NewWriteStoryToDiskSend;
     }
 
-    public delegate void NewWriteStoryToDisktHandler(object sender, WriteStoryToDiskEventArgs e);
+    public delegate void NewWriteStoryToDiskHandler(object sender, WriteStoryToDiskEventArgs e);
 
     
     public class DeleteStoryFromAppRecordInfo
@@ -340,13 +369,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public string CurrentStoreFolder;
     }
 
-    public class DeleteStorisFromAppArgs : EventArgs
+    public class DeleteStoryFromAppArgs : EventArgs
     {
 
         public readonly DeleteStoryFromAppRecordInfo DeleteInfo;
 
-        //Конструкторы
-        public DeleteStorisFromAppArgs(DeleteStoryFromAppRecordInfo record)
+        
+        public DeleteStoryFromAppArgs(DeleteStoryFromAppRecordInfo record)
         {
             DeleteInfo = record;
         }
@@ -354,9 +383,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IDeleteStoryFromDisk
     {
-        event NewDeleteStoryFromDisktHandler NewDeleteStoryFromkSend;
+        event NewDeleteStoryFromDiskHandler NewDeleteStoryFromDiskSend;
     }
 
-    public delegate void NewDeleteStoryFromDisktHandler(object sender, DeleteStorisFromAppArgs e);
+    public delegate void NewDeleteStoryFromDiskHandler(object sender, DeleteStoryFromAppArgs e);
 
 }

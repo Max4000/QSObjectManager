@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Xml;
 using Qlik.Engine;
 using Qlik.Sense.Client;
@@ -104,6 +106,16 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 propertyFile.Writer.Write("");
                 propertyFile.Writer.Close();
             }
+        }
+
+        public static string ReadJsonFile(string file)
+        {
+            using Stream streamProperties = new FileStream(file, FileMode.Open);
+
+            using var streamRead = new StreamReader(streamProperties, Encoding.UTF8);
+
+            return streamRead.ReadToEnd();
+
         }
     }
 

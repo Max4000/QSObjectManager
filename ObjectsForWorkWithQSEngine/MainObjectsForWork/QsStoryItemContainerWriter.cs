@@ -20,19 +20,19 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             
             IProgramOptionsEvent programopt = programOptionsEvent;
 
-            programopt.NewProgramOptionsSend += NewProgramOptionsReseive;
+            programopt.NewProgramOptionsSend += NewProgramOptionsReceived;
 
             IWriteStoryItemToDisk storyItem = writeStoryItem;
 
-            storyItem.NewStoryItemToDiskSend += NewWriteStoryItemToDiskReseive;
+            storyItem.NewStoryItemToDiskSend += NewWriteStoryItemToDiskReceived;
 
             IDeleteInfoFromDisk deleteInfo = deleteInfoFromDisk;
 
-            deleteInfo.NewDeleteItemFromDiskSend += NewDeleteItemFromDiskReseieved;
+            deleteInfo.NewDeleteItemFromDiskSend += NewDeleteItemFromDiskReceived;
 
         }
 
-        private void NewDeleteItemFromDiskReseieved(object sender, DeleteItemFromDiskEventArgs e)
+        private void NewDeleteItemFromDiskReceived(object sender, DeleteItemFromDiskEventArgs e)
         {
             e.DeleteInfo.Copy(DeleteItem);
             DoDelete();
@@ -40,19 +40,73 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public void DoDelete()
         {
+            var xmlDocument = new XmlDocument();
+
+            xmlDocument.Load(DeleteItem.ItemFolder+"\\"+DeleteItem.ItemName+ ".xml");
+            XmlNode root = xmlDocument.DocumentElement;
+
+            if (root != null)
+                foreach (XmlNode nodeApp in root.ChildNodes)
+                {
+                    switch (nodeApp.Name)
+                    {
+
+                            case "slide":
+                            {
+
+                                foreach (XmlNode node in nodeApp.ChildNodes)
+                                {
+                                    switch (node.Name)
+                                    {
+
+                                        case "SlideItems":
+                                        {
+
+                                            foreach (XmlNode nodeItem in node.ChildNodes)
+                                            {
+                                                if (nodeItem.Attributes != null)
+                                                {
+                                                    string folderItemSlide = nodeItem.Attributes.GetNamedItem("id")
+                                                        ?.Value;
+
+                                                    foreach (var file in Directory.GetFiles(DeleteItem.ItemFolder +
+                                                        "\\" +
+                                                        folderItemSlide))
+                                                    {
+                                                        File.Delete(file);
+                                                    }
+
+                                                    Directory.Delete(DeleteItem.ItemFolder + "\\" +
+                                                                     folderItemSlide);
+                                                }
+
+                                            }
+
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            
+
+                    }
+                                  
+                }
+            
             foreach (var file in Directory.GetFiles(DeleteItem.ItemFolder))
             {
                 File.Delete(file);
             }
         }
 
-        private void NewWriteStoryItemToDiskReseive(object sender, StoryItemInfoEventArgs e)
+        private void NewWriteStoryItemToDiskReceived(object sender, StoryItemInfoEventArgs e)
         {
             e.ItemInfo.Copy(ref ItemInfo);
             WriteStoryItem();
         }
 
-        private void NewProgramOptionsReseive(object sender, ProgramOptionsEventArgs e)
+        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(Options);
         }
@@ -100,43 +154,70 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             xmlWriter.WriteStartElement("slide");
 
-                xmlWriter.WriteStartElement("properties");
+                xmlWriter.WriteStartElement("Properties");
+
+                    #region Пока скрыто
+
+                    //Utils.CreateElement("item", "Rank", "float", slide.Layout.Rank.ToString(CultureInfo.InvariantCulture), xmlWriter);
+
+                    //string pathToFileNxInfo = itemPath + "\\" + "ISlide.NxInfo.json";
+
+                    //Utils.PrintStructureToFile("item", "NxInfo", "NxInfo", "ISlide.NxInfo.json", xmlWriter,
+                    //    pathToFileNxInfo, ItemInfo.Container.Info);
+
+                    //string pathToFileNxMeta = itemPath + "\\" + "ISlide.NxMeta.json";
+
+                    //Utils.PrintStructureToFile("item", "NxMeta", "NxMeta", "ISlide.NxMeta.json", xmlWriter,
+                    //    pathToFileNxMeta, slide.Layout.Meta);
+
+                    //string pathToFileNxLayoutErrors = itemPath + "\\" + "ISlide.NxLayoutErrors.json";
+
+                    //Utils.PrintStructureToFile("item", "NxLayoutErrors", "NxLayoutErrors", "ISlide.NxLayoutErrors.json", xmlWriter,
+                    //    pathToFileNxLayoutErrors, slide.Layout.Error);
+
+                    //Utils.CreateElement("item", "NxSelectionInfo.InSelections", "bool", slide.Layout.SelectionInfo.InSelections.ToString(), xmlWriter);
+
+                    //Utils.CreateElement("item", "NxSelectionInfo.MadeSelections", "bool", slide.Layout.SelectionInfo.MadeSelections.ToString(), xmlWriter);
+
+                    //string pathToFileLayout = itemPath + "\\" + "ISlide.Layout.json";
+
+                    //Utils.PrintStructureToFile("item", "Layout", "SlideLayout", "ISlide.Layout.json", xmlWriter,
+                    //    pathToFileLayout, slide.Layout);
+
+
+                    //string pathToFileProperties = itemPath + "\\" + "ISlide.Properties.json";
+
+                    //Utils.PrintStructureToFile("item", "slide.Properties.ChildListDef", "SlideChildListDef", "ISlide.Properties.json", xmlWriter,
+                    //    pathToFileProperties, slide.Properties);
+                #endregion
+
+                    string childListDef = itemPath + "\\" + "ISlide.Properties.ChildListDef.json";
                     
-                    Utils.CreateElement("item", "Rank", "float", slide.Layout.Rank.ToString(CultureInfo.InvariantCulture), xmlWriter);
-
-                    string pathToFileNxInfo = itemPath + "\\" + "ISlide.NxInfo.json";
+                    Utils.PrintStructureToFile("item", "ISlide.Properties.ChildListDef",
+                            "SlideChildListDef", "ISlide.Properties.ChildListDef.json", xmlWriter,
+                            childListDef, slide.Properties.ChildListDef);
                     
-                    Utils.PrintStructureToFile("item", "NxInfo", "NxInfo", "ISlide.NxInfo.json", xmlWriter,
-                        pathToFileNxInfo, ItemInfo.Container.Info);
-
-                    string pathToFileNxMeta = itemPath + "\\" + "ISlide.NxMeta.json";
-
-                    Utils.PrintStructureToFile("item", "NxMeta", "NxMeta", "ISlide.NxMeta.json", xmlWriter,
-                        pathToFileNxMeta, slide.Layout.Meta);
-
-                    string pathToFileNxLayoutErrors = itemPath + "\\" + "ISlide.NxLayoutErrors.json";
-                    
-                    Utils.PrintStructureToFile("item", "NxLayoutErrors", "NxLayoutErrors", "ISlide.NxLayoutErrors.json", xmlWriter,
-                        pathToFileNxLayoutErrors, slide.Layout.Error);
-
-                    Utils.CreateElement("item", "NxSelectionInfo.InSelections", "bool", slide.Layout.SelectionInfo.InSelections.ToString(), xmlWriter);
-                    
-                    Utils.CreateElement("item", "NxSelectionInfo.MadeSelections", "bool", slide.Layout.SelectionInfo.MadeSelections.ToString(), xmlWriter);
-
-                    string pathToFileLayout = itemPath + "\\" + "ISlide.Layout.json";
-                    
-                    Utils.PrintStructureToFile("item", "Layout", "SlideLayout", "ISlide.Layout.json", xmlWriter,
-                        pathToFileLayout, slide.Layout);
-
-
-                    string pathToFileProperties = itemPath + "\\" + "ISlide.Properties.json";
-
-                    Utils.PrintStructureToFile("item", "slide.Properties.ChildListDef", "SlideChildListDef", "ISlide.Properties.json", xmlWriter,
-                        pathToFileProperties, slide.Properties);
-
+                    Utils.CreateElement("item", "ISlide.Properties.Rank", "float",
+                        slide.Properties.Rank.ToString(CultureInfo.InvariantCulture), xmlWriter);
 
                 xmlWriter.WriteEndElement();
-            
+                xmlWriter.WriteStartElement("SlideItems");
+
+                    int itemNo = -1;
+
+
+                    foreach (ISlideItem unused in slide.SlideItems)
+                    {
+                        itemNo++;
+
+                        Utils.CreateElement("item", "Item" + itemNo.ToString(), "ISlideItem.SlideItemProperties",
+                            unused.Id, xmlWriter);
+                    }
+                    
+                    WriteSlideItemsToDisk(slide);
+
+                xmlWriter.WriteEndElement();
+
             xmlWriter.WriteEndElement();
 
 
@@ -147,178 +228,113 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
-/*
-        private void WriteSlidePropertiesChildListDefToFile(string fileData, ISlide slide)
+        private void WriteSlideItemsToDisk(ISlide slide)
         {
-            if (slide.Properties != null)
-            {
+            int itemNo = -1;
 
-                string json = slide.Properties.PrintStructure(Newtonsoft.Json.Formatting.Indented);
-                using var propertyFile = new AppEntryWriter(fileData);
-
-                propertyFile.Writer.Write(json);
-                propertyFile.Writer.Close();
-
-
-            }
-            else
-            {
-                using var propertyFile = new AppEntryWriter(fileData);
-
-                propertyFile.Writer.Write("");
-                propertyFile.Writer.Close();
-            }
-        }
-*/
-
-/*
-        private void WriteSlideLayoutToFile(string fileData, ISlide slide)
-        {
-            if (slide.Layout != null)
-            {
-
-                string json = slide.Layout.PrintStructure(Newtonsoft.Json.Formatting.Indented);
-                using var propertyFile = new AppEntryWriter(fileData);
-
-                propertyFile.Writer.Write(json);
-                propertyFile.Writer.Close();
-
-
-            }
-            else
-            {
-                using var propertyFile = new AppEntryWriter(fileData);
-
-                propertyFile.Writer.Write("");
-                propertyFile.Writer.Close();
-            }
-        }
-*/
-
-/*
-        private void WriteSlideNxLayoutErrorsToFile(string fileData, ISlide slide)
-        {
-            if (slide.Layout.Error != null)
-            {
-
-                string json = slide.Layout.Error.PrintStructure(Newtonsoft.Json.Formatting.Indented);
-                using var propertyFile = new AppEntryWriter(fileData);
-
-                propertyFile.Writer.Write(json);
-                propertyFile.Writer.Close();
-
-
-            }
-            else
-            {
-                using var propertyFile = new AppEntryWriter(fileData);
-
-                propertyFile.Writer.Write("");
-                propertyFile.Writer.Close();
-            }
-        }
-*/
-/*
-        private void WriteSlideNxMetaToFile(string fileData, ISlide slide)
-        {
-            if (slide.Layout.Meta != null)
-            {
-
-                string json = slide.Layout.Meta.PrintStructure(Newtonsoft.Json.Formatting.Indented);
-                using var propertyFile = new AppEntryWriter(fileData);
-
-                propertyFile.Writer.Write(json);
-                propertyFile.Writer.Close();
-
-
-            }
-        }
-*/
-
-
-/*
-        private void WriteSlideNxInfoToFile(string fileData ,ISlide slide)
-        {
-            if (slide.Layout.Info != null)
-            {
-                
-                string json = slide.Layout.Info.PrintStructure(Newtonsoft.Json.Formatting.Indented);
-                using var propertyFile = new AppEntryWriter(fileData);
-
-                propertyFile.Writer.Write(json);
-                propertyFile.Writer.Close();
+            string itemRootFolder = ItemInfo.LocalRootFolder + "\\" + ItemInfo.Id;
             
-
-            }
-        }
-*/
-        
-/*
-        private void WriteMetaToFile(string fileData)
-        {
-            if (ItemInfo.Container != null)
+            foreach (ISlideItem slideItem in slide.SlideItems)
             {
-                if (ItemInfo != null && ItemInfo.Container.Data != null)
+                itemNo++;
+                
+                string itemPathFolder = itemRootFolder + "\\" + "Item" + itemNo.ToString();
+
+                Directory.CreateDirectory(itemPathFolder);
+
+                string fileXmlItem = itemPathFolder + "\\" + "Item" + itemNo.ToString() + ".xml";
+                
+                XmlTextWriter xmlWriterItem = new XmlTextWriter(fileXmlItem, Encoding.UTF8)
                 {
-                    string json = ItemInfo.Container.Meta.PrintStructure(Newtonsoft.Json.Formatting.Indented);
+                    Formatting = Formatting.Indented
+                };
 
-                    using var propertyFile = new AppEntryWriter(fileData);
+                xmlWriterItem.WriteStartDocument();
+                xmlWriterItem.WriteComment("Файл содержит описание элемента слайда Item" + itemNo.ToString());
+                
+                
+                
+                xmlWriterItem.WriteStartElement("Item");
+                
+                    xmlWriterItem.WriteStartElement("Properties");
 
-                    propertyFile.Writer.Write(json);
-                    propertyFile.Writer.Close();
-                }
+                        Utils.CreateElement("itemprop", "id", "string",
+                        slideItem.Id, xmlWriterItem);
 
+                        Utils.CreateElement("itemprop", "Title", "string",
+                            slideItem.Properties.Title, xmlWriterItem);
+                        
+                        Utils.CreateElement("itemprop", "Ratio", "bool",
+                            slideItem.Properties.Ratio.ToString(), xmlWriterItem);
+                
+                        string position = itemPathFolder + "\\" + "Position.json";
+
+                        Utils.PrintStructureToFile("itemprop", "Position",
+                            "SlidePosition", "Position.json", xmlWriterItem,
+                            position, slideItem.Properties.Position);
+
+                        Utils.CreateElement("itemprop", "DataPath", "string",
+                            slideItem.Properties.DataPath, xmlWriterItem);
+
+                        string srcPath = itemPathFolder + "\\" + "SrcPath.json";
+
+                        Utils.PrintStructureToFile("itemprop", "SrcPath",
+                            "StaticContentUrlContainerDef", "SrcPath.json", xmlWriterItem,
+                            srcPath, slideItem.Properties.Position);
+                        
+                        Utils.CreateElement("itemprop", "Visualization", "string",
+                            slideItem.Properties.Visualization, xmlWriterItem);
+
+                        Utils.CreateElement("itemprop", "VisualizationType", "string",
+                            slideItem.Properties.VisualizationType, xmlWriterItem);
+
+                        string style = itemPathFolder + "\\" + "Style.json";
+
+                        Utils.PrintStructureToFile("itemprop", "Style",
+                            "SlideStyle", "Style.json", xmlWriterItem,
+                            style, slideItem.Properties.Style);
+
+                        Utils.CreateElement("itemprop", "SheetId", "string",
+                            slideItem.Properties.SheetId, xmlWriterItem);
+
+                        string selectionState = itemPathFolder + "\\" + "SelectionState.json";
+
+                        Utils.PrintStructureToFile("itemprop", "SelectionState",
+                            "SelectionState", "SelectionState.json", xmlWriterItem,
+                            selectionState, slideItem.Properties.SelectionState);
+
+                        string embeddedSnapshotDef = itemPathFolder + "\\" + "EmbeddedSnapshotDef.json";
+
+                        Utils.PrintStructureToFile("itemprop", "EmbeddedSnapshotDef",
+                            "SnapshotProperties", "EmbeddedSnapshotDef.json", xmlWriterItem,
+                            embeddedSnapshotDef, slideItem.Properties.EmbeddedSnapshotDef);
+                        
+                
+                    xmlWriterItem.WriteEndElement();
+                
+                xmlWriterItem.WriteEndElement();
+                xmlWriterItem.WriteEndDocument();
+
+                xmlWriterItem.Flush();
+                xmlWriterItem.Close();
+                
+                xmlWriterItem.Dispose();
             }
+
         }
-*/
 
-/*
-        private void WriteDataToFile(string fileData)
-        {
-            if (ItemInfo.Container != null)
-            {
-                if (ItemInfo != null && ItemInfo.Container.Data != null)
-                {
-                    string json = ItemInfo.Container.Data.PrintStructure(Newtonsoft.Json.Formatting.Indented);
-
-                    using var propertyFile = new AppEntryWriter(fileData);
-
-                    propertyFile.Writer.Write(json);
-                    propertyFile.Writer.Close();
-                }
-
-            }
-        }
-*/
-
-/*
-        private void WriteInfoToFile(string fileData)
-        {
-            if (ItemInfo.Container != null)
-            {
-                if (ItemInfo != null && ItemInfo.Container.Data != null)
-                {
-                    string json = ItemInfo.Container.Info.PrintStructure(Newtonsoft.Json.Formatting.Indented);
-
-                    using var propertyFile = new AppEntryWriter(fileData);
-
-                    propertyFile.Writer.Write(json);
-                    propertyFile.Writer.Close();
-                }
-
-            }
-        }
-*/
 
     }
 
     public class DeleteItemFromDiskInfo
     {
         public string ItemFolder;
+        public string ItemName;
         
         public void Copy(DeleteItemFromDiskInfo anotherInfo)
         {
             anotherInfo.ItemFolder = ItemFolder;
+            anotherInfo.ItemName = ItemName;
         }
     }
 
@@ -336,9 +352,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IDeleteInfoFromDisk
     {
-        event NewIDeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
+        event NewDeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
     }
 
-    public delegate void NewIDeleteInfoFromDisktHandler(object sender, DeleteItemFromDiskEventArgs e);
+    public delegate void NewDeleteInfoFromDisktHandler(object sender, DeleteItemFromDiskEventArgs e);
 
 }

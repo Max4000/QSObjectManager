@@ -21,13 +21,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public event NewProgramOptionsHandler NewProgramOptionsSend;
         public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
-        public event NewWriteStoryToDisktHandler NewWriteStoryToDiskSend;
-        public event NewDeleteStoryFromDisktHandler NewDeleteStoryFromkSend;
+        public event NewWriteStoryToDiskHandler NewWriteStoryToDiskSend;
+        public event NewDeleteStoryFromDiskHandler NewDeleteStoryFromDiskSend;
 
         private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
             e.ConnectionStatusInfo.Copy(ref this._location);
-            OnNewConnectioStatusInfo(e);
+            OnNewConnectionStatusInfo(e);
         }
 
         private void OnNewStoryInfoToDisk(WriteStoryToDiskEventArgs e)
@@ -37,10 +37,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewWriteStoryToDiskSend(this, e);
         }
 
-        private void OnNewStoryDeleteFromDisk(DeleteStorisFromAppArgs e)
+        private void OnNewStoryDeleteFromDisk(DeleteStoryFromAppArgs e)
         {
-            if (NewDeleteStoryFromkSend != null)
-                NewDeleteStoryFromkSend(this, e);
+            if (NewDeleteStoryFromDiskSend != null)
+                NewDeleteStoryFromDiskSend(this, e);
         }
 
         private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
@@ -61,7 +61,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewProgramOptionsSend(this, e);
         }
 
-        public void OnNewConnectioStatusInfo(ConnectionStatusInfoEventArgs e)
+        public void OnNewConnectionStatusInfo(ConnectionStatusInfoEventArgs e)
         {
             if (NewConnectionStatusInfoSend != null)
                 NewConnectionStatusInfoSend(this, e);
@@ -103,7 +103,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 foreach (var dir in Directory.GetDirectories(storiesFolder))
                 {
 
-                    OnNewStoryDeleteFromDisk(new DeleteStorisFromAppArgs(new DeleteStoryFromAppRecordInfo()
+                    OnNewStoryDeleteFromDisk(new DeleteStoryFromAppArgs(new DeleteStoryFromAppRecordInfo()
                         {CurrentAppFolder = appFolder, CurrentStoreFolder = dir}));
 
                     Directory.Delete(dir);
@@ -125,19 +125,19 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             string mNameSelectedApp = Path.GetFileNameWithoutExtension(_wrtWriteInfo.SelectedApp.Name);
 
 
-            string  seachFile = FindFiles.SearchFileAppInStore(Options.RepositoryPath, mNameSelectedApp, "*.xml");
+            string  searchFileAppInStore = FindFiles.SearchFileAppInStore(Options.RepositoryPath, mNameSelectedApp, "*.xml");
 
-            if (!string.IsNullOrEmpty(seachFile))
+            if (!string.IsNullOrEmpty(searchFileAppInStore))
             {
-                DeleteStoriesFromDisk(seachFile);
+                DeleteStoriesFromDisk(searchFileAppInStore);
 
-                string appFolder = Options.RepositoryPath + "\\" + Path.GetFileNameWithoutExtension(seachFile);
+                string appFolder = Options.RepositoryPath + "\\" + Path.GetFileNameWithoutExtension(searchFileAppInStore);
 
                 Directory.Delete(appFolder + "\\" + "stories");
                 
                 Directory.Delete(appFolder);
                 
-                DeleteHeadierOfAppFromDisk(seachFile);
+                DeleteHeadierOfAppFromDisk(searchFileAppInStore);
             }
 
             string fileXml = GetNewNameAppXmLfile();

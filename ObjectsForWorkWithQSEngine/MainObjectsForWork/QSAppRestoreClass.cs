@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using Qlik.Engine;
 using UtilClasses.ProgramOptionsClasses;
 using UtilClasses.ServiceClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsAppRestoreClass
+    public class QsAppRestoreClass : IProgramOptionsEvent, IConnectionStatusInfoEvent, IRestoreInfoEvent, IRestoreStoryFromDisk
     {
         private string RepositoryPath { get; set; }
 
@@ -17,12 +18,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private RestoreInfo _restoreInfo =new ();
 
-        /// <summary>
-        // ReSharper disable once CommentTypo
-        /// Читает все txt файлы в репозитарии
-        /// и возвращает список пар коротких имен файлов и их полных идентификаторов
-        /// </summary>
-        /// <returns>список пар коротких имен файлов и их полных идентификаторов</returns>
+        public event NewProgramOptionsHandler NewProgramOptionsSend;
+        public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
+        public event NewRestoreInfoHandler NewRestoreInfoSend;
+        public event NewRestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
+
+        public QsStoryRestorer QsStoryRestorer { get; }
+
         public  IList<NameAndIdPair> GetAppsFromStore()
         {
             if (string.IsNullOrEmpty(RepositoryPath))
@@ -35,6 +37,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             }
 
             return lstResult;
+        }
+
+        private void OnNewRestoreStoryFromDisk(RestoreStoryFromDiskEventArgs e)
+        {
+            if (this.NewRestoreStoryFromDiskSend != null)
+                NewRestoreStoryFromDiskSend(this, e);
         }
 
         public QsAppRestoreClass(IProgramOptionsEvent optionsEvent , IConnectionStatusInfoEvent connectionEvent, ISelectAppEvent selectAppEvent , IRestoreInfoEvent restoreEvent)
@@ -53,34 +61,138 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             restoreInfoEvent.NewRestoreInfoSend += NewRestoreInfoReceived;
 
+            QsStoryRestorer = new QsStoryRestorer(this, this, this,this);
+
         }
 
         private void NewRestoreInfoReceived(object sender, RestoreInfoEventArgs e)
         {
             e.RestoreInfo.Copy(_restoreInfo);
+            OnNewRestoreInfoSend(e);
+            DoRestore();
+        }
+
+        private void DoRestore()
+        {
+            if (_location == null)
+                return;
+
+            if (!Directory.Exists(RepositoryPath))
+                return;
+
+            string mNameSelectedApp = Path.GetFileNameWithoutExtension(_restoreInfo.SelectedApp.Name);
+
+
+            string searchFileAppInStore = FindFiles.SearchFileAppInStore(RepositoryPath, mNameSelectedApp, "*.xml");
+
+            var xmlDocument = new XmlDocument();
+
+            xmlDocument.Load(searchFileAppInStore);
+            XmlNode root = xmlDocument.DocumentElement;
+
+            if (root != null)
+                foreach (XmlNode nodeApp in root.ChildNodes)
+                {
+                    foreach (XmlNode nodeProperty in nodeApp.ChildNodes)
+                    {
+                        switch (nodeProperty.Name)
+                        {
+
+                            case "stories":
+                            {
+                                XmlNode stories = nodeProperty;
+                                foreach (var searchStory in this._restoreInfo.SelectedStories)
+                                {
+
+                                    foreach (XmlNode element in stories.ChildNodes)
+                                    {
+                                        NameAndIdPair story = new NameAndIdPair();
+
+                                        foreach (XmlNode mStory in element.ChildNodes)
+                                        {
+                                            switch (mStory.Name)
+                                            {
+                                                case "storyName":
+                                                {
+                                                    story.Name = mStory.InnerText;
+                                                    break;
+                                                }
+                                                case "id":
+                                                {
+                                                    story.Id = mStory.InnerText;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if (string.CompareOrdinal(story.Id, searchStory.Id) == 0)
+                                        {
+                                            RestoreStoryFromDiskInfo info = new RestoreStoryFromDiskInfo();
+
+                                            info.CurrentApp = this._restoreInfo.SelectedApp.Copy();
+                                            info.CurrentStory = searchStory.Copy();
+                                            info.StoryFolder = RepositoryPath + "\\"+ Path.GetFileNameWithoutExtension(searchFileAppInStore) + "\\stories\\"+ searchStory.Id;
+
+                                            RestoreStoryFromDiskEventArgs args = new RestoreStoryFromDiskEventArgs(info);
+
+                                            OnNewRestoreStoryFromDisk(args);
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            //IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreInfo.SelectedApp.Id);
+
+            //var _app = _location.GetConnection().App(appId);
+
+            //_app.SaveAs("Cov4");
+
+
+
+
+        }
+
+        private void OnNewRestoreInfoSend(RestoreInfoEventArgs e)
+        {
+            if (this.NewRestoreInfoSend != null)
+                NewRestoreInfoSend(this, e);
         }
 
         private void NewAppSelectedReceive(object sender, SelectedAppEventArgs e)
         {
-            this._selectedApp = e.SelectedApp.Copy();
+            _selectedApp = e.SelectedApp.Copy();
         }
 
         private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
             e.ConnectionStatusInfo.Copy(ref this._location);
+            OnNewConnectionStatusInfo(e);
+        }
+
+        public void OnNewConnectionStatusInfo(ConnectionStatusInfoEventArgs e)
+        {
+            if (NewConnectionStatusInfoSend != null)
+                NewConnectionStatusInfoSend(this, e);
         }
 
         private void NewProgramOptionsSendReceive(object sender, ProgramOptionsEventArgs e)
         {
             this.RepositoryPath = e.ProgramOptions.RepositoryPath;
+            OnNewOptions(e);
         }
 
-        /// <summary>
-        /// Читает короткое имя приложения  и его полный идентификатор
-        /// из txt файла с меткой времени
-        /// </summary>
-        /// <param name="mFileApp"></param>
-        /// <returns>Пару с коротким именем файла и его полным идентифкатором</returns>
+        public void OnNewOptions(ProgramOptionsEventArgs e)
+        {
+            if (NewProgramOptionsSend != null)
+                NewProgramOptionsSend(this, e);
+        }
+
+
         public NameAndIdPair GetNameAnIdAppFromFile(string mFileApp)
         {
             NameAndIdPair result = new NameAndIdPair();
@@ -116,11 +228,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return result;
         }
 
-        /// <summary>
-        /// Функция возвращает список пар
-        /// историй с наимиенованиями и их полными иеднтафикаторами
-        /// </summary>
-        /// <returns>Список пар коротких имен историй и и их идентификторов</returns>
+        
         public  IList<NameAndIdPair> GetHistoryListForSelectedApp()
         {
             
@@ -185,7 +293,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public readonly NameAndIdPair SelectedApp;
 
-        //Конструкторы
+        
         public SelectedAppEventArgs(NameAndIdPair record)
         {
             SelectedApp = record;
@@ -241,8 +349,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IRestoreInfoEvent
     {
-        event NewRsstoreInfosHandler NewRestoreInfoSend;
+        event NewRestoreInfoHandler NewRestoreInfoSend;
     }
 
-    public delegate void NewRsstoreInfosHandler(object sender, RestoreInfoEventArgs e);
+    public delegate void NewRestoreInfoHandler(object sender, RestoreInfoEventArgs e);
 }

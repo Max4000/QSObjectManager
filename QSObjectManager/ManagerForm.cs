@@ -31,7 +31,7 @@ namespace QSObjectManager
         public event NewWriterInfosHandler NewWriteInfoSend;
         public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
         public event NewAppSelectedHandler NewAppSelectedSend;
-        public event NewRsstoreInfosHandler NewRestoreInfoSend;
+        public event NewRestoreInfoHandler NewRestoreInfoSend;
 
         private bool _connectedToLocalServer;
         private bool _connectedToRemoteServer;
