@@ -24,8 +24,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public event NewRestoreInfoHandler NewRestoreInfoSend;
         public event NewRestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
 
-        private QsStoryRestorer QsStoryRestorer { get; }
-
         public  IList<NameAndIdPair> GetAppsFromStore()
         {
             if (string.IsNullOrEmpty(RepositoryPath))
@@ -62,8 +60,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             restoreInfoEvent.NewRestoreInfoSend += NewRestoreInfoReceived;
 
-            QsStoryRestorer = new QsStoryRestorer(this,this);
-
+            var unused = new QsStoryRestorer(this,this);
         }
 
         private void NewRestoreInfoReceived(object sender, RestoreInfoEventArgs e)
@@ -155,9 +152,31 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     }
                 }
 
+            int ik = 0;
+
+            string name = Path.GetFileNameWithoutExtension(_restoreInfo.SelectedApp.Name);
+            string tryName;
+
+            while (true)
+            {
+                ik++;
+
+                tryName = name + " (copy" + ik.ToString() + ")"+".qvf";
+
+                bool found = false;
+
+                foreach (var pair in Utils.GetApps(_location.GetConnection()))
+                {
+                    if (string.CompareOrdinal(tryName, pair.Name) == 0)
+                        found = true;
+                }
+
+                if (!found)
+                    break;
+            }
             
 
-            _app.SaveAs("Cov4");
+            _app.SaveAs(tryName);
             _app.Dispose();
             _app = null;
 

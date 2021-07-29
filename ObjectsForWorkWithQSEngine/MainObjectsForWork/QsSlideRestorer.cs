@@ -85,6 +85,34 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                         break;
                     }
+                    case "text":
+                    {
+                        using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
+                            _currentItemDict["id"].Value, slideItem.Folder, "text");
+                        
+                        slide.CreateSlideItem(_currentItemDict["id"].Value, itemProperties);
+
+                        break;
+                    }
+                    case "shape":
+                    {
+                        using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
+                            _currentItemDict["id"].Value, slideItem.Folder, "shape");
+
+                        slide.CreateSlideItem(_currentItemDict["id"].Value, itemProperties);
+
+                        break;
+                    }
+                    case "sheet":
+                    {
+                        using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
+                            _currentItemDict["id"].Value, slideItem.Folder, "sheet");
+
+                        slide.CreateSlideItem(_currentItemDict["id"].Value, itemProperties);
+                        
+                        break;
+                    }
+
                 }
 
 
@@ -121,12 +149,58 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     string stringPathToImage = url?.Get<string>("qUrl");
 
-                    result = slide.CreateImageSlideItemProperties(id, stringPathToImage);
+                    result = slide.CreateImageSlideItemProperties(id, /*stringPathToImage*/"Qlik_default_feathers.png");
 
-                    result.Set("srcPath", contUrl);
+                    //result.Set("srcPath", contUrl);
 
                     break;
                 }
+                case "text":
+                {
+                    string textValue = style.Get<string>("text");
+                    
+                    string visualType = _currentItemDict["VisualizationType"].Value;
+
+                    Slide.TextType textType = Slide.TextType.Title;
+                    
+                    switch (visualType)
+                    {
+                        case "title":
+                        {
+                            textType = Slide.TextType.Title;
+                            break;
+                        }
+                        case "paragraph":
+                        {
+                            textType = Slide.TextType.Paragraph;
+                            break;
+                        }
+                    }
+
+                    result = slide.CreateTextSlideItemProperties(id, textType, textValue);
+
+                    break;
+                }
+                case "shape":
+                {
+                    string visual = _currentItemDict["VisualizationType"].Value;
+
+                    string colorValue = style.Get<string>("color");
+
+                    Slide.Shapes visualType = ShapeType(visual);
+
+                    result = slide.CreateShapeSlideItemProperties(id, visualType,colorValue);
+                    
+                    break;
+                }
+                case "sheet":
+                {
+                    if (id != null) 
+                        result = slide.CreateTextSlideItemProperties(id);
+
+                    break;
+                }
+
             }
 
             
@@ -168,8 +242,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     result.Set("dataPath", dataPath);
 
 
-                    
-
                     result.Set("visualization", _currentItemDict["Visualization"].Value);
 
                     result.Set("visualizationType", _currentItemDict["VisualizationType"].Value);
@@ -196,6 +268,214 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             }
 
             return null;
+        }
+
+        private Slide.Shapes ShapeType(string visual)
+        {
+           
+
+            Slide.Shapes visualType = Slide.Shapes.Bus;
+
+            switch (visual)
+            {
+                case "2lines_h":
+                {
+                    visualType = Slide.Shapes.Shapes2LinesH;
+                    break;
+                }
+                case "2lines_v":
+                {
+                    visualType = Slide.Shapes.Shapes2LinesV;
+                    break;
+                }
+                case "arrow_d":
+                {
+                    visualType = Slide.Shapes.ArrowD;
+                    break;
+                }
+                case "arrow_l":
+                {
+                    visualType = Slide.Shapes.ArrowL;
+                    break;
+                }
+                case "arrow_r":
+                {
+                    visualType = Slide.Shapes.ArrowR;
+                    break;
+                }
+                case "arrow_u":
+                {
+                    visualType = Slide.Shapes.ArrowU;
+                    break;
+                }
+                case "banned":
+                {
+                    visualType = Slide.Shapes.Banned;
+                    break;
+                }
+                case "bus":
+                {
+                    visualType = Slide.Shapes.Bus;
+                    break;
+                }
+                case "car":
+                {
+                    visualType = Slide.Shapes.Car;
+                    break;
+                }
+                case "circle":
+                {
+                    visualType = Slide.Shapes.Circle;
+                    break;
+                }
+                case "clock":
+                {
+                    visualType = Slide.Shapes.Clock;
+                    break;
+                }
+                case "cloud":
+                {
+                    visualType = Slide.Shapes.Cloud;
+                    break;
+                }
+                case "cross":
+                {
+                    visualType = Slide.Shapes.Cross;
+                    break;
+                }
+                case "disc":
+                {
+                    visualType = Slide.Shapes.Disc;
+                    break;
+                }
+                case "dollar":
+                {
+                    visualType = Slide.Shapes.Dollar;
+                    break;
+                }
+                case "euro":
+                {
+                    visualType = Slide.Shapes.Euro;
+                    break;
+                }
+                case "flag":
+                {
+                    visualType = Slide.Shapes.Flag;
+                    break;
+                }
+                case "globe":
+                {
+                    visualType = Slide.Shapes.Globe;
+                    break;
+                }
+                case "lightbulb":
+                {
+                    visualType = Slide.Shapes.Lightbulb;
+                    break;
+                }
+                case "man":
+                {
+                    visualType = Slide.Shapes.Man;
+                    break;
+                }
+                case "plane":
+                {
+                    visualType = Slide.Shapes.Plane;
+                    break;
+                }
+                case "pound":
+                {
+                    visualType = Slide.Shapes.Pound;
+                    break;
+                }
+                case "pullout_b":
+                {
+                    visualType = Slide.Shapes.PulloutB;
+                    break;
+                }
+                case "pullout_l":
+                {
+                    visualType = Slide.Shapes.PulloutL;
+                    break;
+                }
+                case "pullout_r":
+                {
+                    visualType = Slide.Shapes.PulloutR;
+                    break;
+                }
+                case "pullout_t":
+                {
+                    visualType = Slide.Shapes.PulloutT;
+                    break;
+                }
+                case "running_man":
+                {
+                    visualType = Slide.Shapes.RunningMan;
+                    break;
+                }
+                case "square":
+                {
+                    visualType = Slide.Shapes.Square;
+                    break;
+                }
+                case "square_rounded":
+                {
+                    visualType = Slide.Shapes.SquareRounded;
+                    break;
+                }
+                case "star":
+                {
+                    visualType = Slide.Shapes.Star;
+                    break;
+                }
+                case "tick":
+                {
+                    visualType = Slide.Shapes.Tick;
+                    break;
+                }
+                case "train":
+                {
+                    visualType = Slide.Shapes.Train;
+                    break;
+                }
+                case "tree":
+                {
+                    visualType = Slide.Shapes.Tree;
+                    break;
+                }
+                case "tri1":
+                {
+                    visualType = Slide.Shapes.Tri1;
+                    break;
+                }
+                case "tri2":
+                {
+                    visualType = Slide.Shapes.Tri2;
+                    break;
+                }
+                case "tri3":
+                {
+                    visualType = Slide.Shapes.Tri3;
+                    break;
+                }
+                case "tri4":
+                {
+                    visualType = Slide.Shapes.Tri4;
+                    break;
+                }
+                case "woman":
+                {
+                    visualType = Slide.Shapes.Woman;
+                    break;
+                }
+                case "yen":
+                {
+                    visualType = Slide.Shapes.Yen;
+                    break;
+                }
+            }
+
+            return visualType;
         }
 
         private void ReadCurrentItemSlideXml(string itemFolder)
@@ -276,10 +556,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                                         switch (id)
                                                         {
                                                             case "ISlide.Properties.Rank":
-                                                                {
-                                                                    rank = float.Parse(node.Attributes.GetNamedItem("name")?.Value ?? string.Empty);
-                                                                    break;
-                                                                }
+                                                            {
+                                                                string value =  node.Attributes.GetNamedItem("name")?.Value ??
+                                                                               string.Empty;
+                                                                rank = Convert.ToSingle(value.Replace('.',','));
+                                                                break;
+                                                            }
                                                         }
                                                     }
                                                 }
