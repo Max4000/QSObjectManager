@@ -13,39 +13,36 @@ using UtilClasses.ProgramOptionsClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsStoryWriter : IProgramOptionsEvent, IWriteStoryItemToDisk, IDeleteInfoFromDisk
+    public class QsStoryWriter : IWriteStoryItemToDisk, IDeleteInfoFromDisk
     {
         public ProgramOptions Options { get; } = new();
 
-        private IConnect _location;
+        
 
         private WriteStoryToDiskInfo _storyToDiskInfo = new();
 
-        private IApp _app;
         private IStory _currentStoryToWrite;
 
-        public QsStoryItemContainerWriter ItemContainerWriter { get; }
+        public QsSlideWriter ItemContainerWriter { get; }
 
-        public event NewProgramOptionsHandler NewProgramOptionsSend;
+        
         public event NewWriteStoryItemToDiskHandler NewStoryItemToDiskSend;
         public event NewDeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
 
-        public QsStoryWriter(IProgramOptionsEvent programOptionsEvent, IConnectionStatusInfoEvent connectionStatusInfoEvent, 
+        public QsStoryWriter(IProgramOptionsEvent programOptionsEvent,  
             IWriteStoryToDisk writeStoryToDisk,IDeleteStoryFromDisk deleteStory)
         {
             IProgramOptionsEvent progOptionsEvent = programOptionsEvent;
             progOptionsEvent.NewProgramOptionsSend += NewProgramOptionsReceived;
 
-            IConnectionStatusInfoEvent connectStatusInfoEvent = connectionStatusInfoEvent;
-            connectStatusInfoEvent.NewConnectionStatusInfoSend += NewConnectionStatusInfoReceived;
-
+           
             IWriteStoryToDisk writeInfo = writeStoryToDisk;
             writeInfo.NewWriteStoryToDiskSend += NewWriteStoryToDiskReceived;
 
             IDeleteStoryFromDisk delStory = deleteStory;
             delStory.NewDeleteStoryFromDiskSend += NewDeleteStoryFromDiskReceived;
 
-            ItemContainerWriter = new QsStoryItemContainerWriter(this, this,this);
+            ItemContainerWriter = new QsSlideWriter(this,this);
         }
 
         private void OnNewDeleteItemFromDisk(DeleteItemFromDiskEventArgs e)
@@ -132,11 +129,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             string fileXml = pathToStore + "\\" + _storyToDiskInfo.CurrentStory.Id + ".xml";
 
-            IAppIdentifier appId = _location.GetConnection().AppWithId(_storyToDiskInfo.CurrentApp.Id);
+            //IAppIdentifier appId = _location.GetConnection().AppWithId(_storyToDiskInfo.CurrentApp.Id);
 
-            _app = _location.GetConnection().App(appId);
+            //_app = _location.GetConnection().App(appId);
 
-            _currentStoryToWrite = _app?.GetStory(_storyToDiskInfo.CurrentStory.Id);
+            _currentStoryToWrite = _storyToDiskInfo.App.GetStory(_storyToDiskInfo.CurrentStory.Id);
             
             //string pathEndNamePropertiesFile = pathToStore + "\\" + "Properties.json";
             //string pathEndNameLayoutFile = pathToStore + "\\" + "Layout.json";
@@ -275,17 +272,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
 
-        private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
-        {
-            e.ConnectionStatusInfo.Copy(ref _location);
-        }
-
         private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(Options);
-            
-            if (NewProgramOptionsSend != null)
-                NewProgramOptionsSend(this, e);
         }
 
         
@@ -331,10 +320,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public NameAndIdPair CurrentApp;
         public NameAndIdPair CurrentStory;
         public string StoreFolder;
+        public IApp App;
         public XmlTextWriter CurrentXmlTextWriter;
 
         public void Copy(ref WriteStoryToDiskInfo anotherInfo)
         {
+            anotherInfo.App = App;
             anotherInfo.CurrentApp = CurrentApp.Copy();
             anotherInfo.CurrentStory = CurrentStory.Copy();
             anotherInfo.StoreFolder = StoreFolder;

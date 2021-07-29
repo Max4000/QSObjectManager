@@ -4,24 +4,21 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Qlik.Sense.Client.Storytelling;
-using UtilClasses.ProgramOptionsClasses;
 
 #pragma warning disable CS0618
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsStoryItemContainerWriter
+    public class QsSlideWriter
     {
-        public ProgramOptions Options { get; } = new();
+        //public ProgramOptions Options { get; } = new();
+        
         public StoryItemInfo ItemInfo = new();
+        
         public DeleteItemFromDiskInfo  DeleteItem= new ();
-        public QsStoryItemContainerWriter(IProgramOptionsEvent programOptionsEvent, IWriteStoryItemToDisk writeStoryItem,IDeleteInfoFromDisk deleteInfoFromDisk)
+        public QsSlideWriter(IWriteStoryItemToDisk writeStoryItem,IDeleteInfoFromDisk deleteInfoFromDisk)
         {
             
-            IProgramOptionsEvent programopt = programOptionsEvent;
-
-            programopt.NewProgramOptionsSend += NewProgramOptionsReceived;
-
             IWriteStoryItemToDisk storyItem = writeStoryItem;
 
             storyItem.NewStoryItemToDiskSend += NewWriteStoryItemToDiskReceived;
@@ -104,11 +101,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         {
             e.ItemInfo.Copy(ref ItemInfo);
             WriteStoryItem();
-        }
-
-        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
-        {
-            e.ProgramOptions.Copy(Options);
         }
 
         private void WriteStoryItem()

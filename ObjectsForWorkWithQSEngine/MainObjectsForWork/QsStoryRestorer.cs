@@ -4,7 +4,6 @@ using System.Xml;
 using Newtonsoft.Json;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
-using UtilClasses.ProgramOptionsClasses;
 
 #pragma warning disable CS0618
 
@@ -12,28 +11,18 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class QsStoryRestorer : IRestoreSlideInfoFromDisk
     {
-        public ProgramOptions Options { get; } = new();
-        private IConnect _location;
-
+        
         private readonly RestoreInfo _restoreInfo = new();
         private readonly RestoreStoryFromDiskInfo _restoreStoryFromDiskInfo = new();
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        private QsStoryItemContainerRestorer QsStoryItemContainerRestorer { get; } 
+        private QsSlideRestorer QsSlideRestorer { get; } 
 
-        
         public event NewRestoreSlideInfoFromDiskHandler NewRestoreSlideInfoFromDiskSend;
 
-        public QsStoryRestorer(IProgramOptionsEvent programOptions,
-            IConnectionStatusInfoEvent connectionStatusInfoEvent, IRestoreInfoEvent restoreInfo , IRestoreStoryFromDisk storyFromDisk)
+        public QsStoryRestorer(IRestoreInfoEvent restoreInfo , IRestoreStoryFromDisk storyFromDisk)
         {
-            IProgramOptionsEvent programOptionsEvent = programOptions;
-
-            programOptionsEvent.NewProgramOptionsSend += NewProgramOptionsReceived;
-
-            IConnectionStatusInfoEvent connectionStatusInfo = connectionStatusInfoEvent;
-
-            connectionStatusInfo.NewConnectionStatusInfoSend += NewConnectionStatusInfoReceived;
+            
 
             IRestoreInfoEvent restoreInfoEvent = restoreInfo;
 
@@ -43,7 +32,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             story.NewRestoreStoryFromDiskSend += NewRestoreStoryFromDiskReceived;
 
-            QsStoryItemContainerRestorer = new QsStoryItemContainerRestorer(this);
+            QsSlideRestorer = new QsSlideRestorer(this);
 
         }
 
@@ -62,9 +51,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private void DoRestore()
         {
 
-            //IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreStoryFromDiskInfo.CurrentApp.Id);
-
-            //var app = _location.GetConnection().App(appId);
+            
             
             _restoreStoryFromDiskInfo.App.DestroyGenericObject(_restoreStoryFromDiskInfo.CurrentStory.Id);
 
@@ -144,35 +131,16 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 }
 
-            //app?.SaveAs("Rtx");
+            
             
         }
 
         private void NewRestoreInfoReceived(object sender, RestoreInfoEventArgs e)
         {
             e.RestoreInfo.Copy(_restoreInfo);
-
-           
         }
 
-        
 
-
-        private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
-        {
-            e.ConnectionStatusInfo.Copy(ref _location);
-           
-        }
-
-        
-
-        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
-        {
-            e.ProgramOptions.Copy(Options);
-           
-        }
-
-        
     }
 
     public class RestoreStoryFromDiskInfo

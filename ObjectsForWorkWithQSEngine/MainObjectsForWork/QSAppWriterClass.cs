@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Qlik.Engine;
 using UtilClasses.ProgramOptionsClasses;
 using UtilClasses.ServiceClasses;
 
@@ -16,6 +17,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private IConnect _location;
 
         private XmlTextWriter _xmlWriter;
+
+        private IApp _app;
 
         public QsStoryWriter StoryWriter { get; }
 
@@ -85,7 +88,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             obj3.NewConnectionStatusInfoSend += NewConnectionStatusInfoReceived;
 
-            StoryWriter = new QsStoryWriter(this, this,this,this);
+            StoryWriter = new QsStoryWriter( this,this,this);
 
         }
 
@@ -124,8 +127,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             string mNameSelectedApp = Path.GetFileNameWithoutExtension(_wrtWriteInfo.SelectedApp.Name);
 
+            IAppIdentifier appId = _location.GetConnection().AppWithId(_wrtWriteInfo.SelectedApp.Id);
 
-            string  searchFileAppInStore = FindFiles.SearchFileAppInStore(Options.RepositoryPath, mNameSelectedApp, "*.xml");
+            _app = _location.GetConnection().App(appId);
+
+
+            string searchFileAppInStore = FindFiles.SearchFileAppInStore(Options.RepositoryPath, mNameSelectedApp, "*.xml");
 
             if (!string.IsNullOrEmpty(searchFileAppInStore))
             {
@@ -173,19 +180,23 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                 _xmlWriter.WriteElementString("storyName", story.Name); 
                                 _xmlWriter.WriteElementString("id",story.Id);
 
-                                WriteStoryToDiskInfo storeInfo = new WriteStoryToDiskInfo
+                                if (_app != null)
                                 {
-                                    StoreFolder = Path.GetFileNameWithoutExtension(fileXml),
-                                    CurrentApp = _wrtWriteInfo.SelectedApp.Copy(),
-                                    CurrentStory = story.Copy(),
-                                    CurrentXmlTextWriter = _xmlWriter
-                                };
+                                    WriteStoryToDiskInfo storeInfo = new WriteStoryToDiskInfo
+                                    {
+                                        App =     _app,
+                                        StoreFolder = Path.GetFileNameWithoutExtension(fileXml),
+                                        CurrentApp = _wrtWriteInfo.SelectedApp.Copy(),
+                                        CurrentStory = story.Copy(),
+                                        CurrentXmlTextWriter = _xmlWriter
+                                    };
 
 
-                                OnNewStoryInfoToDisk(new WriteStoryToDiskEventArgs(storeInfo));       
-                                
+                                    OnNewStoryInfoToDisk(new WriteStoryToDiskEventArgs(storeInfo));
+                                }
 
-                            _xmlWriter.WriteEndElement();
+
+                                _xmlWriter.WriteEndElement();
                         }
 
                     _xmlWriter.WriteEndElement();
@@ -199,6 +210,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             _xmlWriter.Flush();
             _xmlWriter.Close();
+            if (_app != null) _app.Dispose();
+            _app = null;
 
         }
 

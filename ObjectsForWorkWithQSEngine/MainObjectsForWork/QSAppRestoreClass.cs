@@ -8,7 +8,7 @@ using UtilClasses.ServiceClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsAppRestoreClass : IProgramOptionsEvent, IConnectionStatusInfoEvent, IRestoreInfoEvent, IRestoreStoryFromDisk
+    public class QsAppRestoreClass :   IRestoreInfoEvent, IRestoreStoryFromDisk
     {
         private string RepositoryPath { get; set; }
 
@@ -20,12 +20,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private IApp _app;
 
-        public event NewProgramOptionsHandler NewProgramOptionsSend;
-        public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
+        
         public event NewRestoreInfoHandler NewRestoreInfoSend;
         public event NewRestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
 
-        public QsStoryRestorer QsStoryRestorer { get; }
+        private QsStoryRestorer QsStoryRestorer { get; }
 
         public  IList<NameAndIdPair> GetAppsFromStore()
         {
@@ -63,7 +62,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             restoreInfoEvent.NewRestoreInfoSend += NewRestoreInfoReceived;
 
-            QsStoryRestorer = new QsStoryRestorer(this, this, this,this);
+            QsStoryRestorer = new QsStoryRestorer(this,this);
 
         }
 
@@ -159,7 +158,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             
 
             _app.SaveAs("Cov4");
-
+            _app.Dispose();
+            _app = null;
 
 
 
@@ -179,26 +179,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
             e.ConnectionStatusInfo.Copy(ref this._location);
-            OnNewConnectionStatusInfo(e);
         }
 
-        public void OnNewConnectionStatusInfo(ConnectionStatusInfoEventArgs e)
-        {
-            if (NewConnectionStatusInfoSend != null)
-                NewConnectionStatusInfoSend(this, e);
-        }
 
         private void NewProgramOptionsSendReceive(object sender, ProgramOptionsEventArgs e)
         {
             this.RepositoryPath = e.ProgramOptions.RepositoryPath;
-            OnNewOptions(e);
         }
 
-        public void OnNewOptions(ProgramOptionsEventArgs e)
-        {
-            if (NewProgramOptionsSend != null)
-                NewProgramOptionsSend(this, e);
-        }
+       
 
 
         public NameAndIdPair GetNameAnIdAppFromFile(string mFileApp)

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
-using Qlik.Engine;
 using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
@@ -37,7 +36,6 @@ namespace QSObjectManager
         private bool _connectedToLocalServer;
         private bool _connectedToRemoteServer;
 
-        private IApp _app;
 
 
         public ManagerForm()

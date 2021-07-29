@@ -12,14 +12,14 @@ using Qlik.Sense.Client.Storytelling;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsStoryItemContainerRestorer
+    public class QsSlideRestorer
     {
 
         private readonly RestoreSlideInfo _restoreSlideInfo = new();
 
         private readonly Dictionary<string, XmlPair> _currentItemDict = new();
 
-        public QsStoryItemContainerRestorer(
+        public QsSlideRestorer(
              IRestoreSlideInfoFromDisk slideInfoFromDisk)
         {
             
