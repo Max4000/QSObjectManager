@@ -23,9 +23,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private IStory _currentStoryToWrite;
 
-        public QsSlideWriter ItemContainerWriter { get; }
 
-        
         public event NewWriteStoryItemToDiskHandler NewStoryItemToDiskSend;
         public event NewDeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
 
@@ -42,7 +40,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             IDeleteStoryFromDisk delStory = deleteStory;
             delStory.NewDeleteStoryFromDiskSend += NewDeleteStoryFromDiskReceived;
 
-            ItemContainerWriter = new QsSlideWriter(this,this);
+            var unused = new QsSlideWriter(this,this);
         }
 
         private void OnNewDeleteItemFromDisk(DeleteItemFromDiskEventArgs e)
@@ -129,18 +127,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             string fileXml = pathToStore + "\\" + _storyToDiskInfo.CurrentStory.Id + ".xml";
 
-            //IAppIdentifier appId = _location.GetConnection().AppWithId(_storyToDiskInfo.CurrentApp.Id);
-
-            //_app = _location.GetConnection().App(appId);
+            
 
             _currentStoryToWrite = _storyToDiskInfo.App.GetStory(_storyToDiskInfo.CurrentStory.Id);
             
-            //string pathEndNamePropertiesFile = pathToStore + "\\" + "Properties.json";
-            //string pathEndNameLayoutFile = pathToStore + "\\" + "Layout.json";
-            //string pathEndNameThumbnailFile = pathToStore + "\\" + "Thumbnail.json";
-            //string pathEndNameMetaAttributesFile = pathToStore + "\\" + "MetaAttributes.json";
-            //string pathEndNameNxInfoFile = pathToStore + "\\" + "NxInfo.json";
-            //string pathEndNameNxLayoutErrorsFile = pathToStore + "\\" + "NxLayoutErrors.json";
+            
 
             XmlTextWriter xmlWriter = new XmlTextWriter(fileXml, Encoding.UTF8)
             {

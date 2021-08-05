@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Xml;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Qlik.Engine;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Snapshot;
@@ -122,17 +126,35 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
+        private string GetPath(string fromString)
+        {
+            int pos1 = fromString.IndexOf('/', 0);
+            int pos2 = fromString.IndexOf('/', pos1 + 1);
+            int pos3 = fromString.IndexOf('/', pos2 + 1);
+            return fromString.Substring(pos3 + 1);
+        }
+
         private SlideItemProperties CreateSlideItemProperties(ISlide slide, string id, string itemFolder, string itemType)
         {
             SlideItemProperties result = null;
-            
+
             SlideStyle style = JsonConvert.DeserializeObject<SlideStyle>(
                 Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Style.json"));
 
-            StaticContentUrlContainerDef contUrl = JsonConvert.DeserializeObject<StaticContentUrlContainerDef>(
-                Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SrcPath.json"));
 
-            StaticContentUrlDef url = contUrl?.Get<StaticContentUrlDef>("qStaticContentUrlDef");
+            JObject jObject = JObject.Parse(Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SrcPath.json"));
+
+            JProperty property = jObject.Property("qStaticContentUrl");
+
+            string valueSrcPath = "";
+            string stringPathToImage = "";
+
+            if (property != null)
+            {
+                JToken jtokenChild = property.Children().First();
+                valueSrcPath = jtokenChild.Value<string>("qUrl");
+            }
+
 
             switch (itemType)
             {
@@ -146,12 +168,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 }
                 case "image":
                 {
+                    if (valueSrcPath.Length > 0)
+                        stringPathToImage = GetPath(valueSrcPath);
 
-                    string stringPathToImage = url?.Get<string>("qUrl");
-
-                    result = slide.CreateImageSlideItemProperties(id, /*stringPathToImage*/"Qlik_default_feathers.png");
-
-                    //result.Set("srcPath", contUrl);
+                    result = slide.CreateImageSlideItemProperties(id, stringPathToImage);
 
                     break;
                 }

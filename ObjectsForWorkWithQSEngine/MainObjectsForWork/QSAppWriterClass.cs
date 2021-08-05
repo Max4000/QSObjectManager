@@ -9,7 +9,7 @@ using UtilClasses.ServiceClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsAppWriterClass : IProgramOptionsEvent , IConnectionStatusInfoEvent, IWriteStoryToDisk,IDeleteStoryFromDisk
+    public class QsAppWriterClass : IProgramOptionsEvent , /*IConnectionStatusInfoEvent,*/ IWriteStoryToDisk,IDeleteStoryFromDisk
     {
         private readonly WriteInfo _wrtWriteInfo = new();
         public ProgramOptions Options { get; } = new();
@@ -20,17 +20,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private IApp _app;
 
-        public QsStoryWriter StoryWriter { get; }
-
         public event NewProgramOptionsHandler NewProgramOptionsSend;
-        public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
+        //public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
         public event NewWriteStoryToDiskHandler NewWriteStoryToDiskSend;
         public event NewDeleteStoryFromDiskHandler NewDeleteStoryFromDiskSend;
 
         private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
             e.ConnectionStatusInfo.Copy(ref this._location);
-            OnNewConnectionStatusInfo(e);
+            //OnNewConnectionStatusInfo(e);
         }
 
         private void OnNewStoryInfoToDisk(WriteStoryToDiskEventArgs e)
@@ -64,11 +62,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewProgramOptionsSend(this, e);
         }
 
-        public void OnNewConnectionStatusInfo(ConnectionStatusInfoEventArgs e)
-        {
-            if (NewConnectionStatusInfoSend != null)
-                NewConnectionStatusInfoSend(this, e);
-        }
+        //public void OnNewConnectionStatusInfo(ConnectionStatusInfoEventArgs e)
+        //{
+        //    if (NewConnectionStatusInfoSend != null)
+        //        NewConnectionStatusInfoSend(this, e);
+        //}
 
         /// <summary>
         /// 
@@ -88,8 +86,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             obj3.NewConnectionStatusInfoSend += NewConnectionStatusInfoReceived;
 
-            StoryWriter = new QsStoryWriter( this,this,this);
-
+            var unused = new QsStoryWriter( this,this,this);
         }
 
        

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -6,6 +7,7 @@ using Qlik.Engine;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
 using UtilClasses;
+using Formatting = Newtonsoft.Json.Formatting;
 
 #pragma warning disable 618
 
@@ -92,7 +94,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             if (abstractStructure != null)
             {
-                string json = abstractStructure.PrintStructure(Newtonsoft.Json.Formatting.Indented);
+                string json = abstractStructure.PrintStructure(Formatting.Indented);
+
+                if (fileName.EndsWith("Properties.MetaDef.json"))
+                    json = json.Replace("\"tags\": [],", "", StringComparison.Ordinal);
 
                 using var propertyFile = new AppEntryWriter(fileName);
 

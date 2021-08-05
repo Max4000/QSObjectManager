@@ -137,7 +137,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     Utils.PrintStructureToFile("item", "INxContainerEntry.Meta", "NxMeta", "INxContainerEntry.Meta.json", xmlWriter,
                         fileMeta, ItemInfo.Container.Meta);
 
-                //xmlWriter.WriteEndElement();
+               
 
 
             xmlWriter.WriteEndElement();//item
@@ -198,12 +198,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     int itemNo = -1;
 
 
-                    foreach (ISlideItem unused in slide.SlideItems)
+                    foreach (ISlideItem slideItem in slide.SlideItems)
                     {
                         itemNo++;
 
                         Utils.CreateElement("item", "Item" + itemNo.ToString(), "ISlideItem.SlideItemProperties",
-                            unused.Id, xmlWriter);
+                            slideItem.Id, xmlWriter);
                     }
                     
                     WriteSlideItemsToDisk(slide);

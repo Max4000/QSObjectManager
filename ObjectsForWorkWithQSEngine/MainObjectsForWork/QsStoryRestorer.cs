@@ -1,6 +1,7 @@
 ﻿using Qlik.Engine;
 using System;
 using System.Xml;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
@@ -15,8 +16,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private readonly RestoreInfo _restoreInfo = new();
         private readonly RestoreStoryFromDiskInfo _restoreStoryFromDiskInfo = new();
 
-        // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        private QsSlideRestorer QsSlideRestorer { get; } 
 
         public event NewRestoreSlideInfoFromDiskHandler NewRestoreSlideInfoFromDiskSend;
 
@@ -32,8 +31,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             story.NewRestoreStoryFromDiskSend += NewRestoreStoryFromDiskReceived;
 
-            QsSlideRestorer = new QsSlideRestorer(this);
-
+            var unused = new QsSlideRestorer(this);
         }
 
         private void OnNewRestoreSlideInfoFromDisk(RestoreSlideInfoEventArgs e)
@@ -51,9 +49,18 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private void DoRestore()
         {
 
-            
-            
+            string searchFileStoryInStore = _restoreStoryFromDiskInfo.StoryFolder + "\\" + _restoreStoryFromDiskInfo.CurrentStory.Id + ".xml";
+
             _restoreStoryFromDiskInfo.App.DestroyGenericObject(_restoreStoryFromDiskInfo.CurrentStory.Id);
+
+            //JsonSerializerSettings serializerSettings = new JsonSerializerSettings()
+            //{
+            //    NullValueHandling = NullValueHandling.Ignore,
+            //    Formatting = Newtonsoft.Json.Formatting.Indented,
+            //    MissingMemberHandling = MissingMemberHandling.Ignore,
+            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            //};
+            
 
             MetaAttributesDef metaAttributes =
                 JsonConvert.DeserializeObject<MetaAttributesDef>(
@@ -75,25 +82,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             
             mStory.Set("qChildListDef", childListDef);
             
-            mStory.Set("rank", (float) -1.0);
+            mStory.Set("rank", GetRank(searchFileStoryInStore));
             
             mStory.Set("thumbnail", thumbail);
 
             IStory currentStory = _restoreStoryFromDiskInfo.App.CreateStory(_restoreStoryFromDiskInfo.CurrentStory.Id, mStory);
 
-            #region Пока скрыто
-
-
-
-
-            //ISlide slide = story1?.CreateSlide();
-
-            //SlideItemProperties result = slide?.CreateSnapshotSlideItemProperties("Pxhfp", "40aba019 - 5c0b - 4d1c - 96e4 - a4c5c5dd79b3");
-
-            //slide.CreateSnapshotSlideItem("Pxhfp", result);
-
-            #endregion
-            string searchFileStoryInStore = _restoreStoryFromDiskInfo.StoryFolder + "\\" + _restoreStoryFromDiskInfo.CurrentStory.Id + ".xml";
 
             var xmlDocument = new XmlDocument();
 
@@ -133,6 +127,44 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             
             
+        }
+
+        private float GetRank(string pathXml)
+        {
+            var xmlDocument = new XmlDocument();
+
+            xmlDocument.Load(pathXml);
+
+            XmlNode root = xmlDocument.DocumentElement;
+
+            if (root != null)
+                foreach (XmlNode nodeStory in root.ChildNodes)
+                {
+                    switch (nodeStory.Name)
+                    {
+                        case "properties":
+                        {
+                            foreach (XmlNode item in nodeStory.ChildNodes)
+                            {
+                                if (item.Attributes != null)
+                                {
+                                    string value = item.Attributes.GetNamedItem("id")?.Value;
+
+                                    if (string.CompareOrdinal(value, "Properties.Rank") == 0)
+                                        return float.Parse(Strings.Replace(item.Attributes.GetNamedItem("name")?.Value,".",",") ?? string.Empty);
+
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+
+                }
+
+            return -1.0f;
+
+
         }
 
         private void NewRestoreInfoReceived(object sender, RestoreInfoEventArgs e)

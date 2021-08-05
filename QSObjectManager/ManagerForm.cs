@@ -357,18 +357,21 @@ namespace QSObjectManager
                 return;
             }
 
-            _selectedIndexAppInStore = listBoxAppsInStoreOnRestoreTab.SelectedIndex;
+            if (listBoxAppsInStoreOnRestoreTab.SelectedItem != null && !string.IsNullOrEmpty(listBoxAppsInStoreOnRestoreTab.SelectedItem.ToString())){
 
-            OnNewSelectedApp(new SelectedAppEventArgs(_lstAppsInStore[_selectedIndexAppInStore]));
+                _selectedIndexAppInStore = listBoxAppsInStoreOnRestoreTab.SelectedIndex;
 
-            _lstStorysInStore = _qsAppRestoreObject.GetHistoryListForSelectedApp();
-                
+                OnNewSelectedApp(new SelectedAppEventArgs(_lstAppsInStore[_selectedIndexAppInStore]));
 
-            listBoxHistorysInStoreOnRestoreTab.Items.Clear();
+                _lstStorysInStore = _qsAppRestoreObject.GetHistoryListForSelectedApp();
 
-            foreach (var item in _lstStorysInStore)
-            {
-                listBoxHistorysInStoreOnRestoreTab.Items.Add(item);
+
+                listBoxHistorysInStoreOnRestoreTab.Items.Clear();
+
+                foreach (var item in _lstStorysInStore)
+                {
+                    listBoxHistorysInStoreOnRestoreTab.Items.Add(item);
+                }
             }
 
         }
