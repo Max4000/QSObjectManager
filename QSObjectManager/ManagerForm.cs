@@ -62,7 +62,7 @@ namespace QSObjectManager
         }
 
 
-        public void OnNewConnectioStatusInfo(ConnectionStatusInfoEventArgs e)
+        public void OnNewConnectionStatusInfo(ConnectionStatusInfoEventArgs e)
         {
             if (NewConnectionStatusInfoSend != null)
                 NewConnectionStatusInfoSend(this, e);
@@ -137,7 +137,7 @@ namespace QSObjectManager
                     buttonConnectToLocalHub.Visible = false;
                     buttonConnectToServer.Visible = false;
 
-                    OnNewConnectioStatusInfo(
+                    OnNewConnectionStatusInfo(
                         new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
                 }
                 catch (Exception)
@@ -205,7 +205,7 @@ namespace QSObjectManager
 
             _locationObject = null;
 
-            OnNewConnectioStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
+            OnNewConnectionStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
 
             SelectedIpp = -1;
             _isConnected = false;
@@ -435,7 +435,7 @@ namespace QSObjectManager
 
                 buttonRestoreHistoryOnRestoreTab.Visible = _isConnected;
 
-                OnNewConnectioStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
+                OnNewConnectionStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
             }
 
         }
