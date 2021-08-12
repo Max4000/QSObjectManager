@@ -99,6 +99,9 @@ namespace QSObjectManager
         {
             try
             {
+                _programOptions.RemoteAddress = textBox4.Text;
+                OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
+
                 _locationObject = new RemoteConnection(textBox4.Text);
                 _locationObject.Connect();
                 _connectedToRemoteServer = true;
@@ -153,6 +156,9 @@ namespace QSObjectManager
         {
             try
             {
+                _programOptions.LocalAddress = textBox1.Text;
+
+                OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
 
                 _locationObject = new LocalConnection(textBox1.Text);
                 _locationObject.Connect();
@@ -264,6 +270,8 @@ namespace QSObjectManager
             _programOptions = _iniFileObject.GetOptions();
 
             textBoxHistoryPath.Text = _programOptions.RepositoryPath;
+            textBox1.Text = _programOptions.LocalAddress;
+            textBox4.Text = _programOptions.RemoteAddress;
 
             _qsAppRestoreObject = new QsAppRestoreClass(this,this,this,this);
             
@@ -317,6 +325,8 @@ namespace QSObjectManager
         {
             try
             {
+                textBoxAdressLocalHostOnRestoreTab.Text = _programOptions.LocalAddress;
+                textBoxAddrServer.Text = _programOptions.RemoteAddress;
                 _lstAppsInStore = _qsAppRestoreObject.GetAppsFromStore();
             }
             catch
@@ -385,6 +395,9 @@ namespace QSObjectManager
         {
             try
             {
+                _programOptions.LocalAddress = textBoxAdressLocalHostOnRestoreTab.Text;
+
+                OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
 
                 _locationObject = new LocalConnection(textBoxAdressLocalHostOnRestoreTab.Text);
                 _locationObject.Connect();
@@ -407,7 +420,10 @@ namespace QSObjectManager
         {
             try
             {
-                _locationObject = new RemoteConnection(textBox4.Text);
+                _programOptions.RemoteAddress = textBoxAddrServer.Text;
+
+                OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
+                _locationObject = new RemoteConnection(textBoxAddrServer.Text);
                 _locationObject.Connect();
                 _connectedToRemoteServer = true;
             }
@@ -479,6 +495,12 @@ namespace QSObjectManager
         private void AboutProgramToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new AboutForm().ShowDialog();
+        }
+
+        private void tabPageSave_Enter(object sender, EventArgs e)
+        {
+            textBox1.Text = _programOptions.LocalAddress;
+            textBox4.Text = _programOptions.RemoteAddress;
         }
     }
 }

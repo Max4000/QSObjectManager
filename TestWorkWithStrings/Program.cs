@@ -1,4 +1,6 @@
 ﻿using System;
+using Qlik.Engine;
+using Qlik.Engine.Communication;
 
 namespace TestWorkWithStrings
 {
@@ -6,9 +8,16 @@ namespace TestWorkWithStrings
     {
         static void Main()
         {
-            Console.WriteLine("Hello World!");
+            var uri = new Uri("https://localhost:4747");
+            var certs = CertificateManager.LoadCertificateFromStore();
 
-            string unused = GetPath("/media/9af7cf0becf14ca4ca59d232dfcf8b77/n1/Qlik_default_feathersN1.png");
+            ILocation location = Qlik.Engine.Location.FromUri(uri);
+            location.AsDirectConnection("DESKTOP-ULSENNT", "Anatoliy", certificateCollection: certs);
+
+            using (var hub = location.Hub())
+            {
+                Console.WriteLine(hub.EngineVersion().ComponentVersion);
+            }
         }
 
         static string GetPath(string fromString)

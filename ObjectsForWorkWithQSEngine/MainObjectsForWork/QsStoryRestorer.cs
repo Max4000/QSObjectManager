@@ -3,6 +3,7 @@ using System;
 using System.Xml;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
 
@@ -53,18 +54,49 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             _restoreStoryFromDiskInfo.App.DestroyGenericObject(_restoreStoryFromDiskInfo.CurrentStory.Id);
 
-            //JsonSerializerSettings serializerSettings = new JsonSerializerSettings()
-            //{
-            //    NullValueHandling = NullValueHandling.Ignore,
-            //    Formatting = Newtonsoft.Json.Formatting.Indented,
-            //    MissingMemberHandling = MissingMemberHandling.Ignore,
-            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            //};
-            
 
-            MetaAttributesDef metaAttributes =
-                JsonConvert.DeserializeObject<MetaAttributesDef>(
-                    Utils.ReadJsonFile(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.MetaDef.json"));
+            JObject jObject = JObject.Parse(Utils.ReadJsonFile(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.MetaDef.json"));
+
+            JToken rootToken = jObject.Root;
+
+            string title = "", description = "", annotation = "";
+
+            if (rootToken != null)
+            {
+                foreach (JToken token in rootToken.Children())
+                {
+                    string path = token.Path;
+
+                    switch (path)
+                    {
+                        case "title":
+                        {
+                            title = token.First.Value<string>();
+                            break;
+                        }
+                        case "description":
+                        {
+                            description = token.First.Value<string>();
+                            break;
+                        }
+                        case "annotation":
+                        {
+                            annotation = token.First.Value<string>();
+                            break;
+                        }
+                    }
+
+                }
+
+
+            }
+
+            MetaAttributesDef metaAttributes = new MetaAttributesDef()
+            {
+                Title = title,
+                Annotation = annotation,
+                Description = description
+            };
 
 
             StoryChildListDef childListDef =

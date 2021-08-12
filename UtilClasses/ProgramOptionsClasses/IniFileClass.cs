@@ -37,6 +37,9 @@ namespace UtilClasses.ProgramOptionsClasses
                 Options.RepositoryPath = _iniFileObj.Read("PathHistorysRoot", "Paths");
             }
 
+            Options.LocalAddress = _iniFileObj.Read("LocAddr", "LocalAddr");
+            Options.RemoteAddress = _iniFileObj.Read("RemAddr", "RemoteAddr");
+
         }
 
         private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
@@ -57,6 +60,8 @@ namespace UtilClasses.ProgramOptionsClasses
         private void UpdateOptionsInIniFile(ProgramOptions opts)
         {
             _iniFileObj.Write("PathHistorysRoot", opts.RepositoryPath, "Paths");
+            _iniFileObj.Write("LocAddr", opts.LocalAddress, "LocalAddr");
+            _iniFileObj.Write("RemAddr", opts.RemoteAddress, "RemoteAddr");
 
         }
 
@@ -77,15 +82,24 @@ namespace UtilClasses.ProgramOptionsClasses
         public void Copy(ProgramOptions anotherOptions)
         {
             anotherOptions.RepositoryPath = RepositoryPath;
+            anotherOptions.LocalAddress = LocalAddress;
+            anotherOptions.RemoteAddress = RemoteAddress;
         }
 
         public ProgramOptions Copy()
         {
-            return new(RepositoryPath);
+            return new(RepositoryPath)
+            {
+                LocalAddress = this.LocalAddress,
+                RemoteAddress = this.RemoteAddress
+            };
         }
 
 
         public string RepositoryPath { get; set; }
+        public string LocalAddress { get; set; }
+
+        public string RemoteAddress { get; set; }
     }
 
     public class ProgramOptionsEventArgs : EventArgs

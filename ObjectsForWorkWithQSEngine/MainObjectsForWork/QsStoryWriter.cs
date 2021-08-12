@@ -15,9 +15,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class QsStoryWriter : IWriteStoryItemToDisk, IDeleteInfoFromDisk
     {
-        public ProgramOptions Options { get; } = new();
-
-        
+        private ProgramOptions Options { get; } = new();
 
         private WriteStoryToDiskInfo _storyToDiskInfo = new();
 

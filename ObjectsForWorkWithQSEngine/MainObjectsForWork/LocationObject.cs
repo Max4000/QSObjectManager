@@ -16,6 +16,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             
         }
 
+        // ReSharper disable once RedundantAssignment
         public void Copy(ref IConnect anotherLocationObject)
         {
             anotherLocationObject = LocationObject;
@@ -28,9 +29,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public readonly ConnectionStatusInfo ConnectionStatusInfo;
 
-        public ConnectionStatusInfoEventArgs(ConnectionStatusInfo refLocatioobject)
+        public ConnectionStatusInfoEventArgs(ConnectionStatusInfo locatioobject)
         {
-            ConnectionStatusInfo = refLocatioobject;
+            ConnectionStatusInfo = locatioobject;
         }
     }
 
@@ -48,7 +49,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public void Disconnect();
         public bool IsConnected();
         
-        // ReSharper disable once UnusedMember.Global
         ILocation GetConnection();
     }
 
@@ -82,36 +82,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     public class LocalConnection: Connection
     {
         
-        private string _addr;
+        private readonly string _address;
 
 
         public override bool Connect()
         {
-            var uri = new Uri(_addr);
-
-            Location = Qlik.Engine.Location.FromUri(uri);
-            Location.AsDirectConnectionToPersonalEdition();
-
-            return IsConnected(); ;
-        }
-
-        public LocalConnection(string addr)
-        {
-            _addr = addr;
-
-        }
-    }
-
-    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
-    public class RemoteConnection : Connection
-    {
-        private readonly string  _addr;
-        private string  _domen;
-        private string _userId;
-
-        public override bool Connect()
-        {
-            var uri = new Uri(_addr);
+            var uri = new Uri(_address);
 
             Location = Qlik.Engine.Location.FromUri(uri);
             Location.AsDirectConnectionToPersonalEdition();
@@ -119,63 +95,38 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return IsConnected(); 
         }
 
-        public RemoteConnection(string addr, string domen, string userId)
+        public LocalConnection(string address)
         {
-            
-            _domen = domen;
-            _userId = userId;
+            _address = address;
+
+        }
+    }
+
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
+    public class RemoteConnection : Connection
+    {
+        private readonly string  _address;
+        
+
+        public override bool Connect()
+        {
+            var uri = new Uri(_address);
+
+            Location = Qlik.Engine.Location.FromUri(uri);
+            Location.AsNtlmUserViaProxy(); 
+
+            return IsConnected(); 
         }
 
-        public RemoteConnection(string addr)
+        
+
+        public RemoteConnection(string address)
         {
-            _addr = addr; ;
+            _address = address; 
         }
     }
 
 
 
-    //[SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
-    //public class LocationObject : IDisposable
-    //{
-    //    private ILocation _location;
-
-    //    private string _addr;
-
-    //    /// <summary>
-    //    /// 
-    //    /// </summary>
-    //    /// <param name="addr"></param>
-    //    public LocationObject(string addr)
-    //    {
-    //        _addr = addr;
-
-    //    }
-
-
-    //    public bool Connect()
-    //    {
-    //        var uri = new Uri(_addr);
-
-    //        _location = Location.FromUri(uri);
-    //        _location.AsDirectConnectionToPersonalEdition();
-
-    //        return IsConnected();
-
-    //    }
-
-
-    //    public bool IsConnected()
-    //    {
-    //        return _location != null;
-    //    }
-
-
-    //    public ILocation LocationPersonalEdition => _location;
-
-
-    //    public void Dispose()
-    //    {
-    //        _location?.Dispose();
-    //    }
-    //}
+   
 }
