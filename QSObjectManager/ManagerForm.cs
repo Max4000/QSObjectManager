@@ -10,7 +10,7 @@ namespace QSObjectManager
     {
         private IConnect _locationObject;
         private IList<NameAndIdPair> _lstApp;
-        private IList<NameAndIdPair> _storys;
+        private IList<NameAndIdPair> _stories;
         private int SelectedIpp { get; set; }
         
 
@@ -110,6 +110,7 @@ namespace QSObjectManager
             {
                 ShowMessageForm("Проверьте условия подключения к Dev Hub", "Ошибка");
                 _connectedToRemoteServer = false;
+                _locationObject = null;
             }
             UpdateForm();
         }
@@ -171,6 +172,7 @@ namespace QSObjectManager
                 
                 ShowMessageForm("Проверьте условия подключения к Dev Hub","Ошибка");
                 _connectedToLocalServer = false;
+                _locationObject = null;
 
             }
 
@@ -245,9 +247,9 @@ namespace QSObjectManager
                 NameAndIdPair appPair = _lstApp[ListBoxAppsFromDevHub.SelectedIndex];
                 SelectedIpp = ListBoxAppsFromDevHub.SelectedIndex;
 
-                _storys = Utils.GetStories(_locationObject.GetConnection(), appPair.Id);
+                _stories = Utils.GetStories(_locationObject.GetConnection(), appPair.Id);
 
-                foreach (var story in _storys)
+                foreach (var story in _stories)
                 {
                     listBoxStrorysFromDevHub.Items.Add(story);
                 }
@@ -298,8 +300,11 @@ namespace QSObjectManager
         {
 
 
-            if (!(_locationObject !=null && listBoxStrorysFromDevHub.SelectedIndices.Count > 0))
+            if (!(_locationObject != null && listBoxStrorysFromDevHub.SelectedIndices.Count > 0))
+            {
+                ShowMessageForm("Надо выбрать одно приложение и не менее одной истории", "Ошибка");
                 return;
+            }
 
             IList<NameAndIdPair> listStoryNames = new List<NameAndIdPair>();
 
@@ -309,11 +314,13 @@ namespace QSObjectManager
 
                 if (ts >= 0)
                 {
-                    listStoryNames.Add(new NameAndIdPair(_storys[ts].Name,_storys[ts].Id));
+                    listStoryNames.Add(new NameAndIdPair(_stories[ts].Name,_stories[ts].Id));
                 }
             }
 
             OnNewWriteInfo(new WriteInfoEventArgs(new WriteInfo(_lstApp[SelectedIpp].Copy(), listStoryNames)));
+
+            ShowMessageForm("Выбранные истории сохранены","");
         }
 
         private void tabPageImport_Leave(object sender, EventArgs e)
@@ -410,6 +417,7 @@ namespace QSObjectManager
 
                 ShowMessageForm("Проверьте условия подключения к Dev Hub", "Ошибка");
                 _connectedToLocalServer = false;
+                _locationObject = null;
 
             }
 
@@ -431,6 +439,7 @@ namespace QSObjectManager
             {
                 ShowMessageForm("Проверьте условия подключения к Dev Hub", "Ошибка");
                 _connectedToRemoteServer = false;
+                _locationObject = null;
             }
             UpdateFormOnRestoreTab();
         }
@@ -475,7 +484,10 @@ namespace QSObjectManager
         private void buttonRestoreHistoryOnRestoreTab_Click(object sender, EventArgs e)
         {
             if (!(_locationObject != null && listBoxHistorysInStoreOnRestoreTab.SelectedIndices.Count > 0))
+            {
+                ShowMessageForm("Надо выбрать одно приложение и не менее одной истории","Ошибка");
                 return;
+            }
 
             IList<NameAndIdPair> listStoryNames = new List<NameAndIdPair>();
 
@@ -490,6 +502,8 @@ namespace QSObjectManager
             }
 
             OnNewRestoreInfo(new RestoreInfoEventArgs(new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames)));
+
+            ShowMessageForm("Выбранные истории восстановлены","");
         }
 
         private void AboutProgramToolStripMenuItem_Click(object sender, EventArgs e)
