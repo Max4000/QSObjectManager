@@ -222,7 +222,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         {
             string mNameSelectedApp = Path.GetFileNameWithoutExtension(_wrtWriteInfo.SelectedApp.Name);
 
-            return  Options.RepositoryPath + "\\" + mNameSelectedApp + "_" + DateTimeUtlis.NowToString() + ".xml";
+            return  Options.RepositoryPath + "\\" + mNameSelectedApp + "_" + DateTimeUtils.NowToString() + ".xml";
 
         }
 

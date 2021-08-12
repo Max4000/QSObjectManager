@@ -3,7 +3,7 @@ using System.Text;
 
 namespace ObjectsForWorkWithQSEngine
 {
-    public class DateTimeUtlis
+    public class DateTimeUtils
     {
         /// <summary>
         /// 
