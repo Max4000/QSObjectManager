@@ -29,9 +29,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public readonly ConnectionStatusInfo ConnectionStatusInfo;
 
-        public ConnectionStatusInfoEventArgs(ConnectionStatusInfo locatioobject)
+        public ConnectionStatusInfoEventArgs(ConnectionStatusInfo locationObject)
         {
-            ConnectionStatusInfo = locatioobject;
+            ConnectionStatusInfo = locationObject;
         }
     }
 
