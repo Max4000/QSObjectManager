@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Qlik.Engine;
-using Qlik.Sense.Client;
 using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
 
@@ -141,10 +138,19 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             SlideStyle style = JsonConvert.DeserializeObject<SlideStyle>(
                 Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Style.json"));
 
+            JObject jObject = null;
+            try
+            {
 
-            JObject jObject = JObject.Parse(Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SrcPath.json"));
+                jObject = JObject.Parse(Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" +
+                                                                   itemFolder + "\\SrcPath.json"));
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
 
-            JProperty property = jObject.Property("qStaticContentUrl");
+            JProperty property = jObject?.Property("qStaticContentUrl");
 
             string valueSrcPath = "";
             string stringPathToImage = "";

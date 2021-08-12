@@ -157,6 +157,8 @@ namespace QSObjectManager
         {
             try
             {
+            
+
                 _programOptions.LocalAddress = textBox1.Text;
 
                 OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
@@ -169,12 +171,14 @@ namespace QSObjectManager
             }
             catch (Exception)
             {
-                
+            
                 ShowMessageForm("Проверьте условия подключения к Dev Hub","Ошибка");
                 _connectedToLocalServer = false;
                 _locationObject = null;
 
             }
+
+            
 
             UpdateForm();
         }
