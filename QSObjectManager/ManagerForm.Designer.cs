@@ -264,6 +264,7 @@ namespace QSObjectManager
             this.label7.Size = new System.Drawing.Size(84, 15);
             this.label7.TabIndex = 8;
             this.label7.Text = "Пользователь";
+            this.label7.Visible = false;
             // 
             // textBox6
             // 
@@ -272,6 +273,7 @@ namespace QSObjectManager
             this.textBox6.Name = "textBox6";
             this.textBox6.Size = new System.Drawing.Size(223, 23);
             this.textBox6.TabIndex = 7;
+            this.textBox6.Visible = false;
             // 
             // label6
             // 
@@ -281,6 +283,7 @@ namespace QSObjectManager
             this.label6.Size = new System.Drawing.Size(44, 15);
             this.label6.TabIndex = 6;
             this.label6.Text = "Домен";
+            this.label6.Visible = false;
             // 
             // textBox5
             // 
@@ -289,6 +292,7 @@ namespace QSObjectManager
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(223, 23);
             this.textBox5.TabIndex = 5;
+            this.textBox5.Visible = false;
             // 
             // label4
             // 
@@ -543,6 +547,7 @@ namespace QSObjectManager
             this.label8.Size = new System.Drawing.Size(84, 15);
             this.label8.TabIndex = 12;
             this.label8.Text = "Пользователь";
+            this.label8.Visible = false;
             // 
             // textBox3
             // 
@@ -551,6 +556,7 @@ namespace QSObjectManager
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(223, 23);
             this.textBox3.TabIndex = 11;
+            this.textBox3.Visible = false;
             // 
             // label9
             // 
@@ -560,6 +566,7 @@ namespace QSObjectManager
             this.label9.Size = new System.Drawing.Size(44, 15);
             this.label9.TabIndex = 10;
             this.label9.Text = "Домен";
+            this.label9.Visible = false;
             // 
             // textBox7
             // 
@@ -568,6 +575,7 @@ namespace QSObjectManager
             this.textBox7.Name = "textBox7";
             this.textBox7.Size = new System.Drawing.Size(223, 23);
             this.textBox7.TabIndex = 9;
+            this.textBox7.Visible = false;
             // 
             // label3
             // 

@@ -78,9 +78,22 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             if (!Directory.Exists(RepositoryPath))
                 return;
 
-            IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreInfo.SelectedApp.Id);
+            bool appOk = false;
 
-            _app = _location.GetConnection().App(appId);
+            try
+            {
+
+                IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreInfo.SelectedApp.Id);
+
+                _app = _location.GetConnection().App(appId);
+
+                appOk = true;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Не удалось подключиться к приложению", ex);
+            }
 
             string mNameSelectedApp = Path.GetFileNameWithoutExtension(_restoreInfo.SelectedApp.Name);
 

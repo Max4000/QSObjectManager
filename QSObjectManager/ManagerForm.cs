@@ -489,7 +489,7 @@ namespace QSObjectManager
         {
             if (!(_locationObject != null && listBoxHistorysInStoreOnRestoreTab.SelectedIndices.Count > 0))
             {
-                ShowMessageForm("Надо выбрать одно приложение и не менее одной истории","Ошибка");
+                ShowMessageForm("Надо выбрать одно приложение и не менее одной истории", "Ошибка");
                 return;
             }
 
@@ -505,9 +505,19 @@ namespace QSObjectManager
                 }
             }
 
-            OnNewRestoreInfo(new RestoreInfoEventArgs(new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames)));
+            try
+            {
 
-            ShowMessageForm("Выбранные истории восстановлены","");
+
+                OnNewRestoreInfo(new RestoreInfoEventArgs(
+                    new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames)));
+
+                ShowMessageForm("Выбранные истории восстановлены", "");
+            }
+            catch (Exception ex)
+            {
+                ShowMessageForm(ex.Message, "Ошибка");
+            }
         }
 
         private void AboutProgramToolStripMenuItem_Click(object sender, EventArgs e)
