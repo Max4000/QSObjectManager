@@ -28,10 +28,10 @@ namespace QSObjectManager
         private bool _isConnected;
 
         public event NewProgramOptionsHandler NewProgramOptionsSend;
-        public event NewWriterInfosHandler NewWriteInfoSend;
+        public event WriterInfosHandler NewWriteInfoSend;
         public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
-        public event NewAppSelectedHandler NewAppSelectedSend;
-        public event NewRestoreInfoHandler NewRestoreInfoSend;
+        public event AppSelectedHandler NewAppSelectedSend;
+        public event RestoreInfoHandler NewRestoreInfoSend;
 
         private bool _connectedToLocalServer;
         private bool _connectedToRemoteServer;

@@ -21,7 +21,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private IApp _app;
 
         
-        public event NewRestoreInfoHandler NewRestoreInfoSend;
+        public event RestoreInfoHandler NewRestoreInfoSend;
         public event NewRestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
 
         public  IList<NameAndIdPair> GetAppsFromStore()
@@ -47,23 +47,23 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public QsAppRestoreClass(IProgramOptionsEvent optionsEvent , IConnectionStatusInfoEvent connectionEvent, ISelectAppEvent selectAppEvent , IRestoreInfoEvent restoreEvent)
         {
             IProgramOptionsEvent programOptionsEvent = optionsEvent;
-            programOptionsEvent.NewProgramOptionsSend += NewProgramOptionsSendReceive;
+            programOptionsEvent.NewProgramOptionsSend += ProgramOptionsSendReceived;
 
             IConnectionStatusInfoEvent connectionStatusInfo = connectionEvent;
-            connectionStatusInfo.NewConnectionStatusInfoSend += NewConnectionStatusInfoReceived;
+            connectionStatusInfo.NewConnectionStatusInfoSend += ConnectionStatusInfoReceived;
 
             ISelectAppEvent selectApp = selectAppEvent;
 
-            selectApp.NewAppSelectedSend += NewAppSelectedReceive;
+            selectApp.NewAppSelectedSend += AppSelectedReceived;
 
             IRestoreInfoEvent restoreInfoEvent = restoreEvent;
 
-            restoreInfoEvent.NewRestoreInfoSend += NewRestoreInfoReceived;
+            restoreInfoEvent.NewRestoreInfoSend += RestoreInfoReceived;
 
             var unused = new QsStoryRestorer(this,this);
         }
 
-        private void NewRestoreInfoReceived(object sender, RestoreInfoEventArgs e)
+        private void RestoreInfoReceived(object sender, RestoreInfoEventArgs e)
         {
             e.RestoreInfo.Copy(_restoreInfo);
             OnNewRestoreInfoSend(e);
@@ -78,17 +78,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             if (!Directory.Exists(RepositoryPath))
                 return;
 
-            bool appOk = false;
-
             try
             {
 
                 IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreInfo.SelectedApp.Id);
 
                 _app = _location.GetConnection().App(appId);
-
-                appOk = true;
-
             }
             catch (Exception ex)
             {
@@ -203,18 +198,18 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewRestoreInfoSend(this, e);
         }
 
-        private void NewAppSelectedReceive(object sender, SelectedAppEventArgs e)
+        private void AppSelectedReceived(object sender, SelectedAppEventArgs e)
         {
             _selectedApp = e.SelectedApp.Copy();
         }
 
-        private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
+        private void ConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
-            e.ConnectionStatusInfo.Copy(ref this._location);
+            this._location = e.ConnectionStatusInfo.Copy();
         }
 
 
-        private void NewProgramOptionsSendReceive(object sender, ProgramOptionsEventArgs e)
+        private void ProgramOptionsSendReceived(object sender, ProgramOptionsEventArgs e)
         {
             this.RepositoryPath = e.ProgramOptions.RepositoryPath;
         }
@@ -331,10 +326,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface ISelectAppEvent
     {
-        event NewAppSelectedHandler NewAppSelectedSend;
+        event AppSelectedHandler NewAppSelectedSend;
     }
 
-    public delegate void NewAppSelectedHandler(object sender, SelectedAppEventArgs e);
+    public delegate void AppSelectedHandler(object sender, SelectedAppEventArgs e);
 
     
     public class RestoreInfo
@@ -378,8 +373,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IRestoreInfoEvent
     {
-        event NewRestoreInfoHandler NewRestoreInfoSend;
+        event RestoreInfoHandler NewRestoreInfoSend;
     }
 
-    public delegate void NewRestoreInfoHandler(object sender, RestoreInfoEventArgs e);
+    public delegate void RestoreInfoHandler(object sender, RestoreInfoEventArgs e);
 }

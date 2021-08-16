@@ -5,43 +5,6 @@ using Qlik.Engine;
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
 
-
-    public class ConnectionStatusInfo
-    {
-        public IConnect LocationObject;
-        
-        public ConnectionStatusInfo(IConnect locationObject)
-        {
-            LocationObject = locationObject;
-            
-        }
-
-        // ReSharper disable once RedundantAssignment
-        public void Copy(ref IConnect anotherLocationObject)
-        {
-            anotherLocationObject = LocationObject;
-        }
-
-    }
-
-    public class ConnectionStatusInfoEventArgs : EventArgs
-    {
-
-        public readonly ConnectionStatusInfo ConnectionStatusInfo;
-
-        public ConnectionStatusInfoEventArgs(ConnectionStatusInfo locationObject)
-        {
-            ConnectionStatusInfo = locationObject;
-        }
-    }
-
-    public interface IConnectionStatusInfoEvent
-    {
-        event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
-    }
-
-    public delegate void ConnectionStatusInfoHandler(object sender, ConnectionStatusInfoEventArgs e);
-
     public interface IConnect : IDisposable
     {
         public bool Connect();

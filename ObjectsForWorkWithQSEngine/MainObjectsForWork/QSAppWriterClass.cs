@@ -25,9 +25,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public event NewWriteStoryToDiskHandler NewWriteStoryToDiskSend;
         public event NewDeleteStoryFromDiskHandler NewDeleteStoryFromDiskSend;
 
-        private void NewConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
+        private void ConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
-            e.ConnectionStatusInfo.Copy(ref this._location);
+            this._location = e.ConnectionStatusInfo.Copy();
             //OnNewConnectionStatusInfo(e);
         }
 
@@ -44,14 +44,14 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewDeleteStoryFromDiskSend(this, e);
         }
 
-        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
+        private void ProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(this.Options);
             OnNewOptions(e);
         }
 
 
-        private void NewWriteInfoReceive(object sender, WriteInfoEventArgs e)
+        private void WriteInfoReceived(object sender, WriteInfoEventArgs e)
         {
             e.WriteInfo.Copy(_wrtWriteInfo);
             DoWrite();
@@ -62,11 +62,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewProgramOptionsSend(this, e);
         }
 
-        //public void OnNewConnectionStatusInfo(ConnectionStatusInfoEventArgs e)
-        //{
-        //    if (NewConnectionStatusInfoSend != null)
-        //        NewConnectionStatusInfoSend(this, e);
-        //}
+        
 
         /// <summary>
         /// 
@@ -77,25 +73,25 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public QsAppWriterClass(IWriteInfoEvent writeInfoEvent ,IProgramOptionsEvent programOptionsEvent, IConnectionStatusInfoEvent connectionStatusInfoEvent)
         {
             IWriteInfoEvent obj = writeInfoEvent;
-            obj.NewWriteInfoSend += NewWriteInfoReceive;
+            obj.NewWriteInfoSend += WriteInfoReceived;
 
             IProgramOptionsEvent obj2 = programOptionsEvent;
-            obj2.NewProgramOptionsSend += NewProgramOptionsReceived;
+            obj2.NewProgramOptionsSend += ProgramOptionsReceived;
 
             IConnectionStatusInfoEvent obj3 = connectionStatusInfoEvent;
 
-            obj3.NewConnectionStatusInfoSend += NewConnectionStatusInfoReceived;
+            obj3.NewConnectionStatusInfoSend += ConnectionStatusInfoReceived;
 
             var unused = new QsStoryWriter( this,this,this);
         }
 
        
 
-        private void DeleteStoriesFromDisk(string seachFile)
+        private void DeleteStoriesFromDisk(string searchFile)
         {
-            if (!string.IsNullOrEmpty(seachFile))
+            if (!string.IsNullOrEmpty(searchFile))
             {
-                string appFolder = Options.RepositoryPath + "\\" + Path.GetFileNameWithoutExtension(seachFile);
+                string appFolder = Options.RepositoryPath + "\\" + Path.GetFileNameWithoutExtension(searchFile);
 
                 string storiesFolder = appFolder + "\\" + "stories";
 
@@ -144,7 +140,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 DeleteHeadierOfAppFromDisk(searchFileAppInStore);
             }
 
-            string fileXml = GetNewNameAppXmLfile();
+            string fileXml = GetNewNameAppXmlFile();
 
             _xmlWriter = new XmlTextWriter(fileXml, Encoding.UTF8)
             {
@@ -213,12 +209,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
 
-        private void DeleteHeadierOfAppFromDisk(string seachFile)
+        private void DeleteHeadierOfAppFromDisk(string searchFile)
         {
-            File.Delete(seachFile);
+            File.Delete(searchFile);
         }
 
-        private string GetNewNameAppXmLfile()
+        private string GetNewNameAppXmlFile()
         {
             string mNameSelectedApp = Path.GetFileNameWithoutExtension(_wrtWriteInfo.SelectedApp.Name);
 
@@ -269,8 +265,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IWriteInfoEvent
     {
-        event NewWriterInfosHandler NewWriteInfoSend;
+        event WriterInfosHandler NewWriteInfoSend;
     }
 
-    public delegate void NewWriterInfosHandler(object sender, WriteInfoEventArgs e);
+    public delegate void WriterInfosHandler(object sender, WriteInfoEventArgs e);
 }

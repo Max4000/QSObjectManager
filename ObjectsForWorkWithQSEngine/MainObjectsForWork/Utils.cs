@@ -15,7 +15,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     {
         
         /// <summary>
-        /// Возвращает
+        /// Возвращает список приложений находящихся на сервере
+        /// или локальном компьютере
         /// </summary>
         /// <param name="location"></param>
         /// <returns>Список приложений</returns>
@@ -33,7 +34,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
        
         /// <summary>
-        /// 
+        /// Возвращает список историй у конкретного приложения
+        /// на этом подключении к серверу или локальному компьютеру
         /// </summary>
         /// <param name="location"></param>
         /// <param name="appid"></param>
@@ -67,7 +69,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         
 
         /// <summary>
-        /// 
+        /// записывает один элемент данных
+        /// в XML файл
         /// </summary>
         /// <param name="nameOfElement"></param>
         /// <param name="id"></param>
@@ -87,35 +90,41 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
 
+        /// <summary>
+        /// Записывает элемент данных в XML файл
+        /// и сохраняет JSON объект в файле
+        /// </summary>
+        /// <param name="nameOfElement"></param>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <param name="xmlTextWriter"></param>
+        /// <param name="fileName"></param>
+        /// <param name="abstractStructure"></param>
         public static void PrintStructureToFile(string nameOfElement, string id, string type, string name, XmlTextWriter xmlTextWriter, string fileName, IAbstractStructure abstractStructure)
         {
             CreateElement(nameOfElement, id, type, name, xmlTextWriter);
 
-            if (abstractStructure != null)
-            {
-                string json = abstractStructure.PrintStructure(Formatting.Indented);
+            string json = "";
 
-                using var propertyFile = new AppEntryWriter(fileName);
+            using (var propertyFile = new AppEntryWriter(fileName))
+            {
+
+                if (abstractStructure != null)
+                {
+                    json = abstractStructure.PrintStructure(Formatting.Indented);
+                }
 
                 propertyFile.Writer.Write(json);
                 propertyFile.Writer.Close();
-                propertyFile.Dispose();
             }
-            else
-            {
-                using var propertyFile = new AppEntryWriter(fileName);
 
-                propertyFile.Writer.Write("");
-                propertyFile.Writer.Close();
-                propertyFile.Dispose();
-            }
         }
 
         public static string ReadJsonFile(string file)
         {
-            using Stream streamProperties = new FileStream(file, FileMode.Open);
-
-            using var streamRead = new StreamReader(streamProperties, Encoding.UTF8);
+            
+            using var streamRead = new StreamReader(new FileStream(file, FileMode.Open), Encoding.UTF8);
 
             return streamRead.ReadToEnd();
 
