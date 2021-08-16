@@ -44,10 +44,6 @@ namespace QSObjectManager
             this.buttonRestoreHistoryOnRestoreTab = new System.Windows.Forms.Button();
             this.groupConnectionOnRestoreTab = new System.Windows.Forms.GroupBox();
             this.groupBoxConnectionToRemoteServer = new System.Windows.Forms.GroupBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.textBox5 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.buttonConnectToServerOnRestoreTab = new System.Windows.Forms.Button();
             this.textBoxAddrServer = new System.Windows.Forms.TextBox();
@@ -71,10 +67,6 @@ namespace QSObjectManager
             this.ListBoxAppsFromDevHub = new System.Windows.Forms.ListBox();
             this.groupBoxConnectForImportHistoryToLocalStoreOnSaveTab = new System.Windows.Forms.GroupBox();
             this.groupBoxConnectToServerOnSaveTab = new System.Windows.Forms.GroupBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.textBox7 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.buttonConnectToServer = new System.Windows.Forms.Button();
             this.textBox4 = new System.Windows.Forms.TextBox();
@@ -110,7 +102,7 @@ namespace QSObjectManager
             this.AboutProgramToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(992, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(999, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -141,9 +133,9 @@ namespace QSObjectManager
             // 
             this.statusStrip1.AutoSize = false;
             this.statusStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            this.statusStrip1.Location = new System.Drawing.Point(0, 520);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 525);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(992, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(999, 22);
             this.statusStrip1.Stretch = false;
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
@@ -154,7 +146,7 @@ namespace QSObjectManager
             this.tabPageAppConfiguration.Location = new System.Drawing.Point(4, 24);
             this.tabPageAppConfiguration.Name = "tabPageAppConfiguration";
             this.tabPageAppConfiguration.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageAppConfiguration.Size = new System.Drawing.Size(984, 468);
+            this.tabPageAppConfiguration.Size = new System.Drawing.Size(991, 473);
             this.tabPageAppConfiguration.TabIndex = 2;
             this.tabPageAppConfiguration.Text = "Настройки";
             this.tabPageAppConfiguration.UseVisualStyleBackColor = true;
@@ -167,7 +159,7 @@ namespace QSObjectManager
             this.groupBoxOptionsPaths.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxOptionsPaths.Location = new System.Drawing.Point(3, 3);
             this.groupBoxOptionsPaths.Name = "groupBoxOptionsPaths";
-            this.groupBoxOptionsPaths.Size = new System.Drawing.Size(978, 121);
+            this.groupBoxOptionsPaths.Size = new System.Drawing.Size(985, 121);
             this.groupBoxOptionsPaths.TabIndex = 0;
             this.groupBoxOptionsPaths.TabStop = false;
             this.groupBoxOptionsPaths.Text = "Папки";
@@ -210,7 +202,7 @@ namespace QSObjectManager
             this.tabPageRestore.Location = new System.Drawing.Point(4, 24);
             this.tabPageRestore.Name = "tabPageRestore";
             this.tabPageRestore.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageRestore.Size = new System.Drawing.Size(984, 468);
+            this.tabPageRestore.Size = new System.Drawing.Size(991, 473);
             this.tabPageRestore.TabIndex = 1;
             this.tabPageRestore.Text = "Восстановление";
             this.tabPageRestore.UseVisualStyleBackColor = true;
@@ -219,9 +211,9 @@ namespace QSObjectManager
             // 
             // buttonRestoreHistoryOnRestoreTab
             // 
-            this.buttonRestoreHistoryOnRestoreTab.Location = new System.Drawing.Point(665, 365);
+            this.buttonRestoreHistoryOnRestoreTab.Location = new System.Drawing.Point(701, 366);
             this.buttonRestoreHistoryOnRestoreTab.Name = "buttonRestoreHistoryOnRestoreTab";
-            this.buttonRestoreHistoryOnRestoreTab.Size = new System.Drawing.Size(307, 65);
+            this.buttonRestoreHistoryOnRestoreTab.Size = new System.Drawing.Size(277, 65);
             this.buttonRestoreHistoryOnRestoreTab.TabIndex = 7;
             this.buttonRestoreHistoryOnRestoreTab.Text = "Восстановить истории";
             this.buttonRestoreHistoryOnRestoreTab.UseVisualStyleBackColor = true;
@@ -234,70 +226,27 @@ namespace QSObjectManager
             this.groupConnectionOnRestoreTab.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupConnectionOnRestoreTab.Location = new System.Drawing.Point(3, 3);
             this.groupConnectionOnRestoreTab.Name = "groupConnectionOnRestoreTab";
-            this.groupConnectionOnRestoreTab.Size = new System.Drawing.Size(978, 144);
+            this.groupConnectionOnRestoreTab.Size = new System.Drawing.Size(985, 153);
             this.groupConnectionOnRestoreTab.TabIndex = 3;
             this.groupConnectionOnRestoreTab.TabStop = false;
-            this.groupConnectionOnRestoreTab.Text = "Подключение к Dev Hub";
             // 
             // groupBoxConnectionToRemoteServer
             // 
-            this.groupBoxConnectionToRemoteServer.Controls.Add(this.label7);
-            this.groupBoxConnectionToRemoteServer.Controls.Add(this.textBox6);
-            this.groupBoxConnectionToRemoteServer.Controls.Add(this.label6);
-            this.groupBoxConnectionToRemoteServer.Controls.Add(this.textBox5);
             this.groupBoxConnectionToRemoteServer.Controls.Add(this.label4);
             this.groupBoxConnectionToRemoteServer.Controls.Add(this.buttonConnectToServerOnRestoreTab);
             this.groupBoxConnectionToRemoteServer.Controls.Add(this.textBoxAddrServer);
             this.groupBoxConnectionToRemoteServer.Controls.Add(this.buttonDisconnectFromServerOnRestoreTab);
-            this.groupBoxConnectionToRemoteServer.Location = new System.Drawing.Point(472, 22);
+            this.groupBoxConnectionToRemoteServer.Location = new System.Drawing.Point(6, 22);
             this.groupBoxConnectionToRemoteServer.Name = "groupBoxConnectionToRemoteServer";
-            this.groupBoxConnectionToRemoteServer.Size = new System.Drawing.Size(497, 116);
+            this.groupBoxConnectionToRemoteServer.Size = new System.Drawing.Size(460, 123);
             this.groupBoxConnectionToRemoteServer.TabIndex = 5;
             this.groupBoxConnectionToRemoteServer.TabStop = false;
             this.groupBoxConnectionToRemoteServer.Text = "Подключение к серверу";
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(18, 85);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(84, 15);
-            this.label7.TabIndex = 8;
-            this.label7.Text = "Пользователь";
-            this.label7.Visible = false;
-            // 
-            // textBox6
-            // 
-            this.textBox6.Enabled = false;
-            this.textBox6.Location = new System.Drawing.Point(106, 82);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(223, 23);
-            this.textBox6.TabIndex = 7;
-            this.textBox6.Visible = false;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(18, 57);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(44, 15);
-            this.label6.TabIndex = 6;
-            this.label6.Text = "Домен";
-            this.label6.Visible = false;
-            // 
-            // textBox5
-            // 
-            this.textBox5.Enabled = false;
-            this.textBox5.Location = new System.Drawing.Point(106, 54);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(223, 23);
-            this.textBox5.TabIndex = 5;
-            this.textBox5.Visible = false;
-            // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(18, 26);
+            this.label4.Location = new System.Drawing.Point(6, 31);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(40, 15);
             this.label4.TabIndex = 4;
@@ -305,9 +254,9 @@ namespace QSObjectManager
             // 
             // buttonConnectToServerOnRestoreTab
             // 
-            this.buttonConnectToServerOnRestoreTab.Location = new System.Drawing.Point(335, 23);
+            this.buttonConnectToServerOnRestoreTab.Location = new System.Drawing.Point(316, 27);
             this.buttonConnectToServerOnRestoreTab.Name = "buttonConnectToServerOnRestoreTab";
-            this.buttonConnectToServerOnRestoreTab.Size = new System.Drawing.Size(151, 23);
+            this.buttonConnectToServerOnRestoreTab.Size = new System.Drawing.Size(138, 23);
             this.buttonConnectToServerOnRestoreTab.TabIndex = 2;
             this.buttonConnectToServerOnRestoreTab.Text = "Подключение";
             this.buttonConnectToServerOnRestoreTab.UseVisualStyleBackColor = true;
@@ -315,17 +264,17 @@ namespace QSObjectManager
             // 
             // textBoxAddrServer
             // 
-            this.textBoxAddrServer.Location = new System.Drawing.Point(106, 23);
+            this.textBoxAddrServer.Location = new System.Drawing.Point(52, 28);
             this.textBoxAddrServer.Name = "textBoxAddrServer";
-            this.textBoxAddrServer.Size = new System.Drawing.Size(223, 23);
+            this.textBoxAddrServer.Size = new System.Drawing.Size(243, 23);
             this.textBoxAddrServer.TabIndex = 1;
             this.textBoxAddrServer.Text = "http://127.0.0.1:4848";
             // 
             // buttonDisconnectFromServerOnRestoreTab
             // 
-            this.buttonDisconnectFromServerOnRestoreTab.Location = new System.Drawing.Point(335, 56);
+            this.buttonDisconnectFromServerOnRestoreTab.Location = new System.Drawing.Point(316, 56);
             this.buttonDisconnectFromServerOnRestoreTab.Name = "buttonDisconnectFromServerOnRestoreTab";
-            this.buttonDisconnectFromServerOnRestoreTab.Size = new System.Drawing.Size(151, 23);
+            this.buttonDisconnectFromServerOnRestoreTab.Size = new System.Drawing.Size(138, 23);
             this.buttonDisconnectFromServerOnRestoreTab.TabIndex = 3;
             this.buttonDisconnectFromServerOnRestoreTab.Text = "Отключение";
             this.buttonDisconnectFromServerOnRestoreTab.UseVisualStyleBackColor = true;
@@ -337,12 +286,13 @@ namespace QSObjectManager
             this.groupBoxConnectoionToLocalHostOnRestoreTab.Controls.Add(this.buttonConnectionToLocalHostOnRestoreTab);
             this.groupBoxConnectoionToLocalHostOnRestoreTab.Controls.Add(this.textBoxAdressLocalHostOnRestoreTab);
             this.groupBoxConnectoionToLocalHostOnRestoreTab.Controls.Add(this.buttonDisconnectFromLocalHostOnRestoreTab);
-            this.groupBoxConnectoionToLocalHostOnRestoreTab.Location = new System.Drawing.Point(6, 22);
+            this.groupBoxConnectoionToLocalHostOnRestoreTab.Location = new System.Drawing.Point(511, 22);
             this.groupBoxConnectoionToLocalHostOnRestoreTab.Name = "groupBoxConnectoionToLocalHostOnRestoreTab";
             this.groupBoxConnectoionToLocalHostOnRestoreTab.Size = new System.Drawing.Size(460, 116);
             this.groupBoxConnectoionToLocalHostOnRestoreTab.TabIndex = 4;
             this.groupBoxConnectoionToLocalHostOnRestoreTab.TabStop = false;
             this.groupBoxConnectoionToLocalHostOnRestoreTab.Text = "Подключение к локальному  компьютеру";
+            this.groupBoxConnectoionToLocalHostOnRestoreTab.Visible = false;
             // 
             // label5
             // 
@@ -384,18 +334,18 @@ namespace QSObjectManager
             // groupBoxActionsOnRestoreTab
             // 
             this.groupBoxActionsOnRestoreTab.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBoxActionsOnRestoreTab.Location = new System.Drawing.Point(3, 429);
+            this.groupBoxActionsOnRestoreTab.Location = new System.Drawing.Point(3, 434);
             this.groupBoxActionsOnRestoreTab.Name = "groupBoxActionsOnRestoreTab";
-            this.groupBoxActionsOnRestoreTab.Size = new System.Drawing.Size(978, 36);
+            this.groupBoxActionsOnRestoreTab.Size = new System.Drawing.Size(985, 36);
             this.groupBoxActionsOnRestoreTab.TabIndex = 2;
             this.groupBoxActionsOnRestoreTab.TabStop = false;
             // 
             // groupBoxUsersHistoryInStoreOnRestoreTab
             // 
             this.groupBoxUsersHistoryInStoreOnRestoreTab.Controls.Add(this.listBoxHistorysInStoreOnRestoreTab);
-            this.groupBoxUsersHistoryInStoreOnRestoreTab.Location = new System.Drawing.Point(475, 153);
+            this.groupBoxUsersHistoryInStoreOnRestoreTab.Location = new System.Drawing.Point(480, 160);
             this.groupBoxUsersHistoryInStoreOnRestoreTab.Name = "groupBoxUsersHistoryInStoreOnRestoreTab";
-            this.groupBoxUsersHistoryInStoreOnRestoreTab.Size = new System.Drawing.Size(497, 206);
+            this.groupBoxUsersHistoryInStoreOnRestoreTab.Size = new System.Drawing.Size(500, 200);
             this.groupBoxUsersHistoryInStoreOnRestoreTab.TabIndex = 1;
             this.groupBoxUsersHistoryInStoreOnRestoreTab.TabStop = false;
             this.groupBoxUsersHistoryInStoreOnRestoreTab.Text = "Истории";
@@ -408,15 +358,15 @@ namespace QSObjectManager
             this.listBoxHistorysInStoreOnRestoreTab.Location = new System.Drawing.Point(3, 19);
             this.listBoxHistorysInStoreOnRestoreTab.Name = "listBoxHistorysInStoreOnRestoreTab";
             this.listBoxHistorysInStoreOnRestoreTab.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.listBoxHistorysInStoreOnRestoreTab.Size = new System.Drawing.Size(491, 184);
+            this.listBoxHistorysInStoreOnRestoreTab.Size = new System.Drawing.Size(494, 178);
             this.listBoxHistorysInStoreOnRestoreTab.TabIndex = 0;
             // 
             // groupBoxAppsInStoreOnRestoreTab
             // 
             this.groupBoxAppsInStoreOnRestoreTab.Controls.Add(this.listBoxAppsInStoreOnRestoreTab);
-            this.groupBoxAppsInStoreOnRestoreTab.Location = new System.Drawing.Point(8, 153);
+            this.groupBoxAppsInStoreOnRestoreTab.Location = new System.Drawing.Point(8, 160);
             this.groupBoxAppsInStoreOnRestoreTab.Name = "groupBoxAppsInStoreOnRestoreTab";
-            this.groupBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(461, 206);
+            this.groupBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(470, 200);
             this.groupBoxAppsInStoreOnRestoreTab.TabIndex = 0;
             this.groupBoxAppsInStoreOnRestoreTab.TabStop = false;
             this.groupBoxAppsInStoreOnRestoreTab.Text = "Приложения";
@@ -428,7 +378,7 @@ namespace QSObjectManager
             this.listBoxAppsInStoreOnRestoreTab.ItemHeight = 15;
             this.listBoxAppsInStoreOnRestoreTab.Location = new System.Drawing.Point(3, 19);
             this.listBoxAppsInStoreOnRestoreTab.Name = "listBoxAppsInStoreOnRestoreTab";
-            this.listBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(455, 184);
+            this.listBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(464, 178);
             this.listBoxAppsInStoreOnRestoreTab.TabIndex = 0;
             this.listBoxAppsInStoreOnRestoreTab.SelectedIndexChanged += new System.EventHandler(this.listBoxAppsInStore_SelectedIndexChanged);
             // 
@@ -442,7 +392,7 @@ namespace QSObjectManager
             this.tabPageSave.Location = new System.Drawing.Point(4, 24);
             this.tabPageSave.Name = "tabPageSave";
             this.tabPageSave.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSave.Size = new System.Drawing.Size(984, 468);
+            this.tabPageSave.Size = new System.Drawing.Size(991, 473);
             this.tabPageSave.TabIndex = 0;
             this.tabPageSave.Text = "Сохранение";
             this.tabPageSave.UseVisualStyleBackColor = true;
@@ -462,18 +412,18 @@ namespace QSObjectManager
             // groupBoxActionsForImportToLocalStore
             // 
             this.groupBoxActionsForImportToLocalStore.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBoxActionsForImportToLocalStore.Location = new System.Drawing.Point(3, 428);
+            this.groupBoxActionsForImportToLocalStore.Location = new System.Drawing.Point(3, 433);
             this.groupBoxActionsForImportToLocalStore.Name = "groupBoxActionsForImportToLocalStore";
-            this.groupBoxActionsForImportToLocalStore.Size = new System.Drawing.Size(978, 37);
+            this.groupBoxActionsForImportToLocalStore.Size = new System.Drawing.Size(985, 37);
             this.groupBoxActionsForImportToLocalStore.TabIndex = 4;
             this.groupBoxActionsForImportToLocalStore.TabStop = false;
             // 
             // groupBoxStorysFromDevHub
             // 
             this.groupBoxStorysFromDevHub.Controls.Add(this.listBoxStrorysFromDevHub);
-            this.groupBoxStorysFromDevHub.Location = new System.Drawing.Point(475, 162);
+            this.groupBoxStorysFromDevHub.Location = new System.Drawing.Point(480, 160);
             this.groupBoxStorysFromDevHub.Name = "groupBoxStorysFromDevHub";
-            this.groupBoxStorysFromDevHub.Size = new System.Drawing.Size(506, 198);
+            this.groupBoxStorysFromDevHub.Size = new System.Drawing.Size(500, 200);
             this.groupBoxStorysFromDevHub.TabIndex = 3;
             this.groupBoxStorysFromDevHub.TabStop = false;
             this.groupBoxStorysFromDevHub.Text = "Истории";
@@ -486,15 +436,15 @@ namespace QSObjectManager
             this.listBoxStrorysFromDevHub.Location = new System.Drawing.Point(3, 19);
             this.listBoxStrorysFromDevHub.Name = "listBoxStrorysFromDevHub";
             this.listBoxStrorysFromDevHub.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.listBoxStrorysFromDevHub.Size = new System.Drawing.Size(500, 176);
+            this.listBoxStrorysFromDevHub.Size = new System.Drawing.Size(494, 178);
             this.listBoxStrorysFromDevHub.TabIndex = 0;
             // 
             // groupBoxAppsFromDevHub
             // 
             this.groupBoxAppsFromDevHub.Controls.Add(this.ListBoxAppsFromDevHub);
-            this.groupBoxAppsFromDevHub.Location = new System.Drawing.Point(3, 162);
+            this.groupBoxAppsFromDevHub.Location = new System.Drawing.Point(8, 160);
             this.groupBoxAppsFromDevHub.Name = "groupBoxAppsFromDevHub";
-            this.groupBoxAppsFromDevHub.Size = new System.Drawing.Size(466, 198);
+            this.groupBoxAppsFromDevHub.Size = new System.Drawing.Size(470, 200);
             this.groupBoxAppsFromDevHub.TabIndex = 2;
             this.groupBoxAppsFromDevHub.TabStop = false;
             this.groupBoxAppsFromDevHub.Text = "Приложения";
@@ -506,7 +456,7 @@ namespace QSObjectManager
             this.ListBoxAppsFromDevHub.ItemHeight = 15;
             this.ListBoxAppsFromDevHub.Location = new System.Drawing.Point(3, 19);
             this.ListBoxAppsFromDevHub.Name = "ListBoxAppsFromDevHub";
-            this.ListBoxAppsFromDevHub.Size = new System.Drawing.Size(460, 176);
+            this.ListBoxAppsFromDevHub.Size = new System.Drawing.Size(464, 178);
             this.ListBoxAppsFromDevHub.TabIndex = 0;
             this.ListBoxAppsFromDevHub.SelectedIndexChanged += new System.EventHandler(this.ListBoxApps_SelectedIndexChanged);
             // 
@@ -517,65 +467,22 @@ namespace QSObjectManager
             this.groupBoxConnectForImportHistoryToLocalStoreOnSaveTab.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxConnectForImportHistoryToLocalStoreOnSaveTab.Location = new System.Drawing.Point(3, 3);
             this.groupBoxConnectForImportHistoryToLocalStoreOnSaveTab.Name = "groupBoxConnectForImportHistoryToLocalStoreOnSaveTab";
-            this.groupBoxConnectForImportHistoryToLocalStoreOnSaveTab.Size = new System.Drawing.Size(978, 153);
+            this.groupBoxConnectForImportHistoryToLocalStoreOnSaveTab.Size = new System.Drawing.Size(985, 153);
             this.groupBoxConnectForImportHistoryToLocalStoreOnSaveTab.TabIndex = 0;
             this.groupBoxConnectForImportHistoryToLocalStoreOnSaveTab.TabStop = false;
-            this.groupBoxConnectForImportHistoryToLocalStoreOnSaveTab.Text = "Подключение к Dev Hub";
             // 
             // groupBoxConnectToServerOnSaveTab
             // 
-            this.groupBoxConnectToServerOnSaveTab.Controls.Add(this.label8);
-            this.groupBoxConnectToServerOnSaveTab.Controls.Add(this.textBox3);
-            this.groupBoxConnectToServerOnSaveTab.Controls.Add(this.label9);
-            this.groupBoxConnectToServerOnSaveTab.Controls.Add(this.textBox7);
             this.groupBoxConnectToServerOnSaveTab.Controls.Add(this.label3);
             this.groupBoxConnectToServerOnSaveTab.Controls.Add(this.buttonConnectToServer);
             this.groupBoxConnectToServerOnSaveTab.Controls.Add(this.textBox4);
             this.groupBoxConnectToServerOnSaveTab.Controls.Add(this.buttonDisconnectFromServer);
-            this.groupBoxConnectToServerOnSaveTab.Location = new System.Drawing.Point(472, 22);
+            this.groupBoxConnectToServerOnSaveTab.Location = new System.Drawing.Point(6, 22);
             this.groupBoxConnectToServerOnSaveTab.Name = "groupBoxConnectToServerOnSaveTab";
-            this.groupBoxConnectToServerOnSaveTab.Size = new System.Drawing.Size(500, 123);
+            this.groupBoxConnectToServerOnSaveTab.Size = new System.Drawing.Size(460, 123);
             this.groupBoxConnectToServerOnSaveTab.TabIndex = 5;
             this.groupBoxConnectToServerOnSaveTab.TabStop = false;
             this.groupBoxConnectToServerOnSaveTab.Text = "Подключение к cерверу";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 89);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(84, 15);
-            this.label8.TabIndex = 12;
-            this.label8.Text = "Пользователь";
-            this.label8.Visible = false;
-            // 
-            // textBox3
-            // 
-            this.textBox3.Enabled = false;
-            this.textBox3.Location = new System.Drawing.Point(101, 87);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(223, 23);
-            this.textBox3.TabIndex = 11;
-            this.textBox3.Visible = false;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 61);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(44, 15);
-            this.label9.TabIndex = 10;
-            this.label9.Text = "Домен";
-            this.label9.Visible = false;
-            // 
-            // textBox7
-            // 
-            this.textBox7.Enabled = false;
-            this.textBox7.Location = new System.Drawing.Point(101, 58);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(223, 23);
-            this.textBox7.TabIndex = 9;
-            this.textBox7.Visible = false;
             // 
             // label3
             // 
@@ -588,7 +495,7 @@ namespace QSObjectManager
             // 
             // buttonConnectToServer
             // 
-            this.buttonConnectToServer.Location = new System.Drawing.Point(348, 27);
+            this.buttonConnectToServer.Location = new System.Drawing.Point(316, 27);
             this.buttonConnectToServer.Name = "buttonConnectToServer";
             this.buttonConnectToServer.Size = new System.Drawing.Size(138, 23);
             this.buttonConnectToServer.TabIndex = 2;
@@ -598,15 +505,15 @@ namespace QSObjectManager
             // 
             // textBox4
             // 
-            this.textBox4.Location = new System.Drawing.Point(101, 28);
+            this.textBox4.Location = new System.Drawing.Point(52, 28);
             this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(223, 23);
+            this.textBox4.Size = new System.Drawing.Size(243, 23);
             this.textBox4.TabIndex = 1;
             this.textBox4.Text = "http://127.0.0.1:4848";
             // 
             // buttonDisconnectFromServer
             // 
-            this.buttonDisconnectFromServer.Location = new System.Drawing.Point(348, 56);
+            this.buttonDisconnectFromServer.Location = new System.Drawing.Point(316, 56);
             this.buttonDisconnectFromServer.Name = "buttonDisconnectFromServer";
             this.buttonDisconnectFromServer.Size = new System.Drawing.Size(138, 23);
             this.buttonDisconnectFromServer.TabIndex = 3;
@@ -620,12 +527,13 @@ namespace QSObjectManager
             this.groupBoxConnectToLocalCоmputer.Controls.Add(this.buttonConnectToLocalHub);
             this.groupBoxConnectToLocalCоmputer.Controls.Add(this.textBox1);
             this.groupBoxConnectToLocalCоmputer.Controls.Add(this.buttonDisconnectFromLoacalHub);
-            this.groupBoxConnectToLocalCоmputer.Location = new System.Drawing.Point(6, 22);
+            this.groupBoxConnectToLocalCоmputer.Location = new System.Drawing.Point(518, 22);
             this.groupBoxConnectToLocalCоmputer.Name = "groupBoxConnectToLocalCоmputer";
             this.groupBoxConnectToLocalCоmputer.Size = new System.Drawing.Size(460, 123);
             this.groupBoxConnectToLocalCоmputer.TabIndex = 4;
             this.groupBoxConnectToLocalCоmputer.TabStop = false;
             this.groupBoxConnectToLocalCоmputer.Text = "Подключение к локальному  компьютеру";
+            this.groupBoxConnectToLocalCоmputer.Visible = false;
             // 
             // label1
             // 
@@ -673,7 +581,7 @@ namespace QSObjectManager
             this.tabControl1.Location = new System.Drawing.Point(0, 24);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(992, 496);
+            this.tabControl1.Size = new System.Drawing.Size(999, 501);
             this.tabControl1.TabIndex = 3;
             // 
             // ManagerForm
@@ -681,7 +589,7 @@ namespace QSObjectManager
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(992, 542);
+            this.ClientSize = new System.Drawing.Size(999, 547);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
@@ -737,10 +645,6 @@ namespace QSObjectManager
         private System.Windows.Forms.Button buttonRestoreHistoryOnRestoreTab;
         private System.Windows.Forms.GroupBox groupConnectionOnRestoreTab;
         private System.Windows.Forms.GroupBox groupBoxConnectionToRemoteServer;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button buttonConnectToServerOnRestoreTab;
         private System.Windows.Forms.TextBox textBoxAddrServer;
@@ -764,10 +668,6 @@ namespace QSObjectManager
         private System.Windows.Forms.ListBox ListBoxAppsFromDevHub;
         private System.Windows.Forms.GroupBox groupBoxConnectForImportHistoryToLocalStoreOnSaveTab;
         private System.Windows.Forms.GroupBox groupBoxConnectToServerOnSaveTab;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.TextBox textBox7;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button buttonConnectToServer;
         private System.Windows.Forms.TextBox textBox4;

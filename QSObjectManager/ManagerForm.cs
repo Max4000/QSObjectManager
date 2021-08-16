@@ -92,7 +92,7 @@ namespace QSObjectManager
             if (!_connectedToLocalServer)
                 groupBoxConnectToServerOnSaveTab.Visible = true;
             if (!_connectedToRemoteServer)
-                groupBoxConnectToLocalCоmputer.Visible = true;
+                groupBoxConnectToLocalCоmputer.Visible = false;
         }
 
         private void buttonConnectToServer_Click(object sender, EventArgs e)
@@ -233,7 +233,7 @@ namespace QSObjectManager
             buttonConnectionToLocalHostOnRestoreTab.Visible = true;
             buttonConnectToServerOnRestoreTab.Visible = true;
             
-            groupBoxConnectoionToLocalHostOnRestoreTab.Visible = true;
+            groupBoxConnectoionToLocalHostOnRestoreTab.Visible = false;
 
             groupBoxConnectionToRemoteServer.Visible = true;
 
