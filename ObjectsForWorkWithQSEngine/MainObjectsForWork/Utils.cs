@@ -99,6 +99,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 propertyFile.Writer.Write(json);
                 propertyFile.Writer.Close();
+                propertyFile.Dispose();
             }
             else
             {
@@ -106,6 +107,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 propertyFile.Writer.Write("");
                 propertyFile.Writer.Close();
+                propertyFile.Dispose();
             }
         }
 

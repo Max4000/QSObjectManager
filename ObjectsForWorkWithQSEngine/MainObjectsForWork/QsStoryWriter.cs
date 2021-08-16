@@ -249,6 +249,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     propertyFile.Writer.Write(json);
                     propertyFile.Writer.Close();
+                    propertyFile.Dispose();
                 }
 
             }
