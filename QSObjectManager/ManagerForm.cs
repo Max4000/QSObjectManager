@@ -107,10 +107,10 @@ namespace QSObjectManager
                 _locationObject.Connect();
                 _connectedToRemoteServer = true;
 
-                using (var hub = _locationObject.GetConnection().Hub())
-                {
-                    ShowMessageForm(hub.EngineVersion().ComponentVersion, ""); 
-                }
+                //using (var hub = _locationObject.GetConnection().Hub())
+                //{
+                //    ShowMessageForm(hub.EngineVersion().ComponentVersion, ""); 
+                //}
             }
             catch(Exception ex)
             {
