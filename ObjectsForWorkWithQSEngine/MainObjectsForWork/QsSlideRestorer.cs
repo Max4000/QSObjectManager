@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using Qlik.Engine;
 using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
+// ReSharper disable IdentifierTypo
 
 #pragma warning disable 618
 
@@ -25,11 +26,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         {
             
             IRestoreSlideInfoFromDisk slideinfo = slideInfoFromDisk;
-            slideinfo.NewRestoreSlideInfoFromDiskSend += NewRestoreSlideInfoFromDiskReceived;
+            slideinfo.NewRestoreSlideInfoFromDiskSend += RestoreSlideInfoFromDiskReceived;
 
         }
 
-        private void NewRestoreSlideInfoFromDiskReceived(object sender, RestoreSlideInfoEventArgs e)
+        private void RestoreSlideInfoFromDiskReceived(object sender, RestoreSlideInfoEventArgs e)
         {
             e.RestoreInfo.Copy(_restoreSlideInfo);
             DoRestore();
@@ -178,6 +179,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                         stringPathToImage = GetPath(valueSrcPath);
 
                     result = slide.CreateImageSlideItemProperties(id, stringPathToImage);
+
+                    result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
 
                     break;
                 }
@@ -666,10 +669,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IRestoreSlideInfoFromDisk
     {
-        event NewRestoreSlideInfoFromDiskHandler NewRestoreSlideInfoFromDiskSend;
+        event RestoreSlideInfoFromDiskHandler NewRestoreSlideInfoFromDiskSend;
     }
 
-    public delegate void NewRestoreSlideInfoFromDiskHandler(object sender, RestoreSlideInfoEventArgs e);
+    public delegate void RestoreSlideInfoFromDiskHandler(object sender, RestoreSlideInfoEventArgs e);
 
 
     public class XmlPair

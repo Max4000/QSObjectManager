@@ -6,6 +6,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
+// ReSharper disable IdentifierTypo
+
 
 #pragma warning disable CS0618
 
@@ -18,7 +20,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private readonly RestoreStoryFromDiskInfo _restoreStoryFromDiskInfo = new();
 
 
-        public event NewRestoreSlideInfoFromDiskHandler NewRestoreSlideInfoFromDiskSend;
+        public event RestoreSlideInfoFromDiskHandler NewRestoreSlideInfoFromDiskSend;
 
         public QsStoryRestorer(IRestoreInfoEvent restoreInfo , IRestoreStoryFromDisk storyFromDisk)
         {
@@ -26,11 +28,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             IRestoreInfoEvent restoreInfoEvent = restoreInfo;
 
-            restoreInfoEvent.NewRestoreInfoSend += NewRestoreInfoReceived;
+            restoreInfoEvent.NewRestoreInfoSend += RestoreInfoReceived;
 
             IRestoreStoryFromDisk story = storyFromDisk;
 
-            story.NewRestoreStoryFromDiskSend += NewRestoreStoryFromDiskReceived;
+            story.NewRestoreStoryFromDiskSend += RestoreStoryFromDiskReceived;
 
             var unused = new QsSlideRestorer(this);
         }
@@ -41,7 +43,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewRestoreSlideInfoFromDiskSend(this, e);
         }
 
-        private void NewRestoreStoryFromDiskReceived(object sender, RestoreStoryFromDiskEventArgs e)
+        private void RestoreStoryFromDiskReceived(object sender, RestoreStoryFromDiskEventArgs e)
         {
             e.RestoreInfo.Copy( _restoreStoryFromDiskInfo);
             DoRestore();
@@ -103,7 +105,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 JsonConvert.DeserializeObject<StoryChildListDef>(
                     Utils.ReadJsonFile(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.ChildListDef.json"));
             
-            StaticContentUrlContainerDef thumbail =
+            var thumbail =
                 JsonConvert.DeserializeObject<StaticContentUrlContainerDef>(
                     Utils.ReadJsonFile(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.Thumbnail.json"));
 
@@ -199,7 +201,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
-        private void NewRestoreInfoReceived(object sender, RestoreInfoEventArgs e)
+        private void RestoreInfoReceived(object sender, RestoreInfoEventArgs e)
         {
             e.RestoreInfo.Copy(_restoreInfo);
         }
@@ -239,9 +241,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IRestoreStoryFromDisk
     {
-        event NewRestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
+        event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
     }
 
-    public delegate void NewRestoreStoryFromDiskHandler(object sender, RestoreStoryFromDiskEventArgs e);
+    public delegate void RestoreStoryFromDiskHandler(object sender, RestoreStoryFromDiskEventArgs e);
 
 }

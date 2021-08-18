@@ -4,6 +4,8 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Qlik.Sense.Client.Storytelling;
+// ReSharper disable StringLiteralTypo
+// ReSharper disable CommentTypo
 
 #pragma warning disable CS0618
 
@@ -21,15 +23,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             
             IWriteStoryItemToDisk storyItem = writeStoryItem;
 
-            storyItem.NewStoryItemToDiskSend += NewWriteStoryItemToDiskReceived;
+            storyItem.NewStoryItemToDiskSend += WriteStoryItemToDiskReceived;
 
             IDeleteInfoFromDisk deleteInfo = deleteInfoFromDisk;
 
-            deleteInfo.NewDeleteItemFromDiskSend += NewDeleteItemFromDiskReceived;
+            deleteInfo.NewDeleteItemFromDiskSend += DeleteItemFromDiskReceived;
 
         }
 
-        private void NewDeleteItemFromDiskReceived(object sender, DeleteItemFromDiskEventArgs e)
+        private void DeleteItemFromDiskReceived(object sender, DeleteItemFromDiskEventArgs e)
         {
             e.DeleteInfo.Copy(DeleteItem);
             DoDelete();
@@ -97,7 +99,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             }
         }
 
-        private void NewWriteStoryItemToDiskReceived(object sender, StoryItemInfoEventArgs e)
+        private void WriteStoryItemToDiskReceived(object sender, StoryItemInfoEventArgs e)
         {
             e.ItemInfo.Copy(ref ItemInfo);
             WriteStoryItem();
@@ -121,6 +123,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             };
 
             xmlWriter.WriteStartDocument();
+            
             xmlWriter.WriteComment("Файл содержит описание элемента " + ItemInfo.Id);
 
             xmlWriter.WriteStartElement("item");
@@ -357,9 +360,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IDeleteInfoFromDisk
     {
-        event NewDeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
+        event DeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
     }
 
-    public delegate void NewDeleteInfoFromDisktHandler(object sender, DeleteItemFromDiskEventArgs e);
+    public delegate void DeleteInfoFromDisktHandler(object sender, DeleteItemFromDiskEventArgs e);
 
 }

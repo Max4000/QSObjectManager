@@ -8,6 +8,8 @@ using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
 using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
+// ReSharper disable StringLiteralTypo
+// ReSharper disable IdentifierTypo
 
 #pragma warning disable 618
 
@@ -22,21 +24,21 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private IStory _currentStoryToWrite;
 
 
-        public event NewWriteStoryItemToDiskHandler NewStoryItemToDiskSend;
-        public event NewDeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
+        public event WriteStoryItemToDiskHandler NewStoryItemToDiskSend;
+        public event DeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
 
         public QsStoryWriter(IProgramOptionsEvent programOptionsEvent,  
             IWriteStoryToDisk writeStoryToDisk,IDeleteStoryFromDisk deleteStory)
         {
             IProgramOptionsEvent progOptionsEvent = programOptionsEvent;
-            progOptionsEvent.NewProgramOptionsSend += NewProgramOptionsReceived;
+            progOptionsEvent.NewProgramOptionsSend += ProgramOptionsReceived;
 
            
             IWriteStoryToDisk writeInfo = writeStoryToDisk;
-            writeInfo.NewWriteStoryToDiskSend += NewWriteStoryToDiskReceived;
+            writeInfo.NewWriteStoryToDiskSend += WriteStoryToDiskReceived;
 
             IDeleteStoryFromDisk delStory = deleteStory;
-            delStory.NewDeleteStoryFromDiskSend += NewDeleteStoryFromDiskReceived;
+            delStory.NewDeleteStoryFromDiskSend += DeleteStoryFromDiskReceived;
 
             var unused = new QsSlideWriter(this,this);
         }
@@ -47,7 +49,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 this.NewDeleteItemFromDiskSend(this,e);
         }
 
-        private void NewDeleteStoryFromDiskReceived(object sender, DeleteStoryFromAppArgs e)
+        private void DeleteStoryFromDiskReceived(object sender, DeleteStoryFromAppArgs e)
         {
             string storiFilder = e.DeleteInfo.CurrentStoreFolder;
 
@@ -98,7 +100,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
         
-        private void NewWriteStoryToDiskReceived(object sender, WriteStoryToDiskEventArgs e)
+        private void WriteStoryToDiskReceived(object sender, WriteStoryToDiskEventArgs e)
         {
             e.WriteInfo.Copy(ref _storyToDiskInfo);
             WriteStoryToDisk();
@@ -262,7 +264,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
 
-        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
+        private void ProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(Options);
         }
@@ -298,10 +300,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IWriteStoryItemToDisk
     {
-        event NewWriteStoryItemToDiskHandler NewStoryItemToDiskSend;
+        event WriteStoryItemToDiskHandler NewStoryItemToDiskSend;
     }
 
-    public delegate void NewWriteStoryItemToDiskHandler(object sender, StoryItemInfoEventArgs e);
+    public delegate void WriteStoryItemToDiskHandler(object sender, StoryItemInfoEventArgs e);
 
 
 
@@ -338,10 +340,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IWriteStoryToDisk
     {
-        event NewWriteStoryToDiskHandler NewWriteStoryToDiskSend;
+        event WriteStoryToDiskHandler NewWriteStoryToDiskSend;
     }
 
-    public delegate void NewWriteStoryToDiskHandler(object sender, WriteStoryToDiskEventArgs e);
+    public delegate void WriteStoryToDiskHandler(object sender, WriteStoryToDiskEventArgs e);
 
     
     public class DeleteStoryFromAppRecordInfo
@@ -364,9 +366,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IDeleteStoryFromDisk
     {
-        event NewDeleteStoryFromDiskHandler NewDeleteStoryFromDiskSend;
+        event DeleteStoryFromDiskHandler NewDeleteStoryFromDiskSend;
     }
 
-    public delegate void NewDeleteStoryFromDiskHandler(object sender, DeleteStoryFromAppArgs e);
+    public delegate void DeleteStoryFromDiskHandler(object sender, DeleteStoryFromAppArgs e);
 
 }

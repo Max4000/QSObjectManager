@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
-using Qlik.Engine;
 using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
@@ -28,7 +27,7 @@ namespace QSObjectManager
 
         private bool _isConnected;
 
-        public event NewProgramOptionsHandler NewProgramOptionsSend;
+        public event ProgramOptionsHandler NewProgramOptionsSend;
         public event WriterInfosHandler NewWriteInfoSend;
         public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
         public event AppSelectedHandler NewAppSelectedSend;

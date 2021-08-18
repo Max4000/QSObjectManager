@@ -6,6 +6,7 @@ using Qlik.Engine;
 using Qlik.Sense.Client;
 using UtilClasses;
 using Formatting = Newtonsoft.Json.Formatting;
+// ReSharper disable CommentTypo
 
 #pragma warning disable 618
 

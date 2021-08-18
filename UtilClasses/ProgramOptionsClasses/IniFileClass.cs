@@ -116,10 +116,10 @@ namespace UtilClasses.ProgramOptionsClasses
 
     public interface IProgramOptionsEvent
     {
-        event NewProgramOptionsHandler NewProgramOptionsSend;
+        event ProgramOptionsHandler NewProgramOptionsSend;
     }
 
-    public delegate void NewProgramOptionsHandler(object sender, ProgramOptionsEventArgs e);
+    public delegate void ProgramOptionsHandler(object sender, ProgramOptionsEventArgs e);
 
     [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]

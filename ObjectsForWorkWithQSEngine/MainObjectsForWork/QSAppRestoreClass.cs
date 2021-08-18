@@ -8,7 +8,7 @@ using UtilClasses.ServiceClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsAppRestoreClass :   IRestoreInfoEvent, IRestoreStoryFromDisk
+    public class QsAppRestoreClass :   IRestoreInfoEvent, IRestoreStoryFromDisk,IProgramOptionsEvent
     {
         private string RepositoryPath { get; set; }
 
@@ -22,7 +22,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         
         public event RestoreInfoHandler NewRestoreInfoSend;
-        public event NewRestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
+        public event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
+        public event ProgramOptionsHandler NewProgramOptionsSend;
 
         public  IList<NameAndIdPair> GetAppsFromStore()
         {
@@ -214,7 +215,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             this.RepositoryPath = e.ProgramOptions.RepositoryPath;
         }
 
-       
+        
+
 
 
         public NameAndIdPair GetNameAnIdAppFromFile(string mFileApp)

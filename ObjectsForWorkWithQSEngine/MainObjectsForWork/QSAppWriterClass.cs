@@ -20,10 +20,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private IApp _app;
 
-        public event NewProgramOptionsHandler NewProgramOptionsSend;
+        public event ProgramOptionsHandler NewProgramOptionsSend;
         //public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
-        public event NewWriteStoryToDiskHandler NewWriteStoryToDiskSend;
-        public event NewDeleteStoryFromDiskHandler NewDeleteStoryFromDiskSend;
+        public event WriteStoryToDiskHandler NewWriteStoryToDiskSend;
+        public event DeleteStoryFromDiskHandler NewDeleteStoryFromDiskSend;
 
         private void ConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
