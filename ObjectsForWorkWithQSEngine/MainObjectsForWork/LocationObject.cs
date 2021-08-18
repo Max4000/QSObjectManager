@@ -76,7 +76,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             var uri = new Uri(_address);
 
             Location = Qlik.Engine.Location.FromUri(uri);
-            Location.AsNtlmUserViaProxy(); 
+            Location.AsNtlmUserViaProxy();
+            //Location.AsAnonymousUserViaProxy();
 
             return IsConnected(); 
         }

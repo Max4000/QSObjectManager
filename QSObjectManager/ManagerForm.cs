@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
+using Qlik.Engine;
 using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
@@ -17,7 +18,7 @@ namespace QSObjectManager
         private IniFileClass _iniFileObject;
 
         private IList<NameAndIdPair> _lstAppsInStore;
-        private IList<NameAndIdPair> _lstStorysInStore;
+        private IList<NameAndIdPair> _lstStoriesInStore;
         private int _selectedIndexAppInStore;
 
         private ProgramOptions _programOptions;
@@ -105,10 +106,15 @@ namespace QSObjectManager
                 _locationObject = new RemoteConnection(textBox4.Text);
                 _locationObject.Connect();
                 _connectedToRemoteServer = true;
+
+                using (var hub = _locationObject.GetConnection().Hub())
+                {
+                    ShowMessageForm(hub.EngineVersion().ComponentVersion, ""); 
+                }
             }
-            catch(Exception)
+            catch(Exception ex)
             {
-                ShowMessageForm("Проверьте условия подключения к Dev Hub", "Ошибка");
+                ShowMessageForm(ex.Message, "Ошибка");
                 _connectedToRemoteServer = false;
                 _locationObject = null;
             }
@@ -144,9 +150,9 @@ namespace QSObjectManager
                     OnNewConnectionStatusInfo(
                         new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    ShowMessageForm("Проверьте условия подключения к Dev Hub", "Ошибка");
+                    if (ex.InnerException != null) ShowMessageForm(ex.InnerException.Message, "Ошибка");
                     _locationObject.Disconnect();
                 }
             }
@@ -384,12 +390,12 @@ namespace QSObjectManager
 
                 OnNewSelectedApp(new SelectedAppEventArgs(_lstAppsInStore[_selectedIndexAppInStore]));
 
-                _lstStorysInStore = _qsAppRestoreObject.GetHistoryListForSelectedApp();
+                _lstStoriesInStore = _qsAppRestoreObject.GetHistoryListForSelectedApp();
 
 
                 listBoxHistorysInStoreOnRestoreTab.Items.Clear();
 
-                foreach (var item in _lstStorysInStore)
+                foreach (var item in _lstStoriesInStore)
                 {
                     listBoxHistorysInStoreOnRestoreTab.Items.Add(item);
                 }
@@ -501,7 +507,7 @@ namespace QSObjectManager
 
                 if (ts >= 0)
                 {
-                    listStoryNames.Add(new NameAndIdPair(_lstStorysInStore[ts].Name, _lstStorysInStore[ts].Id));
+                    listStoryNames.Add(new NameAndIdPair(_lstStoriesInStore[ts].Name, _lstStoriesInStore[ts].Id));
                 }
             }
 
