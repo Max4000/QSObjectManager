@@ -5,12 +5,13 @@ using System.Xml;
 using Qlik.Engine;
 using UtilClasses.ProgramOptionsClasses;
 using UtilClasses.ServiceClasses;
+// ReSharper disable StringLiteralTypo
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class QsAppRestoreClass :   IRestoreInfoEvent, IRestoreStoryFromDisk,IProgramOptionsEvent
     {
-        private string RepositoryPath { get; set; }
+        //private string RepositoryPath { get; set; }
 
         private IConnect _location;
 
@@ -19,6 +20,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private readonly RestoreInfo _restoreInfo =new ();
 
         private IApp _app;
+
+        private readonly ProgramOptions _programOptions = new();
 
         
         public event RestoreInfoHandler NewRestoreInfoSend;
@@ -33,11 +36,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public  IList<NameAndIdPair> GetAppsFromStore()
         {
-            if (string.IsNullOrEmpty(RepositoryPath))
+            if (string.IsNullOrEmpty(_programOptions.RepositoryPath))
                 return null;
             IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
             
-            foreach (var file in Directory.GetFiles(RepositoryPath, "*.xml"))
+            foreach (var file in Directory.GetFiles(_programOptions.RepositoryPath, "*.xml"))
             {
                 lstResult.Add(GetNameAnIdAppFromFile(file));
             }
@@ -82,7 +85,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             if (_location == null)
                 return;
 
-            if (!Directory.Exists(RepositoryPath))
+            if (!Directory.Exists(_programOptions.RepositoryPath))
                 return;
 
             try
@@ -100,7 +103,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             string mNameSelectedApp = Path.GetFileNameWithoutExtension(_restoreInfo.SelectedApp.Name);
 
 
-            string searchFileAppInStore = FindFiles.SearchFileAppInStore(RepositoryPath, mNameSelectedApp, "*.xml");
+            string searchFileAppInStore = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, mNameSelectedApp, "*.xml");
 
             var xmlDocument = new XmlDocument();
 
@@ -149,7 +152,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                                 App = _app,
                                                 CurrentApp = _restoreInfo.SelectedApp.Copy(),
                                                 CurrentStory = searchStory.Copy(),
-                                                StoryFolder = RepositoryPath + "\\" +
+                                                StoryFolder = _programOptions.RepositoryPath + "\\" +
                                                               Path.GetFileNameWithoutExtension(searchFileAppInStore) +
                                                               "\\stories\\" + searchStory.Id
                                             };
@@ -176,7 +179,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             {
                 ik++;
 
-                tryName = name + " (copy" + ik.ToString() + ")"+".qvf";
+                if (_programOptions.IsServer())
+                    tryName = name + " (copy" + ik.ToString() + ")";
+                else
+                {
+                    tryName = name + " (copy" + ik.ToString() + ")" + ".qvf";
+                }
 
                 bool found = false;
 
@@ -218,7 +226,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private void ProgramOptionsSendReceived(object sender, ProgramOptionsEventArgs e)
         {
-            this.RepositoryPath = e.ProgramOptions.RepositoryPath;
+            //this.RepositoryPath = e.ProgramOptions.RepositoryPath;
+            e.ProgramOptions.Copy(_programOptions);
             OnNewProgramOptions(e);
 
         }
@@ -266,7 +275,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public  IList<NameAndIdPair> GetHistoryListForSelectedApp()
         {
             
-            string fileApp = FindFiles.SearchFileAppInStore(RepositoryPath, Path.GetFileNameWithoutExtension(_selectedApp.Name),"*.xml");
+            string fileApp = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, Path.GetFileNameWithoutExtension(_selectedApp.Name),"*.xml");
             
             IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
 
