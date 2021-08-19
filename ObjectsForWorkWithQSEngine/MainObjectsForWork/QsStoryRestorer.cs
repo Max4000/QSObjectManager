@@ -6,6 +6,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
+using UtilClasses.ProgramOptionsClasses;
+
 // ReSharper disable IdentifierTypo
 
 
@@ -13,7 +15,7 @@ using Qlik.Sense.Client.Storytelling;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsStoryRestorer : IRestoreSlideInfoFromDisk
+    public class QsStoryRestorer : IRestoreSlideInfoFromDisk, IProgramOptionsEvent
     {
         
         private readonly RestoreInfo _restoreInfo = new();
@@ -21,8 +23,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
         public event RestoreSlideInfoFromDiskHandler NewRestoreSlideInfoFromDiskSend;
+        public event ProgramOptionsHandler NewProgramOptionsSend;
 
-        public QsStoryRestorer(IRestoreInfoEvent restoreInfo , IRestoreStoryFromDisk storyFromDisk)
+        public QsStoryRestorer(IRestoreInfoEvent restoreInfo , IRestoreStoryFromDisk storyFromDisk, IProgramOptionsEvent programOptions)
         {
             
 
@@ -34,7 +37,23 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             story.NewRestoreStoryFromDiskSend += RestoreStoryFromDiskReceived;
 
-            var unused = new QsSlideRestorer(this);
+            IProgramOptionsEvent pOptions = programOptions;
+
+            pOptions.NewProgramOptionsSend += ProgramOptionsReceived;
+
+            var unused = new QsSlideRestorer(this,this);
+        }
+
+        private void OnNewProgramOptions(ProgramOptionsEventArgs e)
+        {
+            if (this.NewProgramOptionsSend != null)
+                NewProgramOptionsSend(this, e);
+        }
+
+
+        private void ProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
+        {
+            OnNewProgramOptions(e);
         }
 
         private void OnNewRestoreSlideInfoFromDisk(RestoreSlideInfoEventArgs e)
@@ -207,6 +226,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
 
+        
     }
 
     public class RestoreStoryFromDiskInfo

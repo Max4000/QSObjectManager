@@ -86,6 +86,12 @@ namespace UtilClasses.ProgramOptionsClasses
             anotherOptions.RemoteAddress = RemoteAddress;
         }
 
+        public bool IsServer()
+        {
+            return !RemoteAddress.Contains("127.0.0.1") && !RemoteAddress.Contains("localhost");
+        }
+
+
         public ProgramOptions Copy()
         {
             return new(RepositoryPath)

@@ -25,6 +25,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
         public event ProgramOptionsHandler NewProgramOptionsSend;
 
+        private void OnNewProgramOptions(ProgramOptionsEventArgs e)
+        {
+            if (NewProgramOptionsSend != null)
+                NewProgramOptionsSend(this, e);
+        }
+
         public  IList<NameAndIdPair> GetAppsFromStore()
         {
             if (string.IsNullOrEmpty(RepositoryPath))
@@ -61,7 +67,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             restoreInfoEvent.NewRestoreInfoSend += RestoreInfoReceived;
 
-            var unused = new QsStoryRestorer(this,this);
+            var unused = new QsStoryRestorer(this,this,this);
         }
 
         private void RestoreInfoReceived(object sender, RestoreInfoEventArgs e)
@@ -213,9 +219,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private void ProgramOptionsSendReceived(object sender, ProgramOptionsEventArgs e)
         {
             this.RepositoryPath = e.ProgramOptions.RepositoryPath;
+            OnNewProgramOptions(e);
+
         }
 
-        
+
 
 
 

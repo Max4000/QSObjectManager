@@ -7,6 +7,8 @@ using Newtonsoft.Json.Linq;
 using Qlik.Engine;
 using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
+using UtilClasses.ProgramOptionsClasses;
+
 // ReSharper disable IdentifierTypo
 
 #pragma warning disable 618
@@ -21,13 +23,24 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private readonly Dictionary<string, XmlPair> _currentItemDict = new();
 
+        private readonly ProgramOptions _programOptions = new();
+
         public QsSlideRestorer(
-             IRestoreSlideInfoFromDisk slideInfoFromDisk)
+             IRestoreSlideInfoFromDisk slideInfoFromDisk, IProgramOptionsEvent programOptions)
         {
             
             IRestoreSlideInfoFromDisk slideinfo = slideInfoFromDisk;
             slideinfo.NewRestoreSlideInfoFromDiskSend += RestoreSlideInfoFromDiskReceived;
 
+            IProgramOptionsEvent prOptions = programOptions;
+
+            prOptions.NewProgramOptionsSend += ProgramOptionsReceived;
+
+        }
+
+        private void ProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
+        {
+            e.ProgramOptions.Copy(_programOptions); 
         }
 
         private void RestoreSlideInfoFromDiskReceived(object sender, RestoreSlideInfoEventArgs e)
@@ -180,7 +193,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     result = slide.CreateImageSlideItemProperties(id, stringPathToImage);
 
-                    result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
+                    if (_programOptions.IsServer())
+
+                        result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
 
                     break;
                 }
