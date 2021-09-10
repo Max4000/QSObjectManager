@@ -80,6 +80,21 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             DoRestore();
         }
 
+        private string IdForName(string name)
+        {
+            IList<NameAndIdPair> lst = Utils.GetApps(_location.GetConnection());
+
+            foreach (NameAndIdPair elem in lst)
+            {
+                if (String.CompareOrdinal(elem.Name, name) == 0)
+                {
+                    return elem.Id;
+                }
+            }
+
+            return string.Empty;
+        }
+
         private void DoRestore()
         {
             if (_location == null)
@@ -90,8 +105,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             try
             {
+                string foundId = IdForName(_restoreInfo.SelectedApp.Name);
 
-                IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreInfo.SelectedApp.Id);
+                IAppIdentifier appId = _location.GetConnection().AppWithId(foundId);
 
                 _app = _location.GetConnection().App(appId);
             }
