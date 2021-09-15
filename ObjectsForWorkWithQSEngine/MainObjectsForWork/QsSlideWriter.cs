@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Qlik.Sense.Client.Storytelling;
+
 // ReSharper disable StringLiteralTypo
 // ReSharper disable CommentTypo
 
@@ -11,13 +12,16 @@ using Qlik.Sense.Client.Storytelling;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsSlideWriter
+    public class QsSlideWriter : IWriteSnapshotToDisk
     {
         //public ProgramOptions Options { get; } = new();
         
         public StoryItemInfo ItemInfo = new();
         
         public DeleteItemFromDiskInfo  DeleteItem= new ();
+
+        public event WriteSnapshotToDisk NewSnapshotToDiskSend;
+
         public QsSlideWriter(IWriteStoryItemToDisk writeStoryItem,IDeleteInfoFromDisk deleteInfoFromDisk)
         {
             
@@ -29,6 +33,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             deleteInfo.NewDeleteItemFromDiskSend += DeleteItemFromDiskReceived;
 
+            CsAppSnapshotsWriter unused = new CsAppSnapshotsWriter(this);
+
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private void OnNewSnapshotToDisk(SnapshotWriteInfoEventArgs e)
+        {
+            if (this.NewSnapshotToDiskSend != null)
+                NewSnapshotToDiskSend(this, e);
         }
 
         private void DeleteItemFromDiskReceived(object sender, DeleteItemFromDiskEventArgs e)
@@ -104,6 +117,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             e.ItemInfo.Copy(ref ItemInfo);
             WriteStoryItem();
         }
+
+        
 
         private void WriteStoryItem()
         {
@@ -223,6 +238,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
+   
         private void WriteSlideItemsToDisk(ISlide slide)
         {
             int itemNo = -1;
@@ -246,8 +262,21 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 xmlWriterItem.WriteStartDocument();
                 xmlWriterItem.WriteComment("Файл содержит описание элемента слайда Item" + itemNo.ToString());
-                
-                
+
+                if (String.CompareOrdinal(slideItem.Visualization, "snapshot") == 0)
+                {
+                    // ReSharper disable once UnusedVariable
+                    SnapshotWriteInfo snapshotWriteInfo = new SnapshotWriteInfo()
+                    {
+                        App = ItemInfo.App,
+                        SlideItem = slideItem,
+                        ItemFolder = itemPathFolder
+                    };
+
+                    //OnNewSnapshotToDisk(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
+
+                }
+
                 
                 xmlWriterItem.WriteStartElement("Item");
                 

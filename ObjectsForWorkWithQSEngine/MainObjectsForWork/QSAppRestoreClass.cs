@@ -27,6 +27,14 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public event RestoreInfoHandler NewRestoreInfoSend;
         public event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
         public event ProgramOptionsHandler NewProgramOptionsSend;
+        
+
+
+        //private void OnNewRestoreSnapshotsFromDisk(SnapshotWriteInfoEventArgs e)
+        //{
+        //    if (this.NewSnapshotFromDiskSend != null)
+        //        NewSnapshotFromDiskSend(this, e);
+        //}
 
         private void OnNewProgramOptions(ProgramOptionsEventArgs e)
         {
@@ -71,6 +79,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             restoreInfoEvent.NewRestoreInfoSend += RestoreInfoReceived;
 
             var unused = new QsStoryRestorer(this,this,this);
+            //var unused2 = new CsAppSnapshotsRestorer(this, this);
         }
 
         private void RestoreInfoReceived(object sender, RestoreInfoEventArgs e)
@@ -82,9 +91,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private string IdForName(string name)
         {
-            IList<NameAndIdPair> lst = Utils.GetApps(_location.GetConnection());
-
-            foreach (NameAndIdPair elem in lst)
+            
+            foreach (NameAndIdPair elem in Utils.GetApps(_location.GetConnection()))
             {
                 if (String.CompareOrdinal(elem.Name, name) == 0)
                 {
@@ -120,6 +128,17 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
             string searchFileAppInStore = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, mNameSelectedApp, "*.xml");
+
+            //SnapshotWriteInfo appArgs = new SnapshotWriteInfo
+            //{
+            //    App = _app,
+            //    ItemFolder = _programOptions.RepositoryPath + "\\" +
+            //                Path.GetFileNameWithoutExtension(searchFileAppInStore),
+            //    Location = _location.GetConnection()
+
+            //};
+
+            //OnNewRestoreSnapshotsFromDisk(new SnapshotWriteInfoEventArgs(appArgs));
 
             var xmlDocument = new XmlDocument();
 

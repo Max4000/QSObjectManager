@@ -163,6 +163,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                                         RestoreSlideInfo restInfo = new RestoreSlideInfo()
                                         {
+                                            App = _restoreStoryFromDiskInfo.App,
                                             FullPathToSlideFolder = _restoreStoryFromDiskInfo.StoryFolder + "\\" + slideFolder,
                                             SlideFolder = slideFolder,
                                             Story = currentStory

@@ -16,7 +16,7 @@ using UtilClasses.ProgramOptionsClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsSlideRestorer
+    public class QsSlideRestorer : IRestoreSnapshotsFromDisk
     {
 
         private readonly RestoreSlideInfo _restoreSlideInfo = new();
@@ -24,6 +24,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private readonly Dictionary<string, XmlPair> _currentItemDict = new();
 
         private readonly ProgramOptions _programOptions = new();
+
+        public event SnapshotRestoreInfo NewSnapshotFromDiskSend;
 
         public QsSlideRestorer(
              IRestoreSlideInfoFromDisk slideInfoFromDisk, IProgramOptionsEvent programOptions)
@@ -36,6 +38,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             prOptions.NewProgramOptionsSend += ProgramOptionsReceived;
 
+            var unused = new CsAppSnapshotsRestorer(this);
+
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private void OnNewSnapshotRestore(SnapshotWriteInfoEventArgs e)
+        {
+            if (this.NewSnapshotFromDiskSend != null)
+                NewSnapshotFromDiskSend(this, e);
         }
 
         private void ProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
@@ -80,12 +91,20 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 {
                     case "snapshot":
                     {
-                        using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
+                        // ReSharper disable once UnusedVariable
+                        SnapshotWriteInfo snapshotWriteInfo = new SnapshotWriteInfo()
+                        {
+                            App = _restoreSlideInfo.App,
+                            ItemFolder = _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder,
+                            SlideItem = null
+                        };
+
+                        //OnNewSnapshotRestore(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
+
+                        SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
                             _currentItemDict["id"].Value, slideItem.Folder, "snapshot");
 
                         slide.CreateSnapshotSlideItem(_currentItemDict["id"].Value, itemProperties);
-
-                        
 
                         break;
                     }
@@ -95,8 +114,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             _currentItemDict["id"].Value, slideItem.Folder, "image");
 
                         slide.CreateSlideItem(_currentItemDict["id"].Value, itemProperties) ;
-
-                       
 
                         break;
                     }
@@ -145,6 +162,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return fromString.Substring(pos3 + 1);
         }
 
+
+        
+
+        
         private SlideItemProperties CreateSlideItemProperties(ISlide slide, string id, string itemFolder, string itemType)
         {
             SlideItemProperties result = null;
@@ -175,7 +196,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 valueSrcPath = jtokenChild.Value<string>("qUrl");
             }
 
-
             switch (itemType)
             {
                 case "snapshot":
@@ -188,25 +208,22 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 }
                 case "image":
                 {
-                    if (valueSrcPath.Length > 0)
-                        stringPathToImage = GetPath(valueSrcPath);
+                    if (valueSrcPath.Length > 0) stringPathToImage = GetPath(valueSrcPath);
 
                     result = slide.CreateImageSlideItemProperties(id, stringPathToImage);
 
-                    if (_programOptions.IsServer())
-
-                        result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
+                    if (_programOptions.IsServer()) result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
 
                     break;
                 }
                 case "text":
                 {
                     string textValue = style.Get<string>("text");
-                    
+
                     string visualType = _currentItemDict["VisualizationType"].Value;
 
                     Slide.TextType textType = Slide.TextType.Title;
-                    
+
                     switch (visualType)
                     {
                         case "title":
@@ -233,18 +250,16 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     Slide.Shapes visualType = ShapeType(visual);
 
-                    result = slide.CreateShapeSlideItemProperties(id, visualType,colorValue);
-                    
+                    result = slide.CreateShapeSlideItemProperties(id, visualType, colorValue);
+
                     break;
                 }
                 case "sheet":
                 {
-                    if (id != null) 
-                        result = slide.CreateTextSlideItemProperties(id);
+                    if (id != null) result = slide.CreateTextSlideItemProperties(id);
 
                     break;
                 }
-
             }
 
             
@@ -658,12 +673,14 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public class RestoreSlideInfo
     {
+        public IApp App;
         public IStory Story;
         public string FullPathToSlideFolder;
         public string SlideFolder;
 
         public void Copy(RestoreSlideInfo anotherInfo)
         {
+            anotherInfo.App = App;
             anotherInfo.Story = Story;
             anotherInfo.FullPathToSlideFolder = FullPathToSlideFolder;
             anotherInfo.SlideFolder = SlideFolder;

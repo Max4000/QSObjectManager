@@ -145,6 +145,8 @@ namespace QSObjectManager
                     buttonDisconnectFromServer.Visible = _isConnected;
                     buttonConnectToLocalHub.Visible = false;
                     buttonConnectToServer.Visible = false;
+                    ButtonSelectAllHistToWrite.Visible = true;
+                    ButtonDeSelectAllHistToWrite.Visible = true;
 
                     OnNewConnectionStatusInfo(
                         new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
@@ -243,6 +245,12 @@ namespace QSObjectManager
             groupBoxConnectionToRemoteServer.Visible = true;
 
             buttonRestoreHistoryOnRestoreTab.Visible = false;
+
+            ButtonDeSelectAllHistToRestore.Visible = false;
+            ButtonSelectAllHistToRestore.Visible = false;
+
+            ButtonSelectAllHistToWrite.Visible = false;
+            ButtonDeSelectAllHistToWrite.Visible = false;
         }
 
         private void ListBoxApps_SelectedIndexChanged(object sender, EventArgs e)
@@ -289,6 +297,13 @@ namespace QSObjectManager
             QsAppWriter = new QsAppWriterClass(this, this,this);
 
             OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
+
+            ButtonDeSelectAllHistToRestore.Visible = false;
+            ButtonSelectAllHistToRestore.Visible = false;
+
+            ButtonSelectAllHistToWrite.Visible = false;
+            ButtonDeSelectAllHistToWrite.Visible = false;
+
 
         }
 
@@ -469,6 +484,9 @@ namespace QSObjectManager
 
                 buttonRestoreHistoryOnRestoreTab.Visible = _isConnected;
 
+                ButtonDeSelectAllHistToRestore.Visible = true;
+                ButtonSelectAllHistToRestore.Visible = true;
+
                 OnNewConnectionStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
             }
 
@@ -534,6 +552,31 @@ namespace QSObjectManager
         {
             textBox1.Text = _programOptions.LocalAddress;
             textBox4.Text = _programOptions.RemoteAddress;
+        }
+
+        private void ButtonSelectAllHistToWrite_Click(object sender, EventArgs e)
+        {
+            listBoxStrorysFromDevHub.BeginUpdate();
+
+            for (int i = 0; i < listBoxStrorysFromDevHub.Items.Count; i++)
+            {
+                listBoxStrorysFromDevHub.SetSelected(i, true);
+            }
+            
+            listBoxStrorysFromDevHub.EndUpdate();
+           
+        }
+
+        private void ButtonDeSelectAllHistToWrite_Click(object sender, EventArgs e)
+        {
+            listBoxStrorysFromDevHub.BeginUpdate();
+
+            for (int i = 0; i < listBoxStrorysFromDevHub.Items.Count; i++)
+            {
+                listBoxStrorysFromDevHub.SetSelected(i, false);
+            }
+
+            listBoxStrorysFromDevHub.EndUpdate();
         }
     }
 }

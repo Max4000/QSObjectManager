@@ -104,7 +104,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         /// <param name="abstractStructure"></param>
         public static void PrintStructureToFile(string nameOfElement, string id, string type, string name, XmlTextWriter xmlTextWriter, string fileName, IAbstractStructure abstractStructure)
         {
-            CreateElement(nameOfElement, id, type, name, xmlTextWriter);
+            if (xmlTextWriter != null) 
+                CreateElement(nameOfElement, id, type, name, xmlTextWriter);
 
             string json = "";
 

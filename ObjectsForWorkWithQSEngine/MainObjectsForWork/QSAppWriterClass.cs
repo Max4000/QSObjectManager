@@ -24,6 +24,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         //public event ConnectionStatusInfoHandler NewConnectionStatusInfoSend;
         public event WriteStoryToDiskHandler NewWriteStoryToDiskSend;
         public event DeleteStoryFromDiskHandler NewDeleteStoryFromDiskSend;
+        //public event WriteSnapshotToDisk NewSnapshotToDiskSend;
 
         private void ConnectionStatusInfoReceived(object sender, ConnectionStatusInfoEventArgs e)
         {
@@ -62,6 +63,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewProgramOptionsSend(this, e);
         }
 
+        //private void OnNewSnapshotsToDisk(SnapshotWriteInfoEventArgs e)
+        //{
+        //    if (this.NewSnapshotToDiskSend != null)
+        //        NewSnapshotToDiskSend(this, e);
+
+        //}
+
         
 
         /// <summary>
@@ -83,6 +91,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             obj3.NewConnectionStatusInfoSend += ConnectionStatusInfoReceived;
 
             var unused = new QsStoryWriter( this,this,this);
+            //var unused2 = new CsAppSnapshotsWriter(this, this);
         }
 
        
@@ -124,6 +133,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             _app = _location.GetConnection().App(appId);
 
+            
+
 
             string searchFileAppInStore = FindFiles.SearchFileAppInStore(Options.RepositoryPath, mNameSelectedApp, "*.xml");
 
@@ -137,7 +148,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 
                 Directory.Delete(appFolder);
                 
-                DeleteHeadierOfAppFromDisk(searchFileAppInStore);
+                DeleteHeaderOfAppFromDisk(searchFileAppInStore);
             }
 
             string fileXml = GetNewNameAppXmlFile();
@@ -147,7 +158,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 Formatting = Formatting.Indented
             };
 
-            
+            //new SnapshotWriteInfo
+            //{
+            //    App = _app,
+            //    ItemFolder = Path.GetFileNameWithoutExtension(fileXml),
+            //    Location = _location.GetConnection()
+            //};
+
+            //OnNewSnapshotsToDisk(new SnapshotWriteInfoEventArgs(appArgs));
+             
             _xmlWriter.WriteStartDocument();
 
             _xmlWriter.WriteComment("Файл содержит описание приложения "+ _wrtWriteInfo.SelectedApp.Name);
@@ -209,7 +228,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
 
-        private void DeleteHeadierOfAppFromDisk(string searchFile)
+        private void DeleteHeaderOfAppFromDisk(string searchFile)
         {
             File.Delete(searchFile);
         }
