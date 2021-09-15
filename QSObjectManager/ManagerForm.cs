@@ -578,6 +578,32 @@ namespace QSObjectManager
 
             listBoxStrorysFromDevHub.EndUpdate();
         }
+
+        private void ButtonSelectAllHistToRestore_Click(object sender, EventArgs e)
+        {
+
+            listBoxHistorysInStoreOnRestoreTab.BeginUpdate();
+
+            for (int i = 0; i < listBoxHistorysInStoreOnRestoreTab.Items.Count; i++)
+            {
+                listBoxHistorysInStoreOnRestoreTab.SetSelected(i, true);
+            }
+
+            listBoxHistorysInStoreOnRestoreTab.EndUpdate();
+
+        }
+
+        private void ButtonDeSelectAllHistToRestore_Click(object sender, EventArgs e)
+        {
+            listBoxHistorysInStoreOnRestoreTab.BeginUpdate();
+
+            for (int i = 0; i < listBoxHistorysInStoreOnRestoreTab.Items.Count; i++)
+            {
+                listBoxHistorysInStoreOnRestoreTab.SetSelected(i, false);
+            }
+
+            listBoxHistorysInStoreOnRestoreTab.EndUpdate();
+        }
     }
 }
 
