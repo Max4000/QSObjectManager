@@ -528,19 +528,19 @@ namespace QSObjectManager
                 }
             }
 
-            try
-            {
+            //try
+            //{
 
 
                 OnNewRestoreInfo(new RestoreInfoEventArgs(
                     new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames)));
 
                 ShowMessageForm("Выбранные истории восстановлены", "");
-            }
-            catch (Exception ex)
-            {
-                ShowMessageForm(ex.Message, "Ошибка");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ShowMessageForm(ex.Message, "Ошибка");
+            //}
         }
 
         private void AboutProgramToolStripMenuItem_Click(object sender, EventArgs e)

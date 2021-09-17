@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ConsoleApp2\MyBookmark.csproj" />
     <ProjectReference Include="..\UtilClasses\UtilClasses.csproj" />
   </ItemGroup>
 

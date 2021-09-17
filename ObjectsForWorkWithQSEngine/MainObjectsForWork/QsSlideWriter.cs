@@ -273,7 +273,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                         ItemFolder = itemPathFolder
                     };
 
-                    //OnNewSnapshotToDisk(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
+                    OnNewSnapshotToDisk(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
 
                 }
 

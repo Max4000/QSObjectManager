@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Xml;
+using MyBookmark;
 using Newtonsoft.Json;
-using ObjectsForWorkWithQSEngine.Converters;
+using Newtonsoft.Json.Linq;
 using Qlik.Engine;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
+using CharToIntConverter = ObjectsForWorkWithQSEngine.Converters.CharToIntConverter;
+using Formatting = Newtonsoft.Json.Formatting;
+using QixEnumConverter = ObjectsForWorkWithQSEngine.Converters.QixEnumConverter;
+
 // ReSharper disable All
 
 #pragma warning disable 618
@@ -53,15 +60,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 Utils.ReadJsonFile(_restoreInfo.ItemFolder + "\\Style.json"));
 
             string snapshotLibId = style.Get<string>("id");
-            string sheetId = _dictionary["Properties.SheetId"].Value;
-            string objectId = _dictionary["Properties.SourceObjectId"].Value;
+            //string sheetId = _dictionary["Properties.SheetId"].Value;
+            //string objectId = _dictionary["Properties.SourceObjectId"].Value;
 
-            ISnapshot snapshot = _restoreInfo.App.GetSnapshot(snapshotLibId);
+            GenericBookmark snapshot = _restoreInfo.App.GetGenericBookmark(snapshotLibId);
 
             if (snapshot != null)
-                _restoreInfo.App.RemoveSnapshot(snapshotLibId);
+                _restoreInfo.App.DestroyGenericBookmark(snapshotLibId);
 
-            ISnapshot snapshotRes = CreateSnapshot(snapshotLibId, sheetId, objectId);
+            CreateGenericBookmarkResult snapshotRes = CreateSnapshot(snapshotLibId);
 
         }
         private SnapshotProperties restoreSnapshotProperties(string snapshotId, string itemFolder)
@@ -286,9 +293,40 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return snapshotProperties1;
         }
 
-        private  ISnapshot  CreateSnapshot(string snapshotLibId, string sheetId, string objectId, SnapshotObjectSizeDef screenSize = null)
+        private CreateGenericBookmarkResult CreateSnapshot(string snapshotLibId )
         {
-            //GenericObject genericObject = _restoreInfo.App.GetObject<GenericObject>(objectId);
+            MyGenericBookmarkProperties structure = new MyGenericBookmarkProperties(_restoreInfo.ItemFolder + "\\Properties.json");
+
+            
+            
+
+            TextWriter writer =
+                new StreamWriter(new FileStream(_restoreInfo.ItemFolder + "\\Properties2.json", FileMode.Create),
+                    Encoding.UTF8);
+            writer.Write(structure.ToString());
+
+            writer.Flush();
+            writer.Close();
+            writer.Dispose();
+
+
+            
+            
+
+
+
+            //GenericObject 
+
+            //structure.Info = new NxInfo();
+            //structure.MetaDef = new NxMetaDef();
+
+            //HyperCube mCube = structure.Get<HyperCube>("qHyperCube");
+
+            CreateGenericBookmarkResult genericObject = _restoreInfo.App.CreateGenericBookmark(structure);
+
+
+
+
 
             //string str = GetvisualizationType(genericObject);
 
@@ -332,7 +370,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             //Utils.PrintStructureToFile("","","","",null, _restoreInfo.ItemFolder + "\\ISnapshot.PropertiesRe.json", snapshotProperties);
 
             //return _restoreInfo.App.CreateSnapshot(snapshotLibId, snapshotProperties);
-            return _restoreInfo.App.CreateSnapshot(snapshotLibId,sheetId,objectId);
+            return genericObject;
         }
 
 

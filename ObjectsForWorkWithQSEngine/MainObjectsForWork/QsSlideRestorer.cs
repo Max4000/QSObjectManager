@@ -99,7 +99,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             SlideItem = null
                         };
 
-                        //OnNewSnapshotRestore(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
+                        OnNewSnapshotRestore(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
 
                         SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
                             _currentItemDict["id"].Value, slideItem.Folder, "snapshot");
