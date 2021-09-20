@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Qlik.Engine;
 using Qlik.Engine.Communication;
-using Utils = ObjectsForWorkWithQSEngine.MainObjectsForWork.Utils;
+using Utils = UtilClasses.Utils;
 
 namespace ConsoleApp1
 {

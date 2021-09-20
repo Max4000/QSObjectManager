@@ -1,6 +1,9 @@
 ﻿using System.Text;
 using System.Xml;
 using Qlik.Engine;
+using Qlik.Sense.Client;
+using Qlik.Sense.Client.Snapshot;
+using UtilClasses;
 using Formatting = System.Xml.Formatting;
 #pragma warning disable 618
 
@@ -68,7 +71,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         {
 
 
-            GenericBookmark snapshot = _snapshotWriteInfo.App.GetGenericBookmark(_snapshotWriteInfo.SlideItem.Style.Id);
+            ISnapshot snapshot = _snapshotWriteInfo.App.GetSnapshot(_snapshotWriteInfo.SlideItem.Style.Id);
 
 
             string itemPath = _snapshotWriteInfo.ItemFolder;

@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Qlik.Engine;
 
-namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
+namespace MConnect.Location
 {
 
     public interface IConnect : IDisposable

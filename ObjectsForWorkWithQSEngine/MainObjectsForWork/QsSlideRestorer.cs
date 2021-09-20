@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Qlik.Engine;
+using Qlik.Sense.Client;
 using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
+using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 
 // ReSharper disable IdentifierTypo
@@ -101,12 +106,40 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                         OnNewSnapshotRestore(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
 
-                        SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
-                            _currentItemDict["id"].Value, slideItem.Folder, "snapshot");
+                        
+                            ;
 
-                        slide.CreateSnapshotSlideItem(_currentItemDict["id"].Value, itemProperties);
+                            SlideStyle style = new SlideStyle();
 
-                        break;
+                            style.ReadJson(new JsonTextReader(new StreamReader(
+                                new FileStream(
+                                    _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
+                                    "\\Style.json", FileMode.Open), Encoding.UTF8)));
+
+
+
+                            SlideItemProperties prop = CreateSnapshotSlideItemProperties(_currentItemDict["id"].Value,style.Id);
+
+                            //slide.CreateSlideItem(_currentItemDict["id"].Value, prop);
+
+
+                            //SlideItemProperties prop = new SlideItemProperties();
+
+                            //prop.ReadJson(new JsonTextReader(new StreamReader(
+                            //    new FileStream(
+                            //        _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
+                            //        "\\SlideItemProperties.json", FileMode.Open), Encoding.UTF8)));
+
+                            //using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
+                            //    _currentItemDict["id"].Value, slideItem.Folder, "snapshot");
+
+                            slide.CreateSlideItem(_currentItemDict["id"].Value, prop);
+
+                        
+                            
+
+                            break;
+
                     }
                     case "image":
                     {
@@ -161,11 +194,71 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             int pos3 = fromString.IndexOf('/', pos2 + 1);
             return fromString.Substring(pos3 + 1);
         }
+        public SlideItemProperties CreateSnapshotSlideItemProperties(
+            string id = null,
+            string snapshotId = null)
+        {
+            SlideItemProperties slideItemProperties = this.CreateSlideItemProperties(id);
+            if (snapshotId == null)
+                return slideItemProperties;
+            
+            var  bookmark =  _restoreSlideInfo.App.GetGenericBookmark(snapshotId);
+
+            SnapshotData snapshotData = bookmark.Properties.Get<SnapshotData>("snapshotData");
 
 
-        
+            float w1 = snapshotData.Object.Size.W;
+            float h1 = snapshotData.Object.Size.H;
+            float w2 = snapshotData.Parent.W;
+            float h2 = snapshotData.Parent.H;
+            
+            float num1 = (float)((double)w1 / (double)w2 * 100.0);
+            float num2 = (float)((double)h1 / (double)h2 * 100.0);
+            string str1 = num1.ToString((IFormatProvider)CultureInfo.InvariantCulture) + "%";
+            string str2 = num2.ToString((IFormatProvider)CultureInfo.InvariantCulture) + "%";
+            
+            slideItemProperties.Position = new SlidePosition()
+            {
+                Height = str2,
+                Width = str1,
+                Left = "0%",
+                Top = "0%",
+                ZIndex = 1
+            };
+            
+            slideItemProperties.Visualization = "snapshot";
 
-        
+            
+
+            string visualType = bookmark.Properties.Get<string>("visualizationType");
+
+            slideItemProperties.VisualizationType = visualType;
+            slideItemProperties.Style = new SlideStyle()
+            {
+                Id = snapshotId
+            };
+            slideItemProperties.Ratio = true;
+           
+            return slideItemProperties;
+        }
+
+        private SlideItemProperties CreateSlideItemProperties(string id)
+        {
+            SlideItemProperties slideItemProperties1 = new SlideItemProperties();
+            slideItemProperties1.Info = new NxInfo()
+            {
+                Id = ClientExtension.GetCid(),
+                Type = "slideitem"
+            };
+            SlideItemProperties slideItemProperties2 = slideItemProperties1;
+            if (id != null)
+                slideItemProperties2.Info.Id = id.Replace(" ", "");
+            return slideItemProperties2;
+        }
+
+
+
+
         private SlideItemProperties CreateSlideItemProperties(ISlide slide, string id, string itemFolder, string itemType)
         {
             SlideItemProperties result = null;
@@ -201,6 +294,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 case "snapshot":
                 {
                     string ids = style.Get<string>("id");
+
+                    //IGenericBookmark ss = _restoreSlideInfo.App.GetGenericBookmark("6c9cdc5c-fcc9-425d-8561-780a3c30acb9");
 
                     result = slide.CreateSnapshotSlideItemProperties(id, ids);
 
@@ -269,19 +364,19 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 #region GenericObjectProperties
 
-                    NxInfo nxInfo = JsonConvert.DeserializeObject<NxInfo>(
-                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Info.json"));
+                    //NxInfo nxInfo = JsonConvert.DeserializeObject<NxInfo>(
+                    //    Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Info.json"));
                     
-                    result.Set("qInfo",nxInfo);
+                    //result.Set("qInfo",nxInfo);
 
-                    result.Set("qExtendsId",_currentItemDict["ExtendsId"].Value);
+                    //result.Set("qExtendsId",_currentItemDict["ExtendsId"].Value);
 
-                    NxMetaDef nxMetaDef = JsonConvert.DeserializeObject<NxMetaDef>(
-                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\MetaDef.json"));
+                    //NxMetaDef nxMetaDef = JsonConvert.DeserializeObject<NxMetaDef>(
+                    //    Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\MetaDef.json"));
 
-                    result.Set("qMetaDef",nxMetaDef);
+                    ////result.Set("qMetaDef",nxMetaDef);
 
-                    result.Set("qStateName", _currentItemDict["StateName"].Value);
+                    //result.Set("qStateName", _currentItemDict["StateName"].Value);
 
                 #endregion
 
@@ -292,35 +387,35 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     string ratio = _currentItemDict["Ratio"].Value;
                     result.Set("ratio", bool.Parse(ratio));
 
-                    SlidePosition slideposition = JsonConvert.DeserializeObject<SlidePosition>(
-                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Position.json"));
+                    //SlidePosition slideposition = JsonConvert.DeserializeObject<SlidePosition>(
+                    //    Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Position.json"));
                     
-                    result.Set("position", slideposition);
+                    //result.Set("position", slideposition);
 
-                    string dataPath = this._currentItemDict["DataPath"].Value;
-                    result.Set("dataPath", dataPath);
-
-
-                    result.Set("visualization", _currentItemDict["Visualization"].Value);
-
-                    result.Set("visualizationType", _currentItemDict["VisualizationType"].Value);
-
-                    result.Set("style", style);
-
-                    result.Set("sheetId", _currentItemDict["SheetId"].Value);
+                    //string dataPath = this._currentItemDict["DataPath"].Value;
+                    //result.Set("dataPath", dataPath);
 
 
-                    SelectionState selectionState = JsonConvert.DeserializeObject<SelectionState>(
-                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SelectionState.json"));
+                    //result.Set("visualization", _currentItemDict["Visualization"].Value);
 
-                    result.Set("selectionState", selectionState);
+                    //result.Set("visualizationType", _currentItemDict["VisualizationType"].Value);
 
-                    
-                    SnapshotProperties embeddedSnapshotDef = JsonConvert.DeserializeObject<SnapshotProperties>(
-                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder +
-                                           "\\EmbeddedSnapshotDef.json"));
+                    //result.Set("style", style);
 
-                    result.Set("qEmbeddedSnapshotDef", embeddedSnapshotDef);
+                    //result.Set("sheetId", _currentItemDict["SheetId"].Value);
+
+
+                //SelectionState selectionState = JsonConvert.DeserializeObject<SelectionState>(
+                //    Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SelectionState.json"));
+
+                //result.Set("selectionState", selectionState);
+
+
+                //SnapshotProperties embeddedSnapshotDef = JsonConvert.DeserializeObject<SnapshotProperties>(
+                //Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder +
+                //                   "\\EmbeddedSnapshotDef.json"));
+
+                //result.Set("qEmbeddedSnapshotDef", embeddedSnapshotDef);
 
                 #endregion
                 return result;

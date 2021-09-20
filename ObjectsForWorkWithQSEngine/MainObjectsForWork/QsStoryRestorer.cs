@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
+using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 
 // ReSharper disable IdentifierTypo

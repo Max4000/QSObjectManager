@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using MConnect.Location;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
+using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
@@ -528,19 +530,19 @@ namespace QSObjectManager
                 }
             }
 
-            //try
-            //{
+            try
+            {
 
 
                 OnNewRestoreInfo(new RestoreInfoEventArgs(
                     new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames)));
 
                 ShowMessageForm("Выбранные истории восстановлены", "");
-            //}
-            //catch (Exception ex)
-            //{
-            //    ShowMessageForm(ex.Message, "Ошибка");
-            //}
+            }
+            catch (Exception ex)
+            {
+                ShowMessageForm(ex.Message, "Ошибка");
+            }
         }
 
         private void AboutProgramToolStripMenuItem_Click(object sender, EventArgs e)

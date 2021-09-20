@@ -1,9 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Qlik.Engine;
+using Qlik.Engine.Communication;
 using NxInfo = Qlik.Engine.NxInfo;
 using NxMetaDef = Qlik.Engine.NxMetaDef;
 using GenericBookmarkProperties  = Qlik.Engine.GenericBookmarkProperties;
@@ -12,28 +17,38 @@ using QlikConnection = Qlik.Engine.Communication.QlikConnection;
 
 
 
-namespace MyBookmark
+namespace MyBookmark2
 {
     [JsonObject]
     [ValueClass]
-    [QixName("qProp")]
-    public class MyGenericBookmarkProperties : GenericBookmarkProperties
+    public class MyGenericBookmarkProperties : GenericBookmarkProperties, IAbstractStructure
     {
-        private AbstractStructure _abstractStructure ;
+        
         private QlikConnection _connection;
+        private AbstractStructure _wrap ;
+        
 
-        public MyGenericBookmarkProperties(string filename)
+
+        public MyGenericBookmarkProperties(string filename,IQlikConnection connect)
         {
-            _abstractStructure =new AbstractStructure(JObject.Load(new JsonTextReader(new StreamReader(new FileStream(filename, FileMode.Open), Encoding.UTF8))));
+            _connection = connect as QlikConnection;
+            
+            _wrap = new AbstractStructure(JObject.Load(
+                new JsonTextReader(new StreamReader(new FileStream(filename, FileMode.Open), Encoding.UTF8))));
 
         }
 
+       
 
-
+        private AbstractStructure GetWrap()
+        {
+            //return _wrap.Get<AbstractStructure>("qProp");
+            return _wrap;
+        }
 
         public string PrintStructure(Formatting formatting = Formatting.None)
         {
-            return _abstractStructure.PrintStructure(Formatting.Indented);
+            return _wrap.PrintStructure(Formatting.Indented);
         }
 
         public override string ToString()
@@ -45,89 +60,96 @@ namespace MyBookmark
         {
             
 
-            return _abstractStructure.As<T>();
+            return GetWrap().As<T>();
+        }
+
+        public void WriteJson(JsonWriter writer)
+        {
+            GetWrap().WriteJson(writer);
         }
 
         public T CloneAs<T>() where T : AbstractStructure, new()
         {
             
-            return _abstractStructure.CloneAs<T>();
+            return GetWrap().CloneAs<T>();
         }
 
         public T CloneSubstructureAs<T>(string path)
         {
             
-            return _abstractStructure.CloneSubstructureAs<T>(path);
+            return GetWrap().CloneSubstructureAs<T>(path);
         }
 
         public T Get<T>(string propertyName)
         {
             
-            return _abstractStructure.Get<T>(propertyName);
+            return GetWrap().Get<T>(propertyName);
         }
 
         public T Get<T>(string propertyName, T defaultValue)
         {
             
-            return _abstractStructure.Get<T>(propertyName,defaultValue);
+            return GetWrap().Get<T>(propertyName,defaultValue);
         }
 
         public void Set<T>(string propertyName, T value)
         {
-            
-            _abstractStructure.Set<T>(propertyName,value);
+
+            GetWrap().Set<T>(propertyName,value);
         }
 
         public bool IsSet(string propertyName)
         {
             
-            return _abstractStructure.IsSet(propertyName);
+            return GetWrap().IsSet(propertyName);
         }
 
         public IEnumerable<string> GetAllProperties(bool recursive = false)
         {
             
-            return _abstractStructure.GetAllProperties(recursive);
+            return GetWrap().GetAllProperties(recursive);
         }
 
         public IEnumerable<string> GetAllPropertyPaths(bool recursive = false)
         {
             
-            return _abstractStructure.GetAllPropertyPaths(recursive);
+            return GetWrap().GetAllPropertyPaths(recursive);
         }
 
         public QlikConnection Session
         {
-            get => _abstractStructure.Session;
+            get => this._connection;
         }
-
+        [JsonProperty("qInfo")]
         public NxInfo Info
         {
             get
             {
                 
-                return _abstractStructure.Get<NxInfo>("qInfo");
+                return GetWrap().Get<NxInfo>("qInfo");
             }
 
             set
             {
 
-                _abstractStructure.Set("NxInfo",value);
+                GetWrap().Set("NxInfo",value);
             }
             
         }
-
+        [JsonProperty("qMetaDef")]
         public NxMetaDef MetaDef
         {
             get
             {
                 
-                return _abstractStructure.Get<NxMetaDef>("qMetaDef");
+                return GetWrap().Get<NxMetaDef>("qMetaDef");
             }
             set
             {
-                _abstractStructure.Set("qMetaDef",value);
+                GetWrap().Set("qMetaDef",value);
             }
         }
+        
+
     }
 }

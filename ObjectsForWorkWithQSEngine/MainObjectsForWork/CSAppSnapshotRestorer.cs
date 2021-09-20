@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
-using MyBookmark;
+using MyBookmark2;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Qlik.Engine;
+using Qlik.Engine.Communication;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
+using UtilClasses;
 using CharToIntConverter = ObjectsForWorkWithQSEngine.Converters.CharToIntConverter;
-using Formatting = Newtonsoft.Json.Formatting;
 using QixEnumConverter = ObjectsForWorkWithQSEngine.Converters.QixEnumConverter;
 
 // ReSharper disable All
@@ -60,15 +61,17 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 Utils.ReadJsonFile(_restoreInfo.ItemFolder + "\\Style.json"));
 
             string snapshotLibId = style.Get<string>("id");
-            //string sheetId = _dictionary["Properties.SheetId"].Value;
-            //string objectId = _dictionary["Properties.SourceObjectId"].Value;
+            
 
-            GenericBookmark snapshot = _restoreInfo.App.GetGenericBookmark(snapshotLibId);
+            ISnapshot snapshot = _restoreInfo.App.GetSnapshot(snapshotLibId);
 
             if (snapshot != null)
-                _restoreInfo.App.DestroyGenericBookmark(snapshotLibId);
+                _restoreInfo.App.RemoveSnapshot(snapshotLibId);
 
-            CreateGenericBookmarkResult snapshotRes = CreateSnapshot(snapshotLibId);
+            CreateSnapshot(snapshotLibId);
+
+            
+            
 
         }
         private SnapshotProperties restoreSnapshotProperties(string snapshotId, string itemFolder)
@@ -295,82 +298,29 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private CreateGenericBookmarkResult CreateSnapshot(string snapshotLibId )
         {
-            MyGenericBookmarkProperties structure = new MyGenericBookmarkProperties(_restoreInfo.ItemFolder + "\\Properties.json");
+            GenericBookmarkProperties structure = new GenericBookmarkProperties();
+
+            structure.ReadJson(new JsonTextReader(new StreamReader(
+                new FileStream(_restoreInfo.ItemFolder + "\\Properties.json", FileMode.Open), Encoding.UTF8)));
+
+            string shid = structure.Get<string>("sheetId");
+            
+            var sn = _restoreInfo.App.CreateGenericBookmark(structure);
+
+            foreach (var info in _restoreInfo.App.GetAllInfos())
+            {
+                if (string.CompareOrdinal(info.Id, shid) == 0)
+                { 
+                    IGenericObject sh =  _restoreInfo.App.GetGenericObject(info.Id);
+
+                    sh.CreateChild<GenericObject>(_restoreInfo.App.GetGenericBookmark(sn.Info.Id).Properties
+                        .CloneAs<GenericObjectProperties>());
+                }
+            }
 
             
-            
 
-            TextWriter writer =
-                new StreamWriter(new FileStream(_restoreInfo.ItemFolder + "\\Properties2.json", FileMode.Create),
-                    Encoding.UTF8);
-            writer.Write(structure.ToString());
-
-            writer.Flush();
-            writer.Close();
-            writer.Dispose();
-
-
-            
-            
-
-
-
-            //GenericObject 
-
-            //structure.Info = new NxInfo();
-            //structure.MetaDef = new NxMetaDef();
-
-            //HyperCube mCube = structure.Get<HyperCube>("qHyperCube");
-
-            CreateGenericBookmarkResult genericObject = _restoreInfo.App.CreateGenericBookmark(structure);
-
-
-
-
-
-            //string str = GetvisualizationType(genericObject);
-
-            //SnapshotProperties snapshotProperties = genericObject.GetLayout().CloneAs<SnapshotProperties>();
-
-            ////AppExtensions.SetScreenSize(screenSize);
-
-            //switch (str)
-            //{
-            //    case "barchart":
-            //    case "combochart":
-            //    case "linechart":
-            //        snapshotProperties = SetScrollableChartsSnapshotProperties(snapshotLibId, sheetId, objectId, snapshotProperties);
-            //        break;
-            //    //case "gauge":
-            //    //    snapshotProperties = theApp.SetGaugeSnapshotProperties(snapshotLibId, sheetId, objectId, snapshotProperties);
-            //    //    break;
-            //    //case "kpi":
-            //    //    snapshotProperties = theApp.SetKpiSnapshotProperties(snapshotLibId, sheetId, objectId, snapshotProperties);
-            //    //    break;
-            //    //case "map":
-            //    //    snapshotProperties = theApp.SetMapSnapshotProperties(snapshotLibId, sheetId, objectId, snapshotProperties);
-            //    //    break;
-            //    //case "piechart":
-            //    //    snapshotProperties = theApp.SetPiechartSnapshotProperties(snapshotLibId, sheetId, objectId, snapshotProperties);
-            //    //    break;
-            //    //case "scatterplot":
-            //    //    snapshotProperties = theApp.SetScatterplotSnapshotProperties(snapshotLibId, sheetId, objectId, snapshotProperties);
-            //    //    break;
-            //    //case "table":
-            //    //    snapshotProperties = theApp.SetTableSnapshotProperties(snapshotLibId, sheetId, objectId, snapshotProperties);
-            //    //    break;
-            //    //case "text-image":
-            //    //    snapshotProperties = theApp.SetTextImageSnapshotProperties(snapshotLibId, sheetId, objectId, snapshotProperties);
-            //    //    break;
-            //    //case "treemap":
-            //    //    snapshotProperties = theApp.SetTreemapSnapshotProperties(snapshotLibId, sheetId, objectId, snapshotProperties);
-            //    //    break;
-            //}
-
-            //Utils.PrintStructureToFile("","","","",null, _restoreInfo.ItemFolder + "\\ISnapshot.PropertiesRe.json", snapshotProperties);
-
-            //return _restoreInfo.App.CreateSnapshot(snapshotLibId, snapshotProperties);
-            return genericObject;
+            return sn;
         }
 
 

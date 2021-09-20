@@ -3,7 +3,10 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Newtonsoft.Json;
 using Qlik.Sense.Client.Storytelling;
+using UtilClasses;
+using Formatting = System.Xml.Formatting;
 
 // ReSharper disable StringLiteralTypo
 // ReSharper disable CommentTypo
@@ -345,9 +348,16 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                 "SnapshotProperties", "EmbeddedSnapshotDef.json", xmlWriterItem,
                                 itemPathFolder + "\\" + "EmbeddedSnapshotDef.json", 
                                 slideItem.Layout.EmbeddedSnapshotDef);
-                        #endregion
+                Utils.PrintStructureToFile("itemprop", "Properties",
+                    "SnapshotProperties", "SlideItemProperties.json", xmlWriterItem,
+                    itemPathFolder + "\\" + "SlideItemProperties.json",
+                    slideItem.Properties);
 
-                    xmlWriterItem.WriteEndElement();
+                //slideItem.Properties.WriteJson(new JsonTextWriter(new StreamWriter(
+                //                new FileStream(itemPathFolder + "\\" + "SlideItemProperties.json",FileMode.CreateNew), Encoding.UTF8)));
+                #endregion
+
+                xmlWriterItem.WriteEndElement();
                 
                 xmlWriterItem.WriteEndElement();
                 xmlWriterItem.WriteEndDocument();

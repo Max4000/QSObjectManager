@@ -1,4 +1,5 @@
 ﻿using System;
+using MConnect.Location;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {

@@ -2,6 +2,7 @@
 using Qlik.Engine;
 using System;
 using System.Collections.Generic;
+using UtilClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
