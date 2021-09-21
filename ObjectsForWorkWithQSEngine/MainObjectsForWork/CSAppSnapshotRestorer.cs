@@ -55,6 +55,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private void DoRestore()
         {
+
+            return;
+
             _dictionary = ReadSnapshotXml(_restoreInfo.ItemFolder);
             
             SlideStyle style = JsonConvert.DeserializeObject<SlideStyle>(
@@ -307,16 +310,18 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             
             var sn = _restoreInfo.App.CreateGenericBookmark(structure);
 
-            foreach (var info in _restoreInfo.App.GetAllInfos())
-            {
-                if (string.CompareOrdinal(info.Id, shid) == 0)
-                { 
-                    IGenericObject sh =  _restoreInfo.App.GetGenericObject(info.Id);
+            //_restoreInfo.App.SaveObjects();
 
-                    sh.CreateChild<GenericObject>(_restoreInfo.App.GetGenericBookmark(sn.Info.Id).Properties
-                        .CloneAs<GenericObjectProperties>());
-                }
-            }
+            //foreach (var info in _restoreInfo.App.GetAllInfos())
+            //{
+            //    if (string.CompareOrdinal(info.Id, shid) == 0)
+            //    { 
+            //        IGenericObject sh =  _restoreInfo.App.GetGenericObject(info.Id);
+
+            //        sh.CreateChild<GenericObject>(_restoreInfo.App.GetGenericBookmark(sn.Info.Id).Properties
+            //            .CloneAs<GenericObjectProperties>());
+            //    }
+            //}
 
             
 

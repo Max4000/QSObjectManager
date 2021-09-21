@@ -106,21 +106,31 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                         OnNewSnapshotRestore(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
 
-                        
-                            ;
 
-                            SlideStyle style = new SlideStyle();
+                        SlideItemProperties proper = new SlideItemProperties();
 
-                            style.ReadJson(new JsonTextReader(new StreamReader(
+                        proper.ReadJson(new JsonTextReader(new StreamReader(
                                 new FileStream(
                                     _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
-                                    "\\Style.json", FileMode.Open), Encoding.UTF8)));
+                                    "\\SlideItemProperties.json", FileMode.Open), Encoding.UTF8)));
 
 
 
-                            SlideItemProperties prop = CreateSnapshotSlideItemProperties(_currentItemDict["id"].Value,style.Id);
 
-                            //slide.CreateSlideItem(_currentItemDict["id"].Value, prop);
+
+                            //SlideStyle style = new SlideStyle();
+
+                            //style.ReadJson(new JsonTextReader(new StreamReader(
+                            //    new FileStream(
+                            //        _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
+                            //        "\\Style.json", FileMode.Open), Encoding.UTF8)));
+
+
+
+
+                            //SlideItemProperties prop = CreateSnapshotSlideItemProperties(_currentItemDict["id"].Value,style.Id);
+
+                            ////slide.CreateSlideItem(_currentItemDict["id"].Value, prop);
 
 
                             //SlideItemProperties prop = new SlideItemProperties();
@@ -133,7 +143,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             //using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
                             //    _currentItemDict["id"].Value, slideItem.Folder, "snapshot");
 
-                            slide.CreateSlideItem(_currentItemDict["id"].Value, prop);
+                            slide.CreateSlideItem(_currentItemDict["id"].Value,proper);
 
                         
                             
