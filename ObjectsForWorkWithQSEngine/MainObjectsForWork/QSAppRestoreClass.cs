@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using MConnect.Location;
 using Qlik.Engine;
-using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 using UtilClasses.ServiceClasses;
 // ReSharper disable StringLiteralTypo
@@ -29,14 +27,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public event RestoreInfoHandler NewRestoreInfoSend;
         public event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
         public event ProgramOptionsHandler NewProgramOptionsSend;
-        
-
-
-        //private void OnNewRestoreSnapshotsFromDisk(SnapshotWriteInfoEventArgs e)
-        //{
-        //    if (this.NewSnapshotFromDiskSend != null)
-        //        NewSnapshotFromDiskSend(this, e);
-        //}
 
         private void OnNewProgramOptions(ProgramOptionsEventArgs e)
         {
@@ -81,7 +71,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             restoreInfoEvent.NewRestoreInfoSend += RestoreInfoReceived;
 
             var unused = new QsStoryRestorer(this,this,this);
-            //var unused2 = new CsAppSnapshotsRestorer(this, this);
         }
 
         private void RestoreInfoReceived(object sender, RestoreInfoEventArgs e)
@@ -89,20 +78,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             e.RestoreInfo.Copy(_restoreInfo);
             OnNewRestoreInfoSend(e);
             DoRestore();
-        }
-
-        private string IdForName(string name)
-        {
-            
-            foreach (NameAndIdPair elem in Utils.GetApps(_location.GetConnection()))
-            {
-                if (String.CompareOrdinal(elem.Name, name) == 0)
-                {
-                    return elem.Id;
-                }
-            }
-
-            return string.Empty;
         }
 
         private void DoRestore()
@@ -115,9 +90,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             try
             {
-                string foundId = IdForName(_restoreInfo.SelectedApp.Name);
 
-                IAppIdentifier appId = _location.GetConnection().AppWithId(foundId);
+                IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreInfo.SelectedApp.Id);
 
                 _app = _location.GetConnection().App(appId);
             }
@@ -130,17 +104,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
             string searchFileAppInStore = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, mNameSelectedApp, "*.xml");
-
-            //SnapshotWriteInfo appArgs = new SnapshotWriteInfo
-            //{
-            //    App = _app,
-            //    ItemFolder = _programOptions.RepositoryPath + "\\" +
-            //                Path.GetFileNameWithoutExtension(searchFileAppInStore),
-            //    Location = _location.GetConnection()
-
-            //};
-
-            //OnNewRestoreSnapshotsFromDisk(new SnapshotWriteInfoEventArgs(appArgs));
 
             var xmlDocument = new XmlDocument();
 

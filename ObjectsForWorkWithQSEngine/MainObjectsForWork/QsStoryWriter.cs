@@ -220,9 +220,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                             OnNewStoryItemWriteToDisk(new StoryItemInfoEventArgs(new StoryItemInfo()
                             {
-                                App = _storyToDiskInfo.App,
                                 Container = item, Id = item.Info.Id, LocalRootFolder = pathToStore,
-                                Story = _currentStoryToWrite
+                                Story = _currentStoryToWrite,
+                                App = _storyToDiskInfo.App
                             }));
 
                             xmlWriter.WriteEndElement();
@@ -275,15 +275,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public class StoryItemInfo
     {
-        public IApp App;
         public IStoryChildListContainer Container;
         public IStory Story;
+        public IApp App;
         public string Id;
         public string LocalRootFolder;
         public void Copy(ref StoryItemInfo anotherItem)
         {
-            anotherItem.App = App;
             anotherItem.Container = Container;
+            anotherItem.App = App;
             anotherItem.Id = Id;
             anotherItem.LocalRootFolder = LocalRootFolder;
             anotherItem.Story = Story;

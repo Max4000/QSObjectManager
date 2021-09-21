@@ -1,4 +1,4 @@
-﻿namespace UtilClasses
+﻿namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     /// <summary>
     /// 

@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
-using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 
 // ReSharper disable IdentifierTypo
@@ -164,10 +163,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                                         RestoreSlideInfo restInfo = new RestoreSlideInfo()
                                         {
-                                            App = _restoreStoryFromDiskInfo.App,
                                             FullPathToSlideFolder = _restoreStoryFromDiskInfo.StoryFolder + "\\" + slideFolder,
                                             SlideFolder = slideFolder,
-                                            Story = currentStory
+                                            Story = currentStory,
+                                            App = _restoreStoryFromDiskInfo.App
                                         };
 
                                         OnNewRestoreSlideInfoFromDisk(new RestoreSlideInfoEventArgs(restInfo));

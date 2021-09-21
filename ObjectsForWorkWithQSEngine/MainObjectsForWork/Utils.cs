@@ -4,12 +4,13 @@ using System.Text;
 using System.Xml;
 using Qlik.Engine;
 using Qlik.Sense.Client;
+using UtilClasses;
 using Formatting = Newtonsoft.Json.Formatting;
 // ReSharper disable CommentTypo
 
 #pragma warning disable 618
 
-namespace UtilClasses
+namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class Utils
     {
@@ -103,8 +104,7 @@ namespace UtilClasses
         /// <param name="abstractStructure"></param>
         public static void PrintStructureToFile(string nameOfElement, string id, string type, string name, XmlTextWriter xmlTextWriter, string fileName, IAbstractStructure abstractStructure)
         {
-            if (xmlTextWriter != null) 
-                CreateElement(nameOfElement, id, type, name, xmlTextWriter);
+            CreateElement(nameOfElement, id, type, name, xmlTextWriter);
 
             string json = "";
 

@@ -3,11 +3,9 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
-using Newtonsoft.Json;
+using Qlik.Sense.Client;
+using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
-using UtilClasses;
-using Formatting = System.Xml.Formatting;
-
 // ReSharper disable StringLiteralTypo
 // ReSharper disable CommentTypo
 
@@ -15,16 +13,13 @@ using Formatting = System.Xml.Formatting;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsSlideWriter : IWriteSnapshotToDisk
+    public class QsSlideWriter
     {
         //public ProgramOptions Options { get; } = new();
         
         public StoryItemInfo ItemInfo = new();
         
         public DeleteItemFromDiskInfo  DeleteItem= new ();
-
-        public event WriteSnapshotToDisk NewSnapshotToDiskSend;
-
         public QsSlideWriter(IWriteStoryItemToDisk writeStoryItem,IDeleteInfoFromDisk deleteInfoFromDisk)
         {
             
@@ -36,15 +31,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             deleteInfo.NewDeleteItemFromDiskSend += DeleteItemFromDiskReceived;
 
-            CsAppSnapshotsWriter unused = new CsAppSnapshotsWriter(this);
-
-        }
-
-        // ReSharper disable once UnusedMember.Local
-        private void OnNewSnapshotToDisk(SnapshotWriteInfoEventArgs e)
-        {
-            if (this.NewSnapshotToDiskSend != null)
-                NewSnapshotToDiskSend(this, e);
         }
 
         private void DeleteItemFromDiskReceived(object sender, DeleteItemFromDiskEventArgs e)
@@ -120,8 +106,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             e.ItemInfo.Copy(ref ItemInfo);
             WriteStoryItem();
         }
-
-        
 
         private void WriteStoryItem()
         {
@@ -241,7 +225,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
-   
         private void WriteSlideItemsToDisk(ISlide slide)
         {
             int itemNo = -1;
@@ -265,21 +248,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 xmlWriterItem.WriteStartDocument();
                 xmlWriterItem.WriteComment("Файл содержит описание элемента слайда Item" + itemNo.ToString());
-
-                if (String.CompareOrdinal(slideItem.Visualization, "snapshot") == 0)
-                {
-                    // ReSharper disable once UnusedVariable
-                    SnapshotWriteInfo snapshotWriteInfo = new SnapshotWriteInfo()
-                    {
-                        App = ItemInfo.App,
-                        SlideItem = slideItem,
-                        ItemFolder = itemPathFolder
-                    };
-
-                    OnNewSnapshotToDisk(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
-
-                }
-
+                
+                
                 
                 xmlWriterItem.WriteStartElement("Item");
                 
@@ -330,12 +300,28 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             Utils.CreateElement("itemprop", "Visualization", "string",
                                 slideItem.Layout.Visualization, xmlWriterItem);
 
+
+
+
                             Utils.CreateElement("itemprop", "VisualizationType", "string",
                                 slideItem.Layout.VisualizationType, xmlWriterItem);
 
                             Utils.PrintStructureToFile("itemprop", "Style",
                                 "SlideStyle", "Style.json", xmlWriterItem,
                                 itemPathFolder + "\\" + "Style.json", slideItem.Layout.Style);
+
+
+                            if (String.CompareOrdinal(slideItem.Layout.Visualization, "snapshot") == 0)
+                            {
+                                string id = slideItem.Layout.Style.Id;
+
+                                ISnapshot snapshot = this.ItemInfo.App.GetSnapshot(id);
+
+                                Utils.PrintStructureToFile("itemprop", "SnapshotProperties",
+                                    "SnapshotProperties", "SnapshotProperties.json", xmlWriterItem,
+                                    itemPathFolder + "\\" + "SnapshotProperties.json", snapshot.Properties);
+                            }
+
 
                             Utils.CreateElement("itemprop", "SheetId", "string",
                                 slideItem.Layout.SheetId, xmlWriterItem);
@@ -348,16 +334,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                 "SnapshotProperties", "EmbeddedSnapshotDef.json", xmlWriterItem,
                                 itemPathFolder + "\\" + "EmbeddedSnapshotDef.json", 
                                 slideItem.Layout.EmbeddedSnapshotDef);
-                Utils.PrintStructureToFile("itemprop", "Properties",
-                    "SnapshotProperties", "SlideItemProperties.json", xmlWriterItem,
-                    itemPathFolder + "\\" + "SlideItemProperties.json",
-                    slideItem.Properties);
+                        #endregion
 
-                //slideItem.Properties.WriteJson(new JsonTextWriter(new StreamWriter(
-                //                new FileStream(itemPathFolder + "\\" + "SlideItemProperties.json",FileMode.CreateNew), Encoding.UTF8)));
-                #endregion
-
-                xmlWriterItem.WriteEndElement();
+                    xmlWriterItem.WriteEndElement();
                 
                 xmlWriterItem.WriteEndElement();
                 xmlWriterItem.WriteEndDocument();

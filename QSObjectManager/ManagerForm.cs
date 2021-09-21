@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using MConnect.Location;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
-using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 
 namespace QSObjectManager
@@ -147,8 +145,9 @@ namespace QSObjectManager
                     buttonDisconnectFromServer.Visible = _isConnected;
                     buttonConnectToLocalHub.Visible = false;
                     buttonConnectToServer.Visible = false;
+
                     ButtonSelectAllHistToWrite.Visible = true;
-                    ButtonDeSelectAllHistToWrite.Visible = true;
+                    ButtonSelectAllHistToRestore.Visible = true;
 
                     OnNewConnectionStatusInfo(
                         new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
@@ -248,11 +247,11 @@ namespace QSObjectManager
 
             buttonRestoreHistoryOnRestoreTab.Visible = false;
 
-            ButtonDeSelectAllHistToRestore.Visible = false;
+            
             ButtonSelectAllHistToRestore.Visible = false;
 
             ButtonSelectAllHistToWrite.Visible = false;
-            ButtonDeSelectAllHistToWrite.Visible = false;
+            
         }
 
         private void ListBoxApps_SelectedIndexChanged(object sender, EventArgs e)
@@ -300,11 +299,10 @@ namespace QSObjectManager
 
             OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
 
-            ButtonDeSelectAllHistToRestore.Visible = false;
+
             ButtonSelectAllHistToRestore.Visible = false;
 
             ButtonSelectAllHistToWrite.Visible = false;
-            ButtonDeSelectAllHistToWrite.Visible = false;
 
 
         }
@@ -486,10 +484,15 @@ namespace QSObjectManager
 
                 buttonRestoreHistoryOnRestoreTab.Visible = _isConnected;
 
-                ButtonDeSelectAllHistToRestore.Visible = true;
+                
                 ButtonSelectAllHistToRestore.Visible = true;
+                ButtonSelectAllHistToWrite.Visible = true;
 
                 OnNewConnectionStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
+            }
+            else
+            {
+
             }
 
         }
@@ -556,34 +559,8 @@ namespace QSObjectManager
             textBox4.Text = _programOptions.RemoteAddress;
         }
 
-        private void ButtonSelectAllHistToWrite_Click(object sender, EventArgs e)
-        {
-            listBoxStrorysFromDevHub.BeginUpdate();
-
-            for (int i = 0; i < listBoxStrorysFromDevHub.Items.Count; i++)
-            {
-                listBoxStrorysFromDevHub.SetSelected(i, true);
-            }
-            
-            listBoxStrorysFromDevHub.EndUpdate();
-           
-        }
-
-        private void ButtonDeSelectAllHistToWrite_Click(object sender, EventArgs e)
-        {
-            listBoxStrorysFromDevHub.BeginUpdate();
-
-            for (int i = 0; i < listBoxStrorysFromDevHub.Items.Count; i++)
-            {
-                listBoxStrorysFromDevHub.SetSelected(i, false);
-            }
-
-            listBoxStrorysFromDevHub.EndUpdate();
-        }
-
         private void ButtonSelectAllHistToRestore_Click(object sender, EventArgs e)
         {
-
             listBoxHistorysInStoreOnRestoreTab.BeginUpdate();
 
             for (int i = 0; i < listBoxHistorysInStoreOnRestoreTab.Items.Count; i++)
@@ -592,19 +569,18 @@ namespace QSObjectManager
             }
 
             listBoxHistorysInStoreOnRestoreTab.EndUpdate();
-
         }
 
-        private void ButtonDeSelectAllHistToRestore_Click(object sender, EventArgs e)
+        private void ButtonSelectAllHistToWrite_Click(object sender, EventArgs e)
         {
-            listBoxHistorysInStoreOnRestoreTab.BeginUpdate();
+            listBoxStrorysFromDevHub.BeginUpdate();
 
-            for (int i = 0; i < listBoxHistorysInStoreOnRestoreTab.Items.Count; i++)
+            for (int i = 0; i < listBoxStrorysFromDevHub.Items.Count; i++)
             {
-                listBoxHistorysInStoreOnRestoreTab.SetSelected(i, false);
+                listBoxStrorysFromDevHub.SetSelected(i, true);
             }
 
-            listBoxHistorysInStoreOnRestoreTab.EndUpdate();
+            listBoxStrorysFromDevHub.EndUpdate();
         }
     }
 }

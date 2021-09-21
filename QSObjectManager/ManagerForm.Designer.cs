@@ -41,8 +41,6 @@ namespace QSObjectManager
             this.textBoxHistoryPath = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.tabPageRestore = new System.Windows.Forms.TabPage();
-            this.ButtonDeSelectAllHistToRestore = new System.Windows.Forms.Button();
-            this.ButtonSelectAllHistToRestore = new System.Windows.Forms.Button();
             this.buttonRestoreHistoryOnRestoreTab = new System.Windows.Forms.Button();
             this.groupConnectionOnRestoreTab = new System.Windows.Forms.GroupBox();
             this.groupBoxConnectionToRemoteServer = new System.Windows.Forms.GroupBox();
@@ -61,8 +59,6 @@ namespace QSObjectManager
             this.groupBoxAppsInStoreOnRestoreTab = new System.Windows.Forms.GroupBox();
             this.listBoxAppsInStoreOnRestoreTab = new System.Windows.Forms.ListBox();
             this.tabPageSave = new System.Windows.Forms.TabPage();
-            this.ButtonDeSelectAllHistToWrite = new System.Windows.Forms.Button();
-            this.ButtonSelectAllHistToWrite = new System.Windows.Forms.Button();
             this.buttonSaveHistoryToLocalStore = new System.Windows.Forms.Button();
             this.groupBoxActionsForImportToLocalStore = new System.Windows.Forms.GroupBox();
             this.groupBoxStorysFromDevHub = new System.Windows.Forms.GroupBox();
@@ -81,6 +77,8 @@ namespace QSObjectManager
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.buttonDisconnectFromLoacalHub = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.ButtonSelectAllHistToWrite = new System.Windows.Forms.Button();
+            this.ButtonSelectAllHistToRestore = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tabPageAppConfiguration.SuspendLayout();
             this.groupBoxOptionsPaths.SuspendLayout();
@@ -121,7 +119,7 @@ namespace QSObjectManager
             // ExitToolStripMenuItem
             // 
             this.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem";
-            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
             this.ExitToolStripMenuItem.Text = "Выход";
             this.ExitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
@@ -192,13 +190,12 @@ namespace QSObjectManager
             this.label2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label2.Location = new System.Drawing.Point(6, 37);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(277, 15);
+            this.label2.Size = new System.Drawing.Size(275, 15);
             this.label2.TabIndex = 0;
             this.label2.Text = "Папка для сохранения ползовательских историй";
             // 
             // tabPageRestore
             // 
-            this.tabPageRestore.Controls.Add(this.ButtonDeSelectAllHistToRestore);
             this.tabPageRestore.Controls.Add(this.ButtonSelectAllHistToRestore);
             this.tabPageRestore.Controls.Add(this.buttonRestoreHistoryOnRestoreTab);
             this.tabPageRestore.Controls.Add(this.groupConnectionOnRestoreTab);
@@ -214,26 +211,6 @@ namespace QSObjectManager
             this.tabPageRestore.UseVisualStyleBackColor = true;
             this.tabPageRestore.Enter += new System.EventHandler(this.tabPageRestore_Enter);
             this.tabPageRestore.Leave += new System.EventHandler(this.tabPageRestore_Leave);
-            // 
-            // ButtonDeSelectAllHistToRestore
-            // 
-            this.ButtonDeSelectAllHistToRestore.Location = new System.Drawing.Point(839, 157);
-            this.ButtonDeSelectAllHistToRestore.Name = "ButtonDeSelectAllHistToRestore";
-            this.ButtonDeSelectAllHistToRestore.Size = new System.Drawing.Size(128, 23);
-            this.ButtonDeSelectAllHistToRestore.TabIndex = 9;
-            this.ButtonDeSelectAllHistToRestore.Text = "Отменить все выдел";
-            this.ButtonDeSelectAllHistToRestore.UseVisualStyleBackColor = true;
-            this.ButtonDeSelectAllHistToRestore.Click += new System.EventHandler(this.ButtonDeSelectAllHistToRestore_Click);
-            // 
-            // ButtonSelectAllHistToRestore
-            // 
-            this.ButtonSelectAllHistToRestore.Location = new System.Drawing.Point(685, 157);
-            this.ButtonSelectAllHistToRestore.Name = "ButtonSelectAllHistToRestore";
-            this.ButtonSelectAllHistToRestore.Size = new System.Drawing.Size(148, 24);
-            this.ButtonSelectAllHistToRestore.TabIndex = 8;
-            this.ButtonSelectAllHistToRestore.Text = "Выделить все истории";
-            this.ButtonSelectAllHistToRestore.UseVisualStyleBackColor = true;
-            this.ButtonSelectAllHistToRestore.Click += new System.EventHandler(this.ButtonSelectAllHistToRestore_Click);
             // 
             // buttonRestoreHistoryOnRestoreTab
             // 
@@ -369,9 +346,9 @@ namespace QSObjectManager
             // groupBoxUsersHistoryInStoreOnRestoreTab
             // 
             this.groupBoxUsersHistoryInStoreOnRestoreTab.Controls.Add(this.listBoxHistorysInStoreOnRestoreTab);
-            this.groupBoxUsersHistoryInStoreOnRestoreTab.Location = new System.Drawing.Point(480, 179);
+            this.groupBoxUsersHistoryInStoreOnRestoreTab.Location = new System.Drawing.Point(480, 160);
             this.groupBoxUsersHistoryInStoreOnRestoreTab.Name = "groupBoxUsersHistoryInStoreOnRestoreTab";
-            this.groupBoxUsersHistoryInStoreOnRestoreTab.Size = new System.Drawing.Size(500, 181);
+            this.groupBoxUsersHistoryInStoreOnRestoreTab.Size = new System.Drawing.Size(500, 200);
             this.groupBoxUsersHistoryInStoreOnRestoreTab.TabIndex = 1;
             this.groupBoxUsersHistoryInStoreOnRestoreTab.TabStop = false;
             this.groupBoxUsersHistoryInStoreOnRestoreTab.Text = "Истории";
@@ -384,15 +361,15 @@ namespace QSObjectManager
             this.listBoxHistorysInStoreOnRestoreTab.Location = new System.Drawing.Point(3, 19);
             this.listBoxHistorysInStoreOnRestoreTab.Name = "listBoxHistorysInStoreOnRestoreTab";
             this.listBoxHistorysInStoreOnRestoreTab.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.listBoxHistorysInStoreOnRestoreTab.Size = new System.Drawing.Size(494, 159);
+            this.listBoxHistorysInStoreOnRestoreTab.Size = new System.Drawing.Size(494, 178);
             this.listBoxHistorysInStoreOnRestoreTab.TabIndex = 0;
             // 
             // groupBoxAppsInStoreOnRestoreTab
             // 
             this.groupBoxAppsInStoreOnRestoreTab.Controls.Add(this.listBoxAppsInStoreOnRestoreTab);
-            this.groupBoxAppsInStoreOnRestoreTab.Location = new System.Drawing.Point(8, 179);
+            this.groupBoxAppsInStoreOnRestoreTab.Location = new System.Drawing.Point(8, 160);
             this.groupBoxAppsInStoreOnRestoreTab.Name = "groupBoxAppsInStoreOnRestoreTab";
-            this.groupBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(470, 181);
+            this.groupBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(470, 200);
             this.groupBoxAppsInStoreOnRestoreTab.TabIndex = 0;
             this.groupBoxAppsInStoreOnRestoreTab.TabStop = false;
             this.groupBoxAppsInStoreOnRestoreTab.Text = "Приложения";
@@ -404,13 +381,12 @@ namespace QSObjectManager
             this.listBoxAppsInStoreOnRestoreTab.ItemHeight = 15;
             this.listBoxAppsInStoreOnRestoreTab.Location = new System.Drawing.Point(3, 19);
             this.listBoxAppsInStoreOnRestoreTab.Name = "listBoxAppsInStoreOnRestoreTab";
-            this.listBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(464, 159);
+            this.listBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(464, 178);
             this.listBoxAppsInStoreOnRestoreTab.TabIndex = 0;
             this.listBoxAppsInStoreOnRestoreTab.SelectedIndexChanged += new System.EventHandler(this.listBoxAppsInStore_SelectedIndexChanged);
             // 
             // tabPageSave
             // 
-            this.tabPageSave.Controls.Add(this.ButtonDeSelectAllHistToWrite);
             this.tabPageSave.Controls.Add(this.ButtonSelectAllHistToWrite);
             this.tabPageSave.Controls.Add(this.buttonSaveHistoryToLocalStore);
             this.tabPageSave.Controls.Add(this.groupBoxActionsForImportToLocalStore);
@@ -426,26 +402,6 @@ namespace QSObjectManager
             this.tabPageSave.UseVisualStyleBackColor = true;
             this.tabPageSave.Enter += new System.EventHandler(this.tabPageSave_Enter);
             this.tabPageSave.Leave += new System.EventHandler(this.tabPageImport_Leave);
-            // 
-            // ButtonDeSelectAllHistToWrite
-            // 
-            this.ButtonDeSelectAllHistToWrite.Location = new System.Drawing.Point(839, 158);
-            this.ButtonDeSelectAllHistToWrite.Name = "ButtonDeSelectAllHistToWrite";
-            this.ButtonDeSelectAllHistToWrite.Size = new System.Drawing.Size(128, 23);
-            this.ButtonDeSelectAllHistToWrite.TabIndex = 6;
-            this.ButtonDeSelectAllHistToWrite.Text = "Отменить все выдел";
-            this.ButtonDeSelectAllHistToWrite.UseVisualStyleBackColor = true;
-            this.ButtonDeSelectAllHistToWrite.Click += new System.EventHandler(this.ButtonDeSelectAllHistToWrite_Click);
-            // 
-            // ButtonSelectAllHistToWrite
-            // 
-            this.ButtonSelectAllHistToWrite.Location = new System.Drawing.Point(685, 157);
-            this.ButtonSelectAllHistToWrite.Name = "ButtonSelectAllHistToWrite";
-            this.ButtonSelectAllHistToWrite.Size = new System.Drawing.Size(148, 24);
-            this.ButtonSelectAllHistToWrite.TabIndex = 5;
-            this.ButtonSelectAllHistToWrite.Text = "Выделить все истории";
-            this.ButtonSelectAllHistToWrite.UseVisualStyleBackColor = true;
-            this.ButtonSelectAllHistToWrite.Click += new System.EventHandler(this.ButtonSelectAllHistToWrite_Click);
             // 
             // buttonSaveHistoryToLocalStore
             // 
@@ -469,9 +425,9 @@ namespace QSObjectManager
             // groupBoxStorysFromDevHub
             // 
             this.groupBoxStorysFromDevHub.Controls.Add(this.listBoxStrorysFromDevHub);
-            this.groupBoxStorysFromDevHub.Location = new System.Drawing.Point(480, 179);
+            this.groupBoxStorysFromDevHub.Location = new System.Drawing.Point(480, 160);
             this.groupBoxStorysFromDevHub.Name = "groupBoxStorysFromDevHub";
-            this.groupBoxStorysFromDevHub.Size = new System.Drawing.Size(500, 181);
+            this.groupBoxStorysFromDevHub.Size = new System.Drawing.Size(500, 200);
             this.groupBoxStorysFromDevHub.TabIndex = 3;
             this.groupBoxStorysFromDevHub.TabStop = false;
             this.groupBoxStorysFromDevHub.Text = "Истории";
@@ -484,15 +440,15 @@ namespace QSObjectManager
             this.listBoxStrorysFromDevHub.Location = new System.Drawing.Point(3, 19);
             this.listBoxStrorysFromDevHub.Name = "listBoxStrorysFromDevHub";
             this.listBoxStrorysFromDevHub.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.listBoxStrorysFromDevHub.Size = new System.Drawing.Size(494, 159);
+            this.listBoxStrorysFromDevHub.Size = new System.Drawing.Size(494, 178);
             this.listBoxStrorysFromDevHub.TabIndex = 0;
             // 
             // groupBoxAppsFromDevHub
             // 
             this.groupBoxAppsFromDevHub.Controls.Add(this.ListBoxAppsFromDevHub);
-            this.groupBoxAppsFromDevHub.Location = new System.Drawing.Point(8, 179);
+            this.groupBoxAppsFromDevHub.Location = new System.Drawing.Point(8, 160);
             this.groupBoxAppsFromDevHub.Name = "groupBoxAppsFromDevHub";
-            this.groupBoxAppsFromDevHub.Size = new System.Drawing.Size(470, 181);
+            this.groupBoxAppsFromDevHub.Size = new System.Drawing.Size(470, 200);
             this.groupBoxAppsFromDevHub.TabIndex = 2;
             this.groupBoxAppsFromDevHub.TabStop = false;
             this.groupBoxAppsFromDevHub.Text = "Приложения";
@@ -504,7 +460,7 @@ namespace QSObjectManager
             this.ListBoxAppsFromDevHub.ItemHeight = 15;
             this.ListBoxAppsFromDevHub.Location = new System.Drawing.Point(3, 19);
             this.ListBoxAppsFromDevHub.Name = "ListBoxAppsFromDevHub";
-            this.ListBoxAppsFromDevHub.Size = new System.Drawing.Size(464, 159);
+            this.ListBoxAppsFromDevHub.Size = new System.Drawing.Size(464, 178);
             this.ListBoxAppsFromDevHub.TabIndex = 0;
             this.ListBoxAppsFromDevHub.SelectedIndexChanged += new System.EventHandler(this.ListBoxApps_SelectedIndexChanged);
             // 
@@ -632,6 +588,26 @@ namespace QSObjectManager
             this.tabControl1.Size = new System.Drawing.Size(999, 501);
             this.tabControl1.TabIndex = 3;
             // 
+            // ButtonSelectAllHistToWrite
+            // 
+            this.ButtonSelectAllHistToWrite.Location = new System.Drawing.Point(483, 366);
+            this.ButtonSelectAllHistToWrite.Name = "ButtonSelectAllHistToWrite";
+            this.ButtonSelectAllHistToWrite.Size = new System.Drawing.Size(148, 24);
+            this.ButtonSelectAllHistToWrite.TabIndex = 6;
+            this.ButtonSelectAllHistToWrite.Text = "Выделить все истории";
+            this.ButtonSelectAllHistToWrite.UseVisualStyleBackColor = true;
+            this.ButtonSelectAllHistToWrite.Click += new System.EventHandler(this.ButtonSelectAllHistToWrite_Click);
+            // 
+            // ButtonSelectAllHistToRestore
+            // 
+            this.ButtonSelectAllHistToRestore.Location = new System.Drawing.Point(514, 366);
+            this.ButtonSelectAllHistToRestore.Name = "ButtonSelectAllHistToRestore";
+            this.ButtonSelectAllHistToRestore.Size = new System.Drawing.Size(148, 24);
+            this.ButtonSelectAllHistToRestore.TabIndex = 9;
+            this.ButtonSelectAllHistToRestore.Text = "Выделить все истории";
+            this.ButtonSelectAllHistToRestore.UseVisualStyleBackColor = true;
+            this.ButtonSelectAllHistToRestore.Click += new System.EventHandler(this.ButtonSelectAllHistToRestore_Click);
+            // 
             // ManagerForm
             // 
             this.AllowDrop = true;
@@ -726,9 +702,7 @@ namespace QSObjectManager
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button buttonDisconnectFromLoacalHub;
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.Button ButtonDeSelectAllHistToRestore;
         private System.Windows.Forms.Button ButtonSelectAllHistToRestore;
-        private System.Windows.Forms.Button ButtonDeSelectAllHistToWrite;
         private System.Windows.Forms.Button ButtonSelectAllHistToWrite;
     }
 }
