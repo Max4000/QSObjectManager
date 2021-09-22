@@ -41,6 +41,7 @@ namespace QSObjectManager
             this.textBoxHistoryPath = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.tabPageRestore = new System.Windows.Forms.TabPage();
+            this.ButtonSelectAllHistToRestore = new System.Windows.Forms.Button();
             this.buttonRestoreHistoryOnRestoreTab = new System.Windows.Forms.Button();
             this.groupConnectionOnRestoreTab = new System.Windows.Forms.GroupBox();
             this.groupBoxConnectionToRemoteServer = new System.Windows.Forms.GroupBox();
@@ -59,6 +60,7 @@ namespace QSObjectManager
             this.groupBoxAppsInStoreOnRestoreTab = new System.Windows.Forms.GroupBox();
             this.listBoxAppsInStoreOnRestoreTab = new System.Windows.Forms.ListBox();
             this.tabPageSave = new System.Windows.Forms.TabPage();
+            this.ButtonSelectAllHistToWrite = new System.Windows.Forms.Button();
             this.buttonSaveHistoryToLocalStore = new System.Windows.Forms.Button();
             this.groupBoxActionsForImportToLocalStore = new System.Windows.Forms.GroupBox();
             this.groupBoxStorysFromDevHub = new System.Windows.Forms.GroupBox();
@@ -77,8 +79,6 @@ namespace QSObjectManager
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.buttonDisconnectFromLoacalHub = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.ButtonSelectAllHistToWrite = new System.Windows.Forms.Button();
-            this.ButtonSelectAllHistToRestore = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tabPageAppConfiguration.SuspendLayout();
             this.groupBoxOptionsPaths.SuspendLayout();
@@ -211,6 +211,16 @@ namespace QSObjectManager
             this.tabPageRestore.UseVisualStyleBackColor = true;
             this.tabPageRestore.Enter += new System.EventHandler(this.tabPageRestore_Enter);
             this.tabPageRestore.Leave += new System.EventHandler(this.tabPageRestore_Leave);
+            // 
+            // ButtonSelectAllHistToRestore
+            // 
+            this.ButtonSelectAllHistToRestore.Location = new System.Drawing.Point(514, 365);
+            this.ButtonSelectAllHistToRestore.Name = "ButtonSelectAllHistToRestore";
+            this.ButtonSelectAllHistToRestore.Size = new System.Drawing.Size(148, 65);
+            this.ButtonSelectAllHistToRestore.TabIndex = 9;
+            this.ButtonSelectAllHistToRestore.Text = "Выделить все истории";
+            this.ButtonSelectAllHistToRestore.UseVisualStyleBackColor = true;
+            this.ButtonSelectAllHistToRestore.Click += new System.EventHandler(this.ButtonSelectAllHistToRestore_Click);
             // 
             // buttonRestoreHistoryOnRestoreTab
             // 
@@ -403,9 +413,19 @@ namespace QSObjectManager
             this.tabPageSave.Enter += new System.EventHandler(this.tabPageSave_Enter);
             this.tabPageSave.Leave += new System.EventHandler(this.tabPageImport_Leave);
             // 
+            // ButtonSelectAllHistToWrite
+            // 
+            this.ButtonSelectAllHistToWrite.Location = new System.Drawing.Point(514, 365);
+            this.ButtonSelectAllHistToWrite.Name = "ButtonSelectAllHistToWrite";
+            this.ButtonSelectAllHistToWrite.Size = new System.Drawing.Size(148, 65);
+            this.ButtonSelectAllHistToWrite.TabIndex = 6;
+            this.ButtonSelectAllHistToWrite.Text = "Выделить все истории";
+            this.ButtonSelectAllHistToWrite.UseVisualStyleBackColor = true;
+            this.ButtonSelectAllHistToWrite.Click += new System.EventHandler(this.ButtonSelectAllHistToWrite_Click);
+            // 
             // buttonSaveHistoryToLocalStore
             // 
-            this.buttonSaveHistoryToLocalStore.Location = new System.Drawing.Point(701, 366);
+            this.buttonSaveHistoryToLocalStore.Location = new System.Drawing.Point(701, 365);
             this.buttonSaveHistoryToLocalStore.Name = "buttonSaveHistoryToLocalStore";
             this.buttonSaveHistoryToLocalStore.Size = new System.Drawing.Size(277, 65);
             this.buttonSaveHistoryToLocalStore.TabIndex = 4;
@@ -587,26 +607,6 @@ namespace QSObjectManager
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(999, 501);
             this.tabControl1.TabIndex = 3;
-            // 
-            // ButtonSelectAllHistToWrite
-            // 
-            this.ButtonSelectAllHistToWrite.Location = new System.Drawing.Point(483, 366);
-            this.ButtonSelectAllHistToWrite.Name = "ButtonSelectAllHistToWrite";
-            this.ButtonSelectAllHistToWrite.Size = new System.Drawing.Size(148, 24);
-            this.ButtonSelectAllHistToWrite.TabIndex = 6;
-            this.ButtonSelectAllHistToWrite.Text = "Выделить все истории";
-            this.ButtonSelectAllHistToWrite.UseVisualStyleBackColor = true;
-            this.ButtonSelectAllHistToWrite.Click += new System.EventHandler(this.ButtonSelectAllHistToWrite_Click);
-            // 
-            // ButtonSelectAllHistToRestore
-            // 
-            this.ButtonSelectAllHistToRestore.Location = new System.Drawing.Point(514, 366);
-            this.ButtonSelectAllHistToRestore.Name = "ButtonSelectAllHistToRestore";
-            this.ButtonSelectAllHistToRestore.Size = new System.Drawing.Size(148, 24);
-            this.ButtonSelectAllHistToRestore.TabIndex = 9;
-            this.ButtonSelectAllHistToRestore.Text = "Выделить все истории";
-            this.ButtonSelectAllHistToRestore.UseVisualStyleBackColor = true;
-            this.ButtonSelectAllHistToRestore.Click += new System.EventHandler(this.ButtonSelectAllHistToRestore_Click);
             // 
             // ManagerForm
             // 

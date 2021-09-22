@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Pipes;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
 using UtilClasses.ProgramOptionsClasses;
@@ -535,12 +536,31 @@ namespace QSObjectManager
 
             try
             {
+                NameAndIdPair prIdName = null;
 
+                foreach (var pair in Utils.GetApps(_locationObject.GetConnection()))
+                {
+                    if (string.CompareOrdinal(pair.Name, _lstAppsInStore[_selectedIndexAppInStore].Name) == 0)
+                    {
+                        prIdName = pair.Copy();
+                        break;
+                    }
 
-                OnNewRestoreInfo(new RestoreInfoEventArgs(
-                    new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames)));
+                }
 
-                ShowMessageForm("Выбранные истории восстановлены", "");
+                if (prIdName != null)
+                {
+                    OnNewRestoreInfo(new RestoreInfoEventArgs(
+                        new RestoreInfo(prIdName.Copy(), listStoryNames)));
+
+                    ShowMessageForm("Выбранные истории восстановлены", "");
+                }
+                else
+                {
+
+                    ShowMessageForm("Выбранное приложение не найдено на сервере", "Ошибка");
+                }
+
             }
             catch (Exception ex)
             {
