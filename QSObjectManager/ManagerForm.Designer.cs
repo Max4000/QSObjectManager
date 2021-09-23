@@ -79,6 +79,8 @@ namespace QSObjectManager
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.buttonDisconnectFromLoacalHub = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.label6 = new System.Windows.Forms.Label();
+            this.textBoxAppId = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.tabPageAppConfiguration.SuspendLayout();
             this.groupBoxOptionsPaths.SuspendLayout();
@@ -196,6 +198,8 @@ namespace QSObjectManager
             // 
             // tabPageRestore
             // 
+            this.tabPageRestore.Controls.Add(this.label6);
+            this.tabPageRestore.Controls.Add(this.textBoxAppId);
             this.tabPageRestore.Controls.Add(this.ButtonSelectAllHistToRestore);
             this.tabPageRestore.Controls.Add(this.buttonRestoreHistoryOnRestoreTab);
             this.tabPageRestore.Controls.Add(this.groupConnectionOnRestoreTab);
@@ -608,6 +612,22 @@ namespace QSObjectManager
             this.tabControl1.Size = new System.Drawing.Size(999, 501);
             this.tabControl1.TabIndex = 3;
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(8, 390);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(42, 15);
+            this.label6.TabIndex = 11;
+            this.label6.Text = "App Id";
+            // 
+            // textBoxAppId
+            // 
+            this.textBoxAppId.Location = new System.Drawing.Point(56, 387);
+            this.textBoxAppId.Name = "textBoxAppId";
+            this.textBoxAppId.Size = new System.Drawing.Size(412, 23);
+            this.textBoxAppId.TabIndex = 10;
+            // 
             // ManagerForm
             // 
             this.AllowDrop = true;
@@ -632,6 +652,7 @@ namespace QSObjectManager
             this.groupBoxOptionsPaths.ResumeLayout(false);
             this.groupBoxOptionsPaths.PerformLayout();
             this.tabPageRestore.ResumeLayout(false);
+            this.tabPageRestore.PerformLayout();
             this.groupConnectionOnRestoreTab.ResumeLayout(false);
             this.groupBoxConnectionToRemoteServer.ResumeLayout(false);
             this.groupBoxConnectionToRemoteServer.PerformLayout();
@@ -704,6 +725,8 @@ namespace QSObjectManager
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.Button ButtonSelectAllHistToRestore;
         private System.Windows.Forms.Button ButtonSelectAllHistToWrite;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox textBoxAppId;
     }
 }
 

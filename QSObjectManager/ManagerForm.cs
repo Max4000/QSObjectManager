@@ -413,6 +413,17 @@ namespace QSObjectManager
                 {
                     listBoxHistorysInStoreOnRestoreTab.Items.Add(item);
                 }
+
+                //foreach (var pair in Utils.GetApps(_locationObject.GetConnection()))
+                //{
+                //    if (string.CompareOrdinal(pair.Name, _lstAppsInStore[_selectedIndexAppInStore].Name) == 0)
+                //    {
+                //        textBoxAppId.Text = pair.Id;
+                //        break;
+                //    }
+
+                //}
+
             }
 
         }
