@@ -162,6 +162,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             
                     _xmlWriter.WriteElementString("id", _wrtWriteInfo.SelectedApp.Id);
+                    _xmlWriter.WriteElementString("LastReloadTime", _wrtWriteInfo.SelectedApp.LastReloadTime);
 
                     _xmlWriter.WriteStartElement("stories");
 
@@ -226,10 +227,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public class WriteInfo
     {
-        public NameAndIdPair SelectedApp;
-        public IList<NameAndIdPair> SelectedStories;
+        public NameAndIdAndLastReloadTime SelectedApp;
+        public IList<NameAndIdAndLastReloadTime> SelectedStories;
 
-        public WriteInfo(NameAndIdPair selectedApp, IList<NameAndIdPair> selectedStories)
+        public WriteInfo(NameAndIdAndLastReloadTime selectedApp, IList<NameAndIdAndLastReloadTime> selectedStories)
         {
             SelectedApp = selectedApp;
             SelectedStories = selectedStories;
@@ -242,7 +243,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public void Copy(WriteInfo anotherWriteInfo)
         {
             anotherWriteInfo.SelectedApp = SelectedApp.Copy();
-            anotherWriteInfo.SelectedStories = new List<NameAndIdPair>();
+            anotherWriteInfo.SelectedStories = new List<NameAndIdAndLastReloadTime>();
             foreach (var story in this.SelectedStories)
             {
                 anotherWriteInfo.SelectedStories.Add(story.Copy());

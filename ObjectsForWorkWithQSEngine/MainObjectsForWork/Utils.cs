@@ -22,13 +22,14 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         /// </summary>
         /// <param name="location"></param>
         /// <returns>Список приложений</returns>
-        public static IList<NameAndIdPair> GetApps(ILocation location)
+        public static IList<NameAndIdAndLastReloadTime> GetApps(ILocation location)
         {
-            IList<NameAndIdPair> arr = new List<NameAndIdPair>();
+            IList<NameAndIdAndLastReloadTime> arr = new List<NameAndIdAndLastReloadTime>();
 
             foreach ( var app in location.GetAppIdentifiers())
             {
-               arr.Add(new NameAndIdPair(app.AppName,app.AppId)); 
+               arr.Add(new NameAndIdAndLastReloadTime(app.AppName,app.AppId, app.LastReloadTime));
+               
             }
 
             return arr;
@@ -42,9 +43,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         /// <param name="location"></param>
         /// <param name="appid"></param>
         /// <returns></returns>
-        public static IList<NameAndIdPair> GetStories(ILocation location, string appid)
+        public static IList<NameAndIdAndLastReloadTime> GetStories(ILocation location, string appid)
         {
-            IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
+            IList<NameAndIdAndLastReloadTime> lstResult = new List<NameAndIdAndLastReloadTime>();
 
             IAppIdentifier appId = location.AppWithId(appid);
             
@@ -61,7 +62,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 if (mStory != null)
                 {
                     string name = mStory.Layout.Meta.Title;
-                    lstResult.Add(new NameAndIdPair(name,item.Info.Id));
+                    lstResult.Add(new NameAndIdAndLastReloadTime(name,item.Info.Id,""));
                 }
             }
 

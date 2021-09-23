@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public class NameAndIdPair 
+    public class NameAndIdAndLastReloadTime 
     {
         /// <summary>
         /// 
@@ -15,21 +15,26 @@
         /// </summary>
         public string Id;
 
+        public string LastReloadTime;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="name"></param>
         /// <param name="id"></param>
-        public NameAndIdPair(string name, string id)
+        /// <param name="lastReloadTime"></param>
+        public NameAndIdAndLastReloadTime(string name, string id, string lastReloadTime)
         {
             Name = name;
             Id = id;
+            LastReloadTime = lastReloadTime;
         }
 
-        public NameAndIdPair()
+        public NameAndIdAndLastReloadTime()
         {
-            
+
         }
+
 
         /// <summary>
         /// 
@@ -37,12 +42,19 @@
         /// <returns></returns>
         public override string ToString()
         {
-            return Name;
+            if (string.IsNullOrEmpty(LastReloadTime)){
+                return Name;
+            }
+            else
+            {
+                return Name + " " + LastReloadTime;
+            }
+
         }
 
-        public NameAndIdPair Copy()
+        public NameAndIdAndLastReloadTime Copy()
         {
-            return new NameAndIdPair(this.Name, this.Id);
+            return new NameAndIdAndLastReloadTime(this.Name, this.Id,this.LastReloadTime);
         }
     }
 }

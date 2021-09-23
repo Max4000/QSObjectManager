@@ -312,8 +312,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public class WriteStoryToDiskInfo
     {
-        public NameAndIdPair CurrentApp;
-        public NameAndIdPair CurrentStory;
+        public NameAndIdAndLastReloadTime CurrentApp;
+        public NameAndIdAndLastReloadTime CurrentStory;
         public string StoreFolder;
         public IApp App;
         public XmlTextWriter CurrentXmlTextWriter;

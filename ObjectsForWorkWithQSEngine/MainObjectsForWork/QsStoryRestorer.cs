@@ -74,7 +74,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             string searchFileStoryInStore = _restoreStoryFromDiskInfo.StoryFolder + "\\" +
                                             _restoreStoryFromDiskInfo.CurrentStory.Id + ".xml";
 
-            _restoreStoryFromDiskInfo.App.DestroyGenericObject(_restoreStoryFromDiskInfo.CurrentStory.Id);
+            _restoreStoryFromDiskInfo.TargetApp.DestroyGenericObject(_restoreStoryFromDiskInfo.CurrentStory.Id);
+            
 
             MetaAttributesDef metaAttributes = new MetaAttributesDef();
             JsonTextReader rdMetaDef =
@@ -100,7 +101,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             mStory.Set("rank", GetRank(searchFileStoryInStore));
             mStory.Set("thumbnail", thumbail);
             IStory currentStory =
-                _restoreStoryFromDiskInfo.App.CreateStory(_restoreStoryFromDiskInfo.CurrentStory.Id, mStory);
+                _restoreStoryFromDiskInfo.TargetApp.CreateStory(_restoreStoryFromDiskInfo.CurrentStory.Id, mStory);
 
             var xmlDocument = new XmlDocument();
 
@@ -127,7 +128,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                             _restoreStoryFromDiskInfo.StoryFolder + "\\" + slideFolder,
                                         SlideFolder = slideFolder,
                                         Story = currentStory,
-                                        App = _restoreStoryFromDiskInfo.App
+
+                                        CurrentSource = _restoreStoryFromDiskInfo.CurrentAppSource.Copy(),
+
+                                        CurrentTarget = _restoreStoryFromDiskInfo.CurrentAppTarget.Copy(),
+                                        
+                                        TargetApp = _restoreStoryFromDiskInfo.TargetApp,
+                                        SourceApp = _restoreStoryFromDiskInfo.SourceApp
                                     };
 
                                     OnNewRestoreSlideInfoFromDisk(new RestoreSlideInfoEventArgs(restInfo));
@@ -190,16 +197,20 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public class RestoreStoryFromDiskInfo
     {
-        public IApp App;
-        public NameAndIdPair CurrentApp;
-        public NameAndIdPair CurrentStory;
+        public IApp SourceApp;
+        public IApp TargetApp;
+        public NameAndIdAndLastReloadTime CurrentAppSource;
+        public NameAndIdAndLastReloadTime CurrentAppTarget;
+        public NameAndIdAndLastReloadTime CurrentStory;
         public string StoryFolder;
         
 
         public void Copy(RestoreStoryFromDiskInfo anotherInfo)
         {
-            anotherInfo.App = App;
-            anotherInfo.CurrentApp = CurrentApp.Copy();
+            anotherInfo.SourceApp = SourceApp;
+            anotherInfo.TargetApp = TargetApp;
+            anotherInfo.CurrentAppSource = CurrentAppSource.Copy();
+            anotherInfo.CurrentAppTarget = CurrentAppTarget.Copy();
             anotherInfo.CurrentStory = CurrentStory.Copy();
             anotherInfo.StoryFolder = StoryFolder;
         }

@@ -36,7 +36,15 @@ namespace UtilClasses.ProgramOptionsClasses
             {
                 Options.RepositoryPath = _iniFileObj.Read("PathHistorysRoot", "Paths");
             }
-
+            if (!_iniFileObj.KeyExists("AppContentPath", "Paths"))
+            {
+                _iniFileObj.Write("AppContentPath", "", "Paths");
+                Options.RepositoryPath = "";
+            }
+            else
+            {
+                Options.AppContentPath = _iniFileObj.Read("AppContentPath", "Paths");
+            }
             Options.LocalAddress = _iniFileObj.Read("LocAddr", "LocalAddr");
             Options.RemoteAddress = _iniFileObj.Read("RemAddr", "RemoteAddr");
 
@@ -60,6 +68,7 @@ namespace UtilClasses.ProgramOptionsClasses
         private void UpdateOptionsInIniFile(ProgramOptions opts)
         {
             _iniFileObj.Write("PathHistorysRoot", opts.RepositoryPath, "Paths");
+            _iniFileObj.Write("AppContentPath", opts.AppContentPath, "Paths");
             _iniFileObj.Write("LocAddr", opts.LocalAddress, "LocalAddr");
             _iniFileObj.Write("RemAddr", opts.RemoteAddress, "RemoteAddr");
 
@@ -84,6 +93,7 @@ namespace UtilClasses.ProgramOptionsClasses
             anotherOptions.RepositoryPath = RepositoryPath;
             anotherOptions.LocalAddress = LocalAddress;
             anotherOptions.RemoteAddress = RemoteAddress;
+            anotherOptions.AppContentPath = AppContentPath;
         }
 
         public bool IsServer()
@@ -97,7 +107,9 @@ namespace UtilClasses.ProgramOptionsClasses
             return new(RepositoryPath)
             {
                 LocalAddress = this.LocalAddress,
-                RemoteAddress = this.RemoteAddress
+                RemoteAddress = this.RemoteAddress,
+                AppContentPath = this.AppContentPath
+                
             };
         }
 
@@ -106,6 +118,7 @@ namespace UtilClasses.ProgramOptionsClasses
         public string LocalAddress { get; set; }
 
         public string RemoteAddress { get; set; }
+        public string AppContentPath { get; set; }
     }
 
     public class ProgramOptionsEventArgs : EventArgs

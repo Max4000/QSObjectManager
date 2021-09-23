@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using Newtonsoft.Json;
@@ -90,7 +92,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                         reader.Close();
                         
 
-                        ISnapshot snapshot = _restoreSlideInfo.App.GetSnapshot(slideStyle.Id);
+                        ISnapshot snapshot = _restoreSlideInfo.TargetApp.GetSnapshot(slideStyle.Id);
 
                         if (snapshot == null)
                         {
@@ -104,7 +106,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                             prop.ReadJson(rd);
 
-                            _restoreSlideInfo.App.CreateSnapshot(slideStyle.Id, prop);
+                            _restoreSlideInfo.TargetApp.CreateSnapshot(slideStyle.Id, prop);
 
                             rd.Close();
 
@@ -179,6 +181,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             return fromString.Substring(pos3 + 1);
         }
 
+        [SuppressMessage("ReSharper", "CommentTypo")]
         private SlideItemProperties CreateSlideItemProperties(ISlide slide, string id, string itemFolder, string itemType)
         {
             SlideItemProperties result = null;
@@ -228,8 +231,30 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     result = slide.CreateImageSlideItemProperties(id, stringPathToImage);
 
                     if (_programOptions.IsServer())
+                    {
 
-                        result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
+                        if (!valueSrcPath.Contains("appcontent")) // в папке default
+                        {
+                            result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
+                        }
+                        else
+                        {
+                            if (!File.Exists(_programOptions.AppContentPath + "\\" + _restoreSlideInfo.CurrentTarget.Id +
+                                             "\\" + stringPathToImage))
+                            {
+                                string source = _programOptions.AppContentPath + "\\" + _restoreSlideInfo.CurrentSource.Id +
+                                                "\\" + stringPathToImage;
+                                string dest = _programOptions.AppContentPath + "\\" + _restoreSlideInfo.CurrentTarget.Id +
+                                              "\\" + stringPathToImage;
+                                File.Copy(source,dest);
+                            }
+
+                            string url = "/appcontent/" + _restoreSlideInfo.CurrentTarget.Id + "/" +
+                                         stringPathToImage;
+
+                            result.SrcPath.StaticContentUrlDef.Set("qUrl", url);
+                        }
+                    }
 
                     break;
                 }
@@ -695,11 +720,17 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public IStory Story;
         public string FullPathToSlideFolder;
         public string SlideFolder;
-        public IApp App;
+        public IApp TargetApp;
+        public IApp SourceApp;
+        public NameAndIdAndLastReloadTime CurrentSource;
+        public NameAndIdAndLastReloadTime CurrentTarget;
 
         public void Copy(RestoreSlideInfo anotherInfo)
         {
-            anotherInfo.App = App;
+            anotherInfo.TargetApp = TargetApp;
+            anotherInfo.SourceApp = SourceApp;
+            anotherInfo.CurrentSource = CurrentSource.Copy();
+            anotherInfo.CurrentTarget = CurrentTarget.Copy();
             anotherInfo.Story = Story;
             anotherInfo.FullPathToSlideFolder = FullPathToSlideFolder;
             anotherInfo.SlideFolder = SlideFolder;

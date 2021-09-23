@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
 using UtilClasses.ProgramOptionsClasses;
@@ -9,15 +11,16 @@ namespace QSObjectManager
     public partial class ManagerForm : Form, IProgramOptionsEvent, IWriteInfoEvent, IConnectionStatusInfoEvent, ISelectAppEvent,IRestoreInfoEvent
     {
         private IConnect _locationObject;
-        private IList<NameAndIdPair> _lstApp;
-        private IList<NameAndIdPair> _stories;
+        private IList<NameAndIdAndLastReloadTime> _lstApp;
+        private IList<NameAndIdAndLastReloadTime> _lstAppsFromHubOnRestoreTab;
+        private IList<NameAndIdAndLastReloadTime> _stories;
         private int SelectedIpp { get; set; }
         
 
         private IniFileClass _iniFileObject;
 
-        private IList<NameAndIdPair> _lstAppsInStore;
-        private IList<NameAndIdPair> _lstStoriesInStore;
+        private IList<NameAndIdAndLastReloadTime> _lstAppsInStore;
+        private IList<NameAndIdAndLastReloadTime> _lstStoriesInStore;
         private int _selectedIndexAppInStore;
 
         private ProgramOptions _programOptions;
@@ -251,7 +254,17 @@ namespace QSObjectManager
             ButtonSelectAllHistToRestore.Visible = false;
 
             ButtonSelectAllHistToWrite.Visible = false;
-            
+            groupBoxAppsFromHubOnRestoreTab.Visible = false;
+
+            textBoxIdSource.Visible = false;
+            textBoxIdTarget.Visible = false;
+            labelidSource.Visible = false;
+            labelidTarget.Visible = false;
+
+            buttonOpenContentSource.Visible = false;
+            buttonOpenContentTarget.Visible = false;
+
+
         }
 
         private void ListBoxApps_SelectedIndexChanged(object sender, EventArgs e)
@@ -262,10 +275,10 @@ namespace QSObjectManager
             {
                 listBoxStrorysFromDevHub.Items.Clear();
 
-                NameAndIdPair appPair = _lstApp[ListBoxAppsFromDevHub.SelectedIndex];
+                NameAndIdAndLastReloadTime appAndLastReloadTime = _lstApp[ListBoxAppsFromDevHub.SelectedIndex];
                 SelectedIpp = ListBoxAppsFromDevHub.SelectedIndex;
 
-                _stories = Utils.GetStories(_locationObject.GetConnection(), appPair.Id);
+                _stories = Utils.GetStories(_locationObject.GetConnection(), appAndLastReloadTime.Id);
 
                 foreach (var story in _stories)
                 {
@@ -292,6 +305,7 @@ namespace QSObjectManager
             textBoxHistoryPath.Text = _programOptions.RepositoryPath;
             textBox1.Text = _programOptions.LocalAddress;
             textBox4.Text = _programOptions.RemoteAddress;
+            textBoxContentPath.Text = _programOptions.AppContentPath;
 
             _qsAppRestoreObject = new QsAppRestoreClass(this,this,this,this);
             
@@ -304,6 +318,10 @@ namespace QSObjectManager
 
             ButtonSelectAllHistToWrite.Visible = false;
 
+            textBoxIdSource.Visible = false;
+            textBoxIdTarget.Visible = false;
+            labelidSource.Visible = false;
+            labelidTarget.Visible = false;
 
         }
 
@@ -330,7 +348,7 @@ namespace QSObjectManager
                 return;
             }
 
-            IList<NameAndIdPair> listStoryNames = new List<NameAndIdPair>();
+            IList<NameAndIdAndLastReloadTime> listStoryNames = new List<NameAndIdAndLastReloadTime>();
 
             foreach (var item in listBoxStrorysFromDevHub.SelectedIndices)
             {
@@ -338,7 +356,7 @@ namespace QSObjectManager
 
                 if (ts >= 0)
                 {
-                    listStoryNames.Add(new NameAndIdPair(_stories[ts].Name,_stories[ts].Id));
+                    listStoryNames.Add(new NameAndIdAndLastReloadTime(_stories[ts].Name,_stories[ts].Id,""));
                 }
             }
 
@@ -354,6 +372,18 @@ namespace QSObjectManager
 
         private void tabPageRestore_Enter(object sender, EventArgs e)
         {
+
+            if (string.IsNullOrEmpty(_programOptions.RepositoryPath))
+            {
+                ShowMessageForm("Установите путь на содержимое историй приложений", "Ошибка");
+                return;
+            }
+            if (string.IsNullOrEmpty(_programOptions.AppContentPath))
+            {
+                ShowMessageForm("Установите путь на папку с контентом приложения на сервере", "Ошибка");
+                return;
+            }
+
             try
             {
                 textBoxAdressLocalHostOnRestoreTab.Text = _programOptions.LocalAddress;
@@ -425,6 +455,31 @@ namespace QSObjectManager
                 //}
 
             }
+            if ((listBoxAppsFromHubOnRestoreTab.SelectedIndices.Count == 1) &&
+                (listBoxAppsInStoreOnRestoreTab.SelectedIndices.Count == 1))
+            {
+                textBoxIdSource.Text = _lstAppsInStore[listBoxAppsInStoreOnRestoreTab.SelectedIndex].Id;
+                textBoxIdTarget.Text = _lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Id;
+
+                textBoxIdSource.Visible = true;
+                textBoxIdTarget.Visible = true;
+                labelidSource.Visible = true;
+                labelidTarget.Visible = true;
+                buttonOpenContentSource.Visible = true;
+                buttonOpenContentTarget.Visible = true;
+            }
+            else
+            {
+                textBoxIdSource.Visible = false;
+                textBoxIdTarget.Visible = false;
+                labelidSource.Visible = false;
+                labelidTarget.Visible = false;
+
+                buttonOpenContentSource.Visible = false;
+                buttonOpenContentTarget.Visible = false;
+
+            }
+
 
         }
 
@@ -433,6 +488,7 @@ namespace QSObjectManager
             Disconnect();
         }
 
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
         private void buttonConnectionToLocalHostOnRestoreTab_Click(object sender, EventArgs e)
         {
             try
@@ -459,6 +515,7 @@ namespace QSObjectManager
             UpdateFormOnRestoreTab();
         }
 
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
         private void buttonConnectToServerOnRestoreTab_Click(object sender, EventArgs e)
         {
             try
@@ -468,6 +525,15 @@ namespace QSObjectManager
                 OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
                 _locationObject = new RemoteConnection(textBoxAddrServer.Text);
                 _locationObject.Connect();
+
+                _lstAppsFromHubOnRestoreTab = Utils.GetApps(_locationObject.GetConnection());
+
+                listBoxAppsFromHubOnRestoreTab.Items.Clear();
+
+                foreach (var app in _lstAppsFromHubOnRestoreTab)
+                {
+                    listBoxAppsFromHubOnRestoreTab.Items.Add(app);
+                }
                 _connectedToRemoteServer = true;
             }
             catch (Exception)
@@ -494,6 +560,7 @@ namespace QSObjectManager
                 buttonConnectToServerOnRestoreTab.Visible = false;
 
                 buttonRestoreHistoryOnRestoreTab.Visible = _isConnected;
+                groupBoxAppsFromHubOnRestoreTab.Visible = _isConnected;
 
                 
                 ButtonSelectAllHistToRestore.Visible = true;
@@ -524,15 +591,35 @@ namespace QSObjectManager
             Disconnect();
         }
 
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
         private void buttonRestoreHistoryOnRestoreTab_Click(object sender, EventArgs e)
         {
-            if (!(_locationObject != null && listBoxHistorysInStoreOnRestoreTab.SelectedIndices.Count > 0))
+            if (!(_locationObject != null && listBoxHistorysInStoreOnRestoreTab.SelectedIndices.Count == 1 &&
+                  listBoxAppsInStoreOnRestoreTab.SelectedIndices.Count == 1 && listBoxHistorysInStoreOnRestoreTab.SelectedIndices.Count >= 1))
             {
-                ShowMessageForm("Надо выбрать одно приложение и не менее одной истории", "Ошибка");
+                ShowMessageForm("Надо выбрать одно приложение цель, одно приложение источник  и не менее одной истории", "Ошибка");
                 return;
             }
 
-            IList<NameAndIdPair> listStoryNames = new List<NameAndIdPair>();
+            if (string.CompareOrdinal(textBoxIdSource.Text, textBoxIdTarget.Text) == 0)
+            {
+                ShowMessageForm("Целевое приложение и приложение источник должны отличаться друг от друга", "Ошибка");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_programOptions.AppContentPath))
+            {
+                ShowMessageForm("Установите путь на папку с контентом приложений на сервере", "Ошибка");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_programOptions.RepositoryPath))
+            {
+                ShowMessageForm("Установите путь на папку с содержимым историй приложений на сервере", "Ошибка");
+                return;
+            }
+
+            IList<NameAndIdAndLastReloadTime> listStoryNames = new List<NameAndIdAndLastReloadTime>();
 
             foreach (var item in listBoxHistorysInStoreOnRestoreTab.SelectedIndices)
             {
@@ -540,17 +627,18 @@ namespace QSObjectManager
 
                 if (ts >= 0)
                 {
-                    listStoryNames.Add(new NameAndIdPair(_lstStoriesInStore[ts].Name, _lstStoriesInStore[ts].Id));
+                    listStoryNames.Add(new NameAndIdAndLastReloadTime(_lstStoriesInStore[ts].Name, _lstStoriesInStore[ts].Id,""));
                 }
             }
 
             try
             {
-                NameAndIdPair prIdName = null;
+                NameAndIdAndLastReloadTime prIdName = null;
 
                 foreach (var pair in Utils.GetApps(_locationObject.GetConnection()))
                 {
-                    if (string.CompareOrdinal(pair.Name, _lstAppsInStore[_selectedIndexAppInStore].Name) == 0)
+                    if ((string.CompareOrdinal(pair.Name, _lstAppsInStore[_selectedIndexAppInStore].Name) == 0) &&
+                        (string.CompareOrdinal(pair.LastReloadTime, _lstAppsInStore[_selectedIndexAppInStore].LastReloadTime)==0))
                     {
                         prIdName = pair.Copy();
                         break;
@@ -558,10 +646,12 @@ namespace QSObjectManager
 
                 }
 
+
+
                 if (prIdName != null)
                 {
                     OnNewRestoreInfo(new RestoreInfoEventArgs(
-                        new RestoreInfo(prIdName.Copy(), listStoryNames)));
+                        new RestoreInfo(prIdName.Copy(), listStoryNames,_lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Copy())));
 
                     ShowMessageForm("Выбранные истории восстановлены", "");
                 }
@@ -611,6 +701,63 @@ namespace QSObjectManager
             }
 
             listBoxStrorysFromDevHub.EndUpdate();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialogPathsHistoru.SelectedPath = textBoxContentPath.Text;
+            if (folderBrowserDialogPathsHistoru.ShowDialog() == DialogResult.OK)
+            {
+                textBoxContentPath.Text = folderBrowserDialogPathsHistoru.SelectedPath;
+                _programOptions.AppContentPath = textBoxContentPath.Text;
+
+                OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
+
+            }
+        }
+
+        private void listBoxAppsFromHubOnRestoreTab_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if ((listBoxAppsFromHubOnRestoreTab.SelectedIndices.Count == 1) &&
+                (listBoxAppsInStoreOnRestoreTab.SelectedIndices.Count == 1))
+            {
+                textBoxIdSource.Text = _lstAppsInStore[listBoxAppsInStoreOnRestoreTab.SelectedIndex].Id;
+                textBoxIdTarget.Text = _lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Id;
+
+                textBoxIdSource.Visible = true;
+                textBoxIdTarget.Visible = true;
+                labelidSource.Visible = true;
+                labelidTarget.Visible = true;
+                buttonOpenContentSource.Visible = true;
+                buttonOpenContentTarget.Visible = true;
+            }
+            else
+            {
+                textBoxIdSource.Visible = false;
+                textBoxIdTarget.Visible = false;
+                labelidSource.Visible = false;
+                labelidTarget.Visible = false;
+
+                buttonOpenContentSource.Visible = false;
+                buttonOpenContentTarget.Visible = false;
+
+            }
+
+        }
+
+        private void buttonOpenContentTarget_Click(object sender, EventArgs e)
+        {
+            Process.Start("C:\\Windows\\Explorer.exe" ,_programOptions.AppContentPath + "\\" + textBoxIdTarget.Text);
+        }
+
+        private void buttonOpenContentSource_Click(object sender, EventArgs e)
+        {
+            Process.Start("C:\\Windows\\Explorer.exe", _programOptions.AppContentPath + "\\" + textBoxIdSource.Text);
+        }
+
+        private void tabPageRestore_DragEnter(object sender, DragEventArgs e)
+        {
+           
         }
     }
 }

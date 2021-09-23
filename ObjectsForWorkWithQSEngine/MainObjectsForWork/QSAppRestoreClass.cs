@@ -15,11 +15,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private IConnect _location;
 
-        private NameAndIdPair _selectedApp;
+        private NameAndIdAndLastReloadTime _selectedApp;
 
         private readonly RestoreInfo _restoreInfo =new ();
 
-        private IApp _app;
+        private IApp _appSource;
+        private IApp _appTarget;
 
         private readonly ProgramOptions _programOptions = new();
 
@@ -34,11 +35,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewProgramOptionsSend(this, e);
         }
 
-        public  IList<NameAndIdPair> GetAppsFromStore()
+        public  IList<NameAndIdAndLastReloadTime> GetAppsFromStore()
         {
             if (string.IsNullOrEmpty(_programOptions.RepositoryPath))
                 return null;
-            IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
+            IList<NameAndIdAndLastReloadTime> lstResult = new List<NameAndIdAndLastReloadTime>();
             
             foreach (var file in Directory.GetFiles(_programOptions.RepositoryPath, "*.xml"))
             {
@@ -91,16 +92,20 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             try
             {
 
-                IAppIdentifier appId = _location.GetConnection().AppWithId(_restoreInfo.SelectedApp.Id);
+                IAppIdentifier sourceAppId = _location.GetConnection().AppWithId(_restoreInfo.SourceApp.Id);
+                IAppIdentifier targetAppId = _location.GetConnection().AppWithId(_restoreInfo.TargetApp.Id);
 
-                _app = _location.GetConnection().App(appId);
+
+                _appSource = _location.GetConnection().App(sourceAppId);
+                
+                _appTarget = _location.GetConnection().App(targetAppId);
             }
             catch (Exception ex)
             {
                 throw new Exception("Не удалось подключиться к приложению", ex);
             }
 
-            string mNameSelectedApp = Path.GetFileNameWithoutExtension(_restoreInfo.SelectedApp.Name);
+            string mNameSelectedApp = Path.GetFileNameWithoutExtension(_restoreInfo.SourceApp.Name);
 
 
             string searchFileAppInStore = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, mNameSelectedApp, "*.xml");
@@ -126,7 +131,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                                     foreach (XmlNode element in stories.ChildNodes)
                                     {
-                                        NameAndIdPair story = new NameAndIdPair();
+                                        NameAndIdAndLastReloadTime story = new NameAndIdAndLastReloadTime();
 
                                         foreach (XmlNode mStory in element.ChildNodes)
                                         {
@@ -149,8 +154,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                         {
                                             RestoreStoryFromDiskInfo info = new RestoreStoryFromDiskInfo
                                             {
-                                                App = _app,
-                                                CurrentApp = _restoreInfo.SelectedApp.Copy(),
+                                                SourceApp = _appSource,
+                                                TargetApp = _appTarget,
+
+                                                CurrentAppSource = _restoreInfo.SourceApp.Copy(),
+                                                CurrentAppTarget = _restoreInfo.TargetApp.Copy(),
+                                               
                                                 CurrentStory = searchStory.Copy(),
                                                 StoryFolder = _programOptions.RepositoryPath + "\\" +
                                                               Path.GetFileNameWithoutExtension(searchFileAppInStore) +
@@ -172,7 +181,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             int ik = 0;
 
-            string name = Path.GetFileNameWithoutExtension(_restoreInfo.SelectedApp.Name);
+            string name = Path.GetFileNameWithoutExtension(_restoreInfo.SourceApp.Name);
             string tryName;
 
             while (true)
@@ -198,10 +207,14 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     break;
             }
             
-            _app.DoSave();
-            //_app.SaveAs(tryName);
-            _app.Dispose();
-            _app = null;
+            //_appSource.DoSave();
+            _appTarget.DoSave();
+            //_appSource.SaveAs(tryName);
+            _appSource.Dispose();
+            _appTarget.Dispose();
+            
+            _appSource = null;
+            _appTarget = null;
 
 
 
@@ -236,9 +249,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
 
-        public NameAndIdPair GetNameAnIdAppFromFile(string mFileApp)
+        public NameAndIdAndLastReloadTime GetNameAnIdAppFromFile(string mFileApp)
         {
-            NameAndIdPair result = new NameAndIdPair();
+            NameAndIdAndLastReloadTime result = new NameAndIdAndLastReloadTime();
             var xmlDocument = new XmlDocument();
 
             xmlDocument.Load(mFileApp);
@@ -264,6 +277,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                                 break;
                             }
+                            case "LastReloadTime":
+                            {
+                                result.LastReloadTime = nodeProperty.InnerText;
+
+                                break;
+                            }
                         }
                     }
                 }
@@ -272,12 +291,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
         
-        public  IList<NameAndIdPair> GetHistoryListForSelectedApp()
+        public  IList<NameAndIdAndLastReloadTime> GetHistoryListForSelectedApp()
         {
             
             string fileApp = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, Path.GetFileNameWithoutExtension(_selectedApp.Name),"*.xml");
             
-            IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
+            IList<NameAndIdAndLastReloadTime> lstResult = new List<NameAndIdAndLastReloadTime>();
 
             var xmlDocument = new XmlDocument();
 
@@ -299,7 +318,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                                 foreach (XmlNode element in stories.ChildNodes)
                                 {
-                                    NameAndIdPair story = new NameAndIdPair();
+                                    NameAndIdAndLastReloadTime story = new NameAndIdAndLastReloadTime();
 
                                     foreach (XmlNode mStory in element.ChildNodes)
                                     {
@@ -334,10 +353,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     public class SelectedAppEventArgs : EventArgs
     {
 
-        public readonly NameAndIdPair SelectedApp;
+        public readonly NameAndIdAndLastReloadTime SelectedApp;
 
         
-        public SelectedAppEventArgs(NameAndIdPair record)
+        public SelectedAppEventArgs(NameAndIdAndLastReloadTime record)
         {
             SelectedApp = record;
         }
@@ -353,12 +372,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     
     public class RestoreInfo
     {
-        public NameAndIdPair SelectedApp;
-        public IList<NameAndIdPair> SelectedStories;
+        public NameAndIdAndLastReloadTime SourceApp;
+        public IList<NameAndIdAndLastReloadTime> SelectedStories;
+        public NameAndIdAndLastReloadTime TargetApp;
 
-        public RestoreInfo(NameAndIdPair selectedApp, IList<NameAndIdPair> selectedStories)
+
+        public RestoreInfo(NameAndIdAndLastReloadTime sourceApp, IList<NameAndIdAndLastReloadTime> selectedStories, NameAndIdAndLastReloadTime targetApp)
         {
-            SelectedApp = selectedApp;
+            SourceApp = sourceApp;
+            TargetApp = targetApp;
             SelectedStories = selectedStories;
         }
 
@@ -368,8 +390,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
         public void Copy(RestoreInfo anotherWriteInfo)
         {
-            anotherWriteInfo.SelectedApp = SelectedApp.Copy();
-            anotherWriteInfo.SelectedStories = new List<NameAndIdPair>();
+            anotherWriteInfo.TargetApp = TargetApp.Copy();
+            anotherWriteInfo.SourceApp = SourceApp.Copy();
+            anotherWriteInfo.SelectedStories = new List<NameAndIdAndLastReloadTime>();
             foreach (var story in this.SelectedStories)
             {
                 anotherWriteInfo.SelectedStories.Add(story.Copy());
