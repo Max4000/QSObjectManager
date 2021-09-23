@@ -3,7 +3,6 @@ using System;
 using System.Xml;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
 using UtilClasses.ProgramOptionsClasses;
@@ -68,79 +67,40 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             DoRestore();
         }
 
+        
+
         private void DoRestore()
         {
-
-            string searchFileStoryInStore = _restoreStoryFromDiskInfo.StoryFolder + "\\" + _restoreStoryFromDiskInfo.CurrentStory.Id + ".xml";
+            string searchFileStoryInStore = _restoreStoryFromDiskInfo.StoryFolder + "\\" +
+                                            _restoreStoryFromDiskInfo.CurrentStory.Id + ".xml";
 
             _restoreStoryFromDiskInfo.App.DestroyGenericObject(_restoreStoryFromDiskInfo.CurrentStory.Id);
 
+            MetaAttributesDef metaAttributes = new MetaAttributesDef();
+            JsonTextReader rdMetaDef =
+                Utils.MakeTextReader(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.MetaDef.json");
+            metaAttributes.ReadJson(rdMetaDef);
+            rdMetaDef.Close();
 
-            JObject jObject = JObject.Parse(Utils.ReadJsonFile(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.MetaDef.json"));
+            StoryChildListDef childListDef = new StoryChildListDef();
+            JsonTextReader rdchildListDef =
+                Utils.MakeTextReader(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.ChildListDef.json");
+            childListDef.ReadJson(rdchildListDef);
+            rdchildListDef.Close();
 
-            JToken rootToken = jObject.Root;
-
-            string title = "", description = "", annotation = "";
-
-            if (rootToken != null)
-            {
-                foreach (JToken token in rootToken.Children())
-                {
-                    string path = token.Path;
-
-                    switch (path)
-                    {
-                        case "title":
-                        {
-                            title = token.First.Value<string>();
-                            break;
-                        }
-                        case "description":
-                        {
-                            description = token.First.Value<string>();
-                            break;
-                        }
-                        case "annotation":
-                        {
-                            annotation = token.First.Value<string>();
-                            break;
-                        }
-                    }
-
-                }
-
-
-            }
-
-            MetaAttributesDef metaAttributes = new MetaAttributesDef()
-            {
-                Title = title,
-                Annotation = annotation,
-                Description = description
-            };
-
-
-            StoryChildListDef childListDef =
-                JsonConvert.DeserializeObject<StoryChildListDef>(
-                    Utils.ReadJsonFile(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.ChildListDef.json"));
-            
-            var thumbail =
-                JsonConvert.DeserializeObject<StaticContentUrlContainerDef>(
-                    Utils.ReadJsonFile(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.Thumbnail.json"));
+            StaticContentUrlContainerDef thumbail = new StaticContentUrlContainerDef();
+            JsonTextReader rdthumbail =
+                Utils.MakeTextReader(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.Thumbnail.json");
+            thumbail.ReadJson(rdthumbail);
+            rdthumbail.Close();
 
             StoryProperties mStory = new StoryProperties();
-
-            
             mStory.Set("qMetaDef", metaAttributes);
-            
             mStory.Set("qChildListDef", childListDef);
-            
             mStory.Set("rank", GetRank(searchFileStoryInStore));
-            
             mStory.Set("thumbnail", thumbail);
-
-            IStory currentStory = _restoreStoryFromDiskInfo.App.CreateStory(_restoreStoryFromDiskInfo.CurrentStory.Id, mStory);
-
+            IStory currentStory =
+                _restoreStoryFromDiskInfo.App.CreateStory(_restoreStoryFromDiskInfo.CurrentStory.Id, mStory);
 
             var xmlDocument = new XmlDocument();
 
@@ -154,33 +114,31 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     switch (nodeStory.Name)
                     {
                         case "Items":
+                        {
+                            foreach (XmlNode item in nodeStory.ChildNodes)
                             {
-                                foreach (XmlNode item in nodeStory.ChildNodes)
+                                if (item.Attributes != null)
                                 {
-                                    if (item.Attributes != null)
+                                    string slideFolder = item.Attributes.GetNamedItem("id2")?.Value;
+
+                                    RestoreSlideInfo restInfo = new RestoreSlideInfo()
                                     {
-                                        string slideFolder = item.Attributes.GetNamedItem("id2")?.Value;
+                                        FullPathToSlideFolder =
+                                            _restoreStoryFromDiskInfo.StoryFolder + "\\" + slideFolder,
+                                        SlideFolder = slideFolder,
+                                        Story = currentStory,
+                                        App = _restoreStoryFromDiskInfo.App
+                                    };
 
-                                        RestoreSlideInfo restInfo = new RestoreSlideInfo()
-                                        {
-                                            FullPathToSlideFolder = _restoreStoryFromDiskInfo.StoryFolder + "\\" + slideFolder,
-                                            SlideFolder = slideFolder,
-                                            Story = currentStory,
-                                            App = _restoreStoryFromDiskInfo.App
-                                        };
-
-                                        OnNewRestoreSlideInfoFromDisk(new RestoreSlideInfoEventArgs(restInfo));
-                                    }
+                                    OnNewRestoreSlideInfoFromDisk(new RestoreSlideInfoEventArgs(restInfo));
                                 }
-
-                                break;
                             }
-                    }
 
+                            break;
+                        }
+                    }
                 }
 
-            
-            
         }
 
         private float GetRank(string pathXml)

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Xml;
+using Newtonsoft.Json;
 using Qlik.Engine;
 using Qlik.Sense.Client;
 using UtilClasses;
@@ -129,6 +130,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             return streamRead.ReadToEnd();
 
+        }
+
+        public static JsonTextReader MakeTextReader(string file)
+        {
+            return new JsonTextReader(new StreamReader(
+                new FileStream(
+                    file, FileMode.Open), Encoding.UTF8));
         }
     }
 

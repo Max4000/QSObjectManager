@@ -198,8 +198,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     break;
             }
             
-
-            _app.SaveAs(tryName);
+            _app.DoSave();
+            //_app.SaveAs(tryName);
             _app.Dispose();
             _app = null;
 

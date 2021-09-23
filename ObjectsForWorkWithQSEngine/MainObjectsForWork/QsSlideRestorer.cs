@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -85,10 +83,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     {
                         SlideStyle slideStyle = new SlideStyle();
 
-                        JsonTextReader reader = new JsonTextReader(new StreamReader(
-                            new FileStream(
-                                _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder + "\\Style.json",
-                                FileMode.Open), Encoding.UTF8));
+                        JsonTextReader reader = Utils.MakeTextReader(_restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder + "\\Style.json");
 
                         slideStyle.ReadJson(reader);
 
@@ -104,10 +99,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                             SnapshotProperties prop = new SnapshotProperties();
 
-                            JsonTextReader rd = new JsonTextReader(new StreamReader(
-                                new FileStream(
-                                    _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
-                                    "\\SnapshotProperties.json", FileMode.Open), Encoding.UTF8));
+                            JsonTextReader rd = Utils.MakeTextReader(_restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
+                                                                     "\\SnapshotProperties.json");
 
                             prop.ReadJson(rd);
 
