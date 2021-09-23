@@ -5,7 +5,7 @@ using Qlik.Engine;
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
 
-    public interface IConnect : IDisposable
+    public interface  IConnect : IDisposable
     {
         public bool Connect();
 
