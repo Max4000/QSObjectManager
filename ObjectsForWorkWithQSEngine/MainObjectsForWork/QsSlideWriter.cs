@@ -6,6 +6,8 @@ using System.Xml;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
+using UtilClasses.ProgramOptionsClasses;
+
 // ReSharper disable StringLiteralTypo
 // ReSharper disable CommentTypo
 
@@ -17,10 +19,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     {
         //public ProgramOptions Options { get; } = new();
         
-        public StoryItemInfo ItemInfo = new();
+        private StoryItemInfo _itemInfo = new();
         
-        public DeleteItemFromDiskInfo  DeleteItem= new ();
-        public QsSlideWriter(IWriteStoryItemToDisk writeStoryItem,IDeleteInfoFromDisk deleteInfoFromDisk)
+        private readonly DeleteItemFromDiskInfo  _deleteItem = new ();
+
+        private readonly ProgramOptions _options  = new();
+
+        public QsSlideWriter(IWriteStoryItemToDisk writeStoryItem,IDeleteInfoFromDisk deleteInfoFromDisk , IProgramOptionsEvent programOptions)
         {
             
             IWriteStoryItemToDisk storyItem = writeStoryItem;
@@ -31,11 +36,21 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             deleteInfo.NewDeleteItemFromDiskSend += DeleteItemFromDiskReceived;
 
+            IProgramOptionsEvent prgOptions = programOptions;
+
+            prgOptions.NewProgramOptionsSend += PrgOptionsOnNewProgramOptionsSend;
+
+
+        }
+
+        private void PrgOptionsOnNewProgramOptionsSend(object sender, ProgramOptionsEventArgs e)
+        {
+            e.ProgramOptions.Copy(_options);
         }
 
         private void DeleteItemFromDiskReceived(object sender, DeleteItemFromDiskEventArgs e)
         {
-            e.DeleteInfo.Copy(DeleteItem);
+            e.DeleteInfo.Copy(_deleteItem);
             DoDelete();
         }
 
@@ -43,7 +58,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         {
             var xmlDocument = new XmlDocument();
 
-            xmlDocument.Load(DeleteItem.ItemFolder+"\\"+DeleteItem.ItemName+ ".xml");
+            xmlDocument.Load(_deleteItem.ItemFolder+"\\"+_deleteItem.ItemName+ ".xml");
             XmlNode root = xmlDocument.DocumentElement;
 
             if (root != null)
@@ -70,14 +85,14 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                                     string folderItemSlide = nodeItem.Attributes.GetNamedItem("id")
                                                         ?.Value;
 
-                                                    foreach (var file in Directory.GetFiles(DeleteItem.ItemFolder +
+                                                    foreach (var file in Directory.GetFiles(_deleteItem.ItemFolder +
                                                         "\\" +
                                                         folderItemSlide))
                                                     {
                                                         File.Delete(file);
                                                     }
 
-                                                    Directory.Delete(DeleteItem.ItemFolder + "\\" +
+                                                    Directory.Delete(_deleteItem.ItemFolder + "\\" +
                                                                      folderItemSlide);
                                                 }
 
@@ -95,7 +110,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                   
                 }
             
-            foreach (var file in Directory.GetFiles(DeleteItem.ItemFolder))
+            foreach (var file in Directory.GetFiles(_deleteItem.ItemFolder))
             {
                 File.Delete(file);
             }
@@ -103,15 +118,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private void WriteStoryItemToDiskReceived(object sender, StoryItemInfoEventArgs e)
         {
-            e.ItemInfo.Copy(ref ItemInfo);
+            e.ItemInfo.Copy(ref _itemInfo);
             WriteStoryItem();
         }
 
         private void WriteStoryItem()
         {
-            string itemPath = ItemInfo.LocalRootFolder + "\\" + ItemInfo.Id;
+            string itemPath = _itemInfo.LocalRootFolder + "\\" + _itemInfo.Id;
             
-            string fileXml = itemPath + "\\" + ItemInfo.Id + ".xml";
+            string fileXml = itemPath + "\\" + _itemInfo.Id + ".xml";
 
             string fileData = itemPath + "\\" + "Data" + ".json";
             string fileInfo = itemPath + "\\" + "INxContainerEntry.Info" + ".json";
@@ -126,7 +141,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             xmlWriter.WriteStartDocument();
             
-            xmlWriter.WriteComment("Файл содержит описание элемента " + ItemInfo.Id);
+            xmlWriter.WriteComment("Файл содержит описание элемента " + _itemInfo.Id);
 
             xmlWriter.WriteStartElement("item");
 
@@ -134,20 +149,20 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     
                     Utils.PrintStructureToFile("item", "Data", "SlideObjectView", "Data.json", xmlWriter,
-                        fileData, ItemInfo.Container.Data);
+                        fileData, _itemInfo.Container.Data);
                     
                     Utils.PrintStructureToFile("item", "INxContainerEntry.Info", "NxInfo", "INxContainerEntry.Info.json", xmlWriter,
-                        fileInfo, ItemInfo.Container.Info);
+                        fileInfo, _itemInfo.Container.Info);
 
                     Utils.PrintStructureToFile("item", "INxContainerEntry.Meta", "NxMeta", "INxContainerEntry.Meta.json", xmlWriter,
-                        fileMeta, ItemInfo.Container.Meta);
+                        fileMeta, _itemInfo.Container.Meta);
 
                
 
 
             xmlWriter.WriteEndElement();//item
 
-            ISlide slide = ItemInfo.Story.GetSlide(ItemInfo.Id);
+            ISlide slide = _itemInfo.Story.GetSlide(_itemInfo.Id);
 
             xmlWriter.WriteStartElement("slide");
 
@@ -225,11 +240,39 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
+        private void  CopyImageToRepAppContentFolder(ISlideItem item)
+        {
+            if (item.Layout.SrcPath.StaticContentUrl.Url.Contains("appcontent"))
+            {
+                string file = Utils.GetNameImage(item.Layout.SrcPath.StaticContentUrl.Url);
+
+                string source = _options.AppContentPath + "\\AppContent" + "\\" + _itemInfo.CurrentApp.Id + "\\" + file;
+
+                string destination = _itemInfo.AppContentFolder + "\\" + file;
+
+                if (!File.Exists(destination))
+                    File.Copy(source,destination);
+            }
+
+            if (item.Layout.SrcPath.StaticContentUrl.Url.Contains("default"))
+            {
+                string file = Utils.GetNameImage(item.Layout.SrcPath.StaticContentUrl.Url);
+
+                string source = _options.AppContentPath + "\\Content\\Default\\" + file;
+
+                string destination = _itemInfo.DefaultContnetFolder + "\\" + file;
+
+                File.Copy(source, destination);
+            }
+
+
+        }
+
         private void WriteSlideItemsToDisk(ISlide slide)
         {
             int itemNo = -1;
 
-            string itemRootFolder = ItemInfo.LocalRootFolder + "\\" + ItemInfo.Id;
+            string itemRootFolder = _itemInfo.LocalRootFolder + "\\" + _itemInfo.Id;
             
             foreach (ISlideItem slideItem in slide.SlideItems)
             {
@@ -306,6 +349,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             Utils.CreateElement("itemprop", "VisualizationType", "string",
                                 slideItem.Layout.VisualizationType, xmlWriterItem);
 
+                            string visType = slideItem.Layout.Get<string>("visualization");
+
+                            if (string.CompareOrdinal(visType, "image") == 0)
+                            {
+                                CopyImageToRepAppContentFolder(slideItem);
+                            }
+
                             Utils.PrintStructureToFile("itemprop", "Style",
                                 "SlideStyle", "Style.json", xmlWriterItem,
                                 itemPathFolder + "\\" + "Style.json", slideItem.Layout.Style);
@@ -315,7 +365,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             {
                                 string id = slideItem.Layout.Style.Id;
 
-                                ISnapshot snapshot = this.ItemInfo.App.GetSnapshot(id);
+                                ISnapshot snapshot = this._itemInfo.App.GetSnapshot(id);
 
                                 Utils.PrintStructureToFile("itemprop", "SnapshotProperties",
                                     "SnapshotProperties", "SnapshotProperties.json", xmlWriterItem,

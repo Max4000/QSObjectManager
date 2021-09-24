@@ -43,6 +43,7 @@ namespace QSObjectManager
             this.buttonHistoryPath = new System.Windows.Forms.Button();
             this.textBoxHistoryPath = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.tabPageRestore = new System.Windows.Forms.TabPage();
             this.buttonOpenContentSource = new System.Windows.Forms.Button();
             this.buttonOpenContentTarget = new System.Windows.Forms.Button();
@@ -90,6 +91,7 @@ namespace QSObjectManager
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.buttonDisconnectFromLoacalHub = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.checkBoxOverwriteImages = new System.Windows.Forms.CheckBox();
             this.menuStrip1.SuspendLayout();
             this.tabPageAppConfiguration.SuspendLayout();
             this.groupBoxOptionsPaths.SuspendLayout();
@@ -147,7 +149,7 @@ namespace QSObjectManager
             // 
             this.statusStrip1.AutoSize = false;
             this.statusStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            this.statusStrip1.Location = new System.Drawing.Point(0, 525);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 551);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(999, 22);
             this.statusStrip1.Stretch = false;
@@ -237,8 +239,20 @@ namespace QSObjectManager
             this.label2.TabIndex = 0;
             this.label2.Text = "Папка для сохранения ползовательских историй";
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.checkBox1.Location = new System.Drawing.Point(4, 531);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(12, 11);
+            this.checkBox1.TabIndex = 1;
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // tabPageRestore
             // 
+            this.tabPageRestore.Controls.Add(this.checkBoxOverwriteImages);
             this.tabPageRestore.Controls.Add(this.buttonOpenContentSource);
             this.tabPageRestore.Controls.Add(this.buttonOpenContentTarget);
             this.tabPageRestore.Controls.Add(this.labelidSource);
@@ -255,7 +269,7 @@ namespace QSObjectManager
             this.tabPageRestore.Location = new System.Drawing.Point(4, 24);
             this.tabPageRestore.Name = "tabPageRestore";
             this.tabPageRestore.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageRestore.Size = new System.Drawing.Size(991, 473);
+            this.tabPageRestore.Size = new System.Drawing.Size(991, 499);
             this.tabPageRestore.TabIndex = 1;
             this.tabPageRestore.Text = "Восстановление";
             this.tabPageRestore.UseVisualStyleBackColor = true;
@@ -275,7 +289,7 @@ namespace QSObjectManager
             // 
             // buttonOpenContentTarget
             // 
-            this.buttonOpenContentTarget.Location = new System.Drawing.Point(411, 366);
+            this.buttonOpenContentTarget.Location = new System.Drawing.Point(411, 365);
             this.buttonOpenContentTarget.Name = "buttonOpenContentTarget";
             this.buttonOpenContentTarget.Size = new System.Drawing.Size(97, 23);
             this.buttonOpenContentTarget.TabIndex = 15;
@@ -303,14 +317,16 @@ namespace QSObjectManager
             // 
             // textBoxIdSource
             // 
-            this.textBoxIdSource.Location = new System.Drawing.Point(106, 395);
+            this.textBoxIdSource.Enabled = false;
+            this.textBoxIdSource.Location = new System.Drawing.Point(106, 394);
             this.textBoxIdSource.Name = "textBoxIdSource";
             this.textBoxIdSource.Size = new System.Drawing.Size(299, 23);
             this.textBoxIdSource.TabIndex = 12;
             // 
             // textBoxIdTarget
             // 
-            this.textBoxIdTarget.Location = new System.Drawing.Point(106, 366);
+            this.textBoxIdTarget.Enabled = false;
+            this.textBoxIdTarget.Location = new System.Drawing.Point(106, 365);
             this.textBoxIdTarget.Name = "textBoxIdTarget";
             this.textBoxIdTarget.Size = new System.Drawing.Size(299, 23);
             this.textBoxIdTarget.TabIndex = 11;
@@ -318,9 +334,9 @@ namespace QSObjectManager
             // groupBoxAppsFromHubOnRestoreTab
             // 
             this.groupBoxAppsFromHubOnRestoreTab.Controls.Add(this.listBoxAppsFromHubOnRestoreTab);
-            this.groupBoxAppsFromHubOnRestoreTab.Location = new System.Drawing.Point(9, 160);
+            this.groupBoxAppsFromHubOnRestoreTab.Location = new System.Drawing.Point(8, 162);
             this.groupBoxAppsFromHubOnRestoreTab.Name = "groupBoxAppsFromHubOnRestoreTab";
-            this.groupBoxAppsFromHubOnRestoreTab.Size = new System.Drawing.Size(308, 200);
+            this.groupBoxAppsFromHubOnRestoreTab.Size = new System.Drawing.Size(312, 200);
             this.groupBoxAppsFromHubOnRestoreTab.TabIndex = 10;
             this.groupBoxAppsFromHubOnRestoreTab.TabStop = false;
             this.groupBoxAppsFromHubOnRestoreTab.Text = "Приложение цель";
@@ -332,7 +348,7 @@ namespace QSObjectManager
             this.listBoxAppsFromHubOnRestoreTab.ItemHeight = 15;
             this.listBoxAppsFromHubOnRestoreTab.Location = new System.Drawing.Point(3, 19);
             this.listBoxAppsFromHubOnRestoreTab.Name = "listBoxAppsFromHubOnRestoreTab";
-            this.listBoxAppsFromHubOnRestoreTab.Size = new System.Drawing.Size(302, 178);
+            this.listBoxAppsFromHubOnRestoreTab.Size = new System.Drawing.Size(306, 178);
             this.listBoxAppsFromHubOnRestoreTab.TabIndex = 0;
             this.listBoxAppsFromHubOnRestoreTab.SelectedIndexChanged += new System.EventHandler(this.listBoxAppsFromHubOnRestoreTab_SelectedIndexChanged);
             // 
@@ -471,7 +487,7 @@ namespace QSObjectManager
             // groupBoxActionsOnRestoreTab
             // 
             this.groupBoxActionsOnRestoreTab.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBoxActionsOnRestoreTab.Location = new System.Drawing.Point(3, 434);
+            this.groupBoxActionsOnRestoreTab.Location = new System.Drawing.Point(3, 460);
             this.groupBoxActionsOnRestoreTab.Name = "groupBoxActionsOnRestoreTab";
             this.groupBoxActionsOnRestoreTab.Size = new System.Drawing.Size(985, 36);
             this.groupBoxActionsOnRestoreTab.TabIndex = 2;
@@ -480,9 +496,9 @@ namespace QSObjectManager
             // groupBoxUsersHistoryInStoreOnRestoreTab
             // 
             this.groupBoxUsersHistoryInStoreOnRestoreTab.Controls.Add(this.listBoxHistorysInStoreOnRestoreTab);
-            this.groupBoxUsersHistoryInStoreOnRestoreTab.Location = new System.Drawing.Point(659, 160);
+            this.groupBoxUsersHistoryInStoreOnRestoreTab.Location = new System.Drawing.Point(666, 162);
             this.groupBoxUsersHistoryInStoreOnRestoreTab.Name = "groupBoxUsersHistoryInStoreOnRestoreTab";
-            this.groupBoxUsersHistoryInStoreOnRestoreTab.Size = new System.Drawing.Size(321, 200);
+            this.groupBoxUsersHistoryInStoreOnRestoreTab.Size = new System.Drawing.Size(312, 200);
             this.groupBoxUsersHistoryInStoreOnRestoreTab.TabIndex = 1;
             this.groupBoxUsersHistoryInStoreOnRestoreTab.TabStop = false;
             this.groupBoxUsersHistoryInStoreOnRestoreTab.Text = "Истории приложения источника";
@@ -495,15 +511,15 @@ namespace QSObjectManager
             this.listBoxHistorysInStoreOnRestoreTab.Location = new System.Drawing.Point(3, 19);
             this.listBoxHistorysInStoreOnRestoreTab.Name = "listBoxHistorysInStoreOnRestoreTab";
             this.listBoxHistorysInStoreOnRestoreTab.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.listBoxHistorysInStoreOnRestoreTab.Size = new System.Drawing.Size(315, 178);
+            this.listBoxHistorysInStoreOnRestoreTab.Size = new System.Drawing.Size(306, 178);
             this.listBoxHistorysInStoreOnRestoreTab.TabIndex = 0;
             // 
             // groupBoxAppsInStoreOnRestoreTab
             // 
             this.groupBoxAppsInStoreOnRestoreTab.Controls.Add(this.listBoxAppsInStoreOnRestoreTab);
-            this.groupBoxAppsInStoreOnRestoreTab.Location = new System.Drawing.Point(325, 160);
+            this.groupBoxAppsInStoreOnRestoreTab.Location = new System.Drawing.Point(339, 162);
             this.groupBoxAppsInStoreOnRestoreTab.Name = "groupBoxAppsInStoreOnRestoreTab";
-            this.groupBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(331, 200);
+            this.groupBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(312, 200);
             this.groupBoxAppsInStoreOnRestoreTab.TabIndex = 0;
             this.groupBoxAppsInStoreOnRestoreTab.TabStop = false;
             this.groupBoxAppsInStoreOnRestoreTab.Text = "Приложение источник";
@@ -515,7 +531,7 @@ namespace QSObjectManager
             this.listBoxAppsInStoreOnRestoreTab.ItemHeight = 15;
             this.listBoxAppsInStoreOnRestoreTab.Location = new System.Drawing.Point(3, 19);
             this.listBoxAppsInStoreOnRestoreTab.Name = "listBoxAppsInStoreOnRestoreTab";
-            this.listBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(325, 178);
+            this.listBoxAppsInStoreOnRestoreTab.Size = new System.Drawing.Size(306, 178);
             this.listBoxAppsInStoreOnRestoreTab.TabIndex = 0;
             this.listBoxAppsInStoreOnRestoreTab.SelectedIndexChanged += new System.EventHandler(this.listBoxAppsInStore_SelectedIndexChanged);
             // 
@@ -729,15 +745,27 @@ namespace QSObjectManager
             this.tabControl1.Location = new System.Drawing.Point(0, 24);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(999, 501);
+            this.tabControl1.Size = new System.Drawing.Size(999, 527);
             this.tabControl1.TabIndex = 3;
+            // 
+            // checkBoxOverwriteImages
+            // 
+            this.checkBoxOverwriteImages.AutoSize = true;
+            this.checkBoxOverwriteImages.Location = new System.Drawing.Point(106, 435);
+            this.checkBoxOverwriteImages.Name = "checkBoxOverwriteImages";
+            this.checkBoxOverwriteImages.Size = new System.Drawing.Size(283, 19);
+            this.checkBoxOverwriteImages.TabIndex = 17;
+            this.checkBoxOverwriteImages.Text = "Перезаписывать существующие изображения";
+            this.checkBoxOverwriteImages.UseVisualStyleBackColor = true;
+            this.checkBoxOverwriteImages.CheckedChanged += new System.EventHandler(this.checkBoxOverwriteImages_CheckedChanged);
             // 
             // ManagerForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(999, 547);
+            this.ClientSize = new System.Drawing.Size(999, 573);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
@@ -841,6 +869,8 @@ namespace QSObjectManager
         private System.Windows.Forms.TextBox textBoxIdSource;
         private System.Windows.Forms.Button buttonOpenContentSource;
         private System.Windows.Forms.Button buttonOpenContentTarget;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox checkBoxOverwriteImages;
     }
 }
 

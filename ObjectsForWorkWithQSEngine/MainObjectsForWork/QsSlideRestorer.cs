@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -173,13 +174,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
-        private string GetPath(string fromString)
-        {
-            int pos1 = fromString.IndexOf('/', 0);
-            int pos2 = fromString.IndexOf('/', pos1 + 1);
-            int pos3 = fromString.IndexOf('/', pos2 + 1);
-            return fromString.Substring(pos3 + 1);
-        }
+        
 
         [SuppressMessage("ReSharper", "CommentTypo")]
         private SlideItemProperties CreateSlideItemProperties(ISlide slide, string id, string itemFolder, string itemType)
@@ -226,31 +221,83 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 case "image":
                 {
                     if (valueSrcPath.Length > 0)
-                        stringPathToImage = GetPath(valueSrcPath);
+                        stringPathToImage = Utils.GetNameImage(valueSrcPath);
 
                     result = slide.CreateImageSlideItemProperties(id, stringPathToImage);
 
                     if (_programOptions.IsServer())
                     {
-
-                        if (!valueSrcPath.Contains("appcontent")) // в папке default
+                        if (valueSrcPath.Contains("Qlik_default_green.png"))
                         {
+                            string st = "1";
+                        }
+                        if (valueSrcPath.Contains("/content/Default")) // в папке default
+                        {
+                            if (!File.Exists(
+                                _programOptions.AppContentPath + "\\Content\\Default\\" + stringPathToImage))
+                            {
+                                string source = _programOptions.RepositoryPath + "\\" +
+                                                _restoreSlideInfo.DafaultContentFolder + "\\" + stringPathToImage;
+                                string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
+                                              stringPathToImage;
+
+                                File.Copy(source, dest);
+                                Thread.Sleep(1000);
+                            }
+
+                            else
+                            {
+                                if (_programOptions.OverwriteExistingContentImages)
+                                {
+                                    string source = _programOptions.RepositoryPath + "\\" +
+                                                    _restoreSlideInfo.DafaultContentFolder + "\\" + stringPathToImage;
+                                    string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
+                                                  stringPathToImage;
+                                    File.Delete(dest);
+
+                                    File.Copy(source, dest);
+                                    Thread.Sleep(1000);
+
+                                }
+                            }
+
                             result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
                         }
                         else
                         {
-                            if (!File.Exists(_programOptions.AppContentPath + "\\" + _restoreSlideInfo.CurrentTarget.Id +
-                                             "\\" + stringPathToImage))
+                            if (!File.Exists(_programOptions.AppContentPath + "\\AppContent\\" +
+                                             _restoreSlideInfo.CurrentTarget.Id + "\\" + stringPathToImage))
                             {
-                                string source = _programOptions.AppContentPath + "\\" + _restoreSlideInfo.CurrentSource.Id +
-                                                "\\" + stringPathToImage;
-                                string dest = _programOptions.AppContentPath + "\\" + _restoreSlideInfo.CurrentTarget.Id +
-                                              "\\" + stringPathToImage;
-                                File.Copy(source,dest);
+                                string source = _programOptions.RepositoryPath + "\\" +
+                                                _restoreSlideInfo.AppContentFolder + "\\" + stringPathToImage;
+
+                                string dest = _programOptions.AppContentPath + "\\AppContent\\" +
+                                              _restoreSlideInfo.CurrentTarget.Id + "\\" + stringPathToImage;
+                                File.Copy(source, dest);
+                                Thread.Sleep(1000);
+
+                            }
+                            else
+                            {
+                                if (_programOptions.OverwriteExistingContentImages)
+                                {
+                                    string source = _programOptions.RepositoryPath + "\\" +
+                                                    _restoreSlideInfo.AppContentFolder + "\\" + stringPathToImage;
+
+                                    string dest = _programOptions.AppContentPath + "\\AppContent\\" +
+                                                  _restoreSlideInfo.CurrentTarget.Id + "\\" + stringPathToImage;
+
+                                    File.Delete(dest);
+
+                                    File.Copy(source, dest);
+                                    Thread.Sleep(1000);
+
+                                }
+
+
                             }
 
-                            string url = "/appcontent/" + _restoreSlideInfo.CurrentTarget.Id + "/" +
-                                         stringPathToImage;
+                            string url = "/appcontent/" + _restoreSlideInfo.CurrentTarget.Id + "/" + stringPathToImage;
 
                             result.SrcPath.StaticContentUrlDef.Set("qUrl", url);
                         }
@@ -722,6 +769,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public string SlideFolder;
         public IApp TargetApp;
         public IApp SourceApp;
+        public string AppContentFolder;
+        public string DafaultContentFolder;
         public NameAndIdAndLastReloadTime CurrentSource;
         public NameAndIdAndLastReloadTime CurrentTarget;
 
@@ -729,6 +778,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         {
             anotherInfo.TargetApp = TargetApp;
             anotherInfo.SourceApp = SourceApp;
+            anotherInfo.AppContentFolder = AppContentFolder;
+            anotherInfo.DafaultContentFolder = DafaultContentFolder;
             anotherInfo.CurrentSource = CurrentSource.Copy();
             anotherInfo.CurrentTarget = CurrentTarget.Copy();
             anotherInfo.Story = Story;

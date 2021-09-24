@@ -134,9 +134,24 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 string appFolder = Options.RepositoryPath + "\\" + Path.GetFileNameWithoutExtension(searchFileAppInStore);
 
                 Directory.Delete(appFolder + "\\" + "stories");
-                
+
+                foreach (var mfile in Directory.GetFiles(appFolder + "\\" + "appcontent"))
+                {
+                    File.Delete(mfile);
+                }
+
+                Directory.Delete(appFolder + "\\" + "appcontent");
+
+                foreach (var mfile in Directory.GetFiles(appFolder + "\\" + "default"))
+                {
+                    File.Delete(mfile);
+                }
+
+                Directory.Delete(appFolder + "\\" + "default");
+
                 Directory.Delete(appFolder);
-                
+
+
                 DeleteHeadierOfAppFromDisk(searchFileAppInStore);
             }
 
@@ -180,7 +195,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                     {
                                         App =     _app,
                                         StoreFolder = Path.GetFileNameWithoutExtension(fileXml),
+                                        AppContentFolder = Path.GetFileNameWithoutExtension(fileXml) + "\\appcontent",
+                                        DefaultContentFolder = Path.GetFileNameWithoutExtension(fileXml) + "\\default",
                                         CurrentApp = _wrtWriteInfo.SelectedApp.Copy(),
+
                                         CurrentStory = story.Copy(),
                                         CurrentXmlTextWriter = _xmlWriter
                                     };

@@ -139,6 +139,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 new FileStream(
                     file, FileMode.Open), Encoding.UTF8));
         }
+        public static string GetNameImage(string fromString)
+        {
+            int pos1 = fromString.IndexOf('/', 0);
+            int pos2 = fromString.IndexOf('/', pos1 + 1);
+            int pos3 = fromString.IndexOf('/', pos2 + 1);
+            return fromString.Substring(pos3 + 1);
+        }
     }
 
 

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
 using UtilClasses.ProgramOptionsClasses;
+using UtilClasses.ServiceClasses;
 
 namespace QSObjectManager
 {
@@ -25,6 +27,8 @@ namespace QSObjectManager
 
         private ProgramOptions _programOptions;
         private QsAppRestoreClass _qsAppRestoreObject;
+
+        private string _searchFileAppInStore;
 
         public QsAppWriterClass QsAppWriter { get; private set; }
 
@@ -261,8 +265,9 @@ namespace QSObjectManager
             labelidSource.Visible = false;
             labelidTarget.Visible = false;
 
-            buttonOpenContentSource.Visible = false;
-            buttonOpenContentTarget.Visible = false;
+           
+            checkBoxOverwriteImages.Visible = false;
+            
 
 
         }
@@ -307,6 +312,8 @@ namespace QSObjectManager
             textBox4.Text = _programOptions.RemoteAddress;
             textBoxContentPath.Text = _programOptions.AppContentPath;
 
+            checkBoxOverwriteImages.Checked = _programOptions.OverwriteExistingContentImages;
+
             _qsAppRestoreObject = new QsAppRestoreClass(this,this,this,this);
             
             QsAppWriter = new QsAppWriterClass(this, this,this);
@@ -322,6 +329,10 @@ namespace QSObjectManager
             textBoxIdTarget.Visible = false;
             labelidSource.Visible = false;
             labelidTarget.Visible = false;
+            checkBoxOverwriteImages.Visible = false;
+
+            buttonOpenContentSource.Visible = false;
+            buttonOpenContentTarget.Visible = false;
 
         }
 
@@ -444,15 +455,7 @@ namespace QSObjectManager
                     listBoxHistorysInStoreOnRestoreTab.Items.Add(item);
                 }
 
-                //foreach (var pair in Utils.GetApps(_locationObject.GetConnection()))
-                //{
-                //    if (string.CompareOrdinal(pair.Name, _lstAppsInStore[_selectedIndexAppInStore].Name) == 0)
-                //    {
-                //        textBoxAppId.Text = pair.Id;
-                //        break;
-                //    }
-
-                //}
+                
 
             }
             if ((listBoxAppsFromHubOnRestoreTab.SelectedIndices.Count == 1) &&
@@ -467,6 +470,7 @@ namespace QSObjectManager
                 labelidTarget.Visible = true;
                 buttonOpenContentSource.Visible = true;
                 buttonOpenContentTarget.Visible = true;
+                checkBoxOverwriteImages.Visible = true;
             }
             else
             {
@@ -477,8 +481,14 @@ namespace QSObjectManager
 
                 buttonOpenContentSource.Visible = false;
                 buttonOpenContentTarget.Visible = false;
+                checkBoxOverwriteImages.Visible = false;
 
             }
+
+            string mNameSelectedApp = Path.GetFileNameWithoutExtension(_lstAppsInStore[listBoxAppsInStoreOnRestoreTab.SelectedIndex].Name);
+
+
+            _searchFileAppInStore = _programOptions.RepositoryPath + "\\"+  Path.GetFileNameWithoutExtension(FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, mNameSelectedApp, "*.xml"))+ "\\appcontent";
 
 
         }
@@ -563,8 +573,7 @@ namespace QSObjectManager
                 groupBoxAppsFromHubOnRestoreTab.Visible = _isConnected;
 
                 
-                ButtonSelectAllHistToRestore.Visible = true;
-                ButtonSelectAllHistToWrite.Visible = true;
+                
 
                 OnNewConnectionStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
             }
@@ -601,11 +610,11 @@ namespace QSObjectManager
                 return;
             }
 
-            if (string.CompareOrdinal(textBoxIdSource.Text, textBoxIdTarget.Text) == 0)
-            {
-                ShowMessageForm("Целевое приложение и приложение источник должны отличаться друг от друга", "Ошибка");
-                return;
-            }
+            //if (string.CompareOrdinal(textBoxIdSource.Text, textBoxIdTarget.Text) == 0)
+            //{
+            //    ShowMessageForm("Целевое приложение и приложение источник должны отличаться друг от друга", "Ошибка");
+            //    return;
+            //}
 
             if (string.IsNullOrEmpty(_programOptions.AppContentPath))
             {
@@ -633,34 +642,28 @@ namespace QSObjectManager
 
             try
             {
-                NameAndIdAndLastReloadTime prIdName = null;
+                //NameAndIdAndLastReloadTime prIdName = null;
 
-                foreach (var pair in Utils.GetApps(_locationObject.GetConnection()))
-                {
-                    if ((string.CompareOrdinal(pair.Name, _lstAppsInStore[_selectedIndexAppInStore].Name) == 0) &&
-                        (string.CompareOrdinal(pair.LastReloadTime, _lstAppsInStore[_selectedIndexAppInStore].LastReloadTime)==0))
-                    {
-                        prIdName = pair.Copy();
-                        break;
-                    }
+                //foreach (var pair in Utils.GetApps(_locationObject.GetConnection()))
+                //{
+                //    if ((string.CompareOrdinal(pair.Name, _lstAppsInStore[_selectedIndexAppInStore].Name) == 0) &&
+                //        (string.CompareOrdinal(pair.LastReloadTime, _lstAppsInStore[_selectedIndexAppInStore].LastReloadTime)==0))
+                //    {
+                //        prIdName = pair.Copy();
+                //        break;
+                //    }
 
-                }
+                //}
 
 
 
-                if (prIdName != null)
+                if (true)
                 {
                     OnNewRestoreInfo(new RestoreInfoEventArgs(
-                        new RestoreInfo(prIdName.Copy(), listStoryNames,_lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Copy())));
+                        new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames,_lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Copy())));
 
                     ShowMessageForm("Выбранные истории восстановлены", "");
                 }
-                else
-                {
-
-                    ShowMessageForm("Выбранное приложение не найдено на сервере", "Ошибка");
-                }
-
             }
             catch (Exception ex)
             {
@@ -728,8 +731,12 @@ namespace QSObjectManager
                 textBoxIdTarget.Visible = true;
                 labelidSource.Visible = true;
                 labelidTarget.Visible = true;
+                buttonOpenContentSource.Visible = checkBox1.Checked;
+                buttonOpenContentTarget.Visible = checkBox1.Checked;
+
                 buttonOpenContentSource.Visible = true;
                 buttonOpenContentTarget.Visible = true;
+                checkBoxOverwriteImages.Visible = true;
             }
             else
             {
@@ -740,6 +747,7 @@ namespace QSObjectManager
 
                 buttonOpenContentSource.Visible = false;
                 buttonOpenContentTarget.Visible = false;
+                checkBoxOverwriteImages.Visible = false;
 
             }
 
@@ -747,17 +755,29 @@ namespace QSObjectManager
 
         private void buttonOpenContentTarget_Click(object sender, EventArgs e)
         {
-            Process.Start("C:\\Windows\\Explorer.exe" ,_programOptions.AppContentPath + "\\" + textBoxIdTarget.Text);
+            Process.Start("C:\\Windows\\Explorer.exe" ,_programOptions.AppContentPath + "\\AppContent\\" + textBoxIdTarget.Text);
         }
 
         private void buttonOpenContentSource_Click(object sender, EventArgs e)
         {
-            Process.Start("C:\\Windows\\Explorer.exe", _programOptions.AppContentPath + "\\" + textBoxIdSource.Text);
+            Process.Start("C:\\Windows\\Explorer.exe", _searchFileAppInStore);
         }
 
         private void tabPageRestore_DragEnter(object sender, DragEventArgs e)
         {
            
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBoxOverwriteImages_CheckedChanged(object sender, EventArgs e)
+        {
+            _programOptions.OverwriteExistingContentImages = checkBoxOverwriteImages.Checked;
+
+            OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
         }
     }
 }

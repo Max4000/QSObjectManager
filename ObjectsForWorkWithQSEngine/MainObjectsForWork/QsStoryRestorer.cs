@@ -132,6 +132,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                         CurrentSource = _restoreStoryFromDiskInfo.CurrentAppSource.Copy(),
 
                                         CurrentTarget = _restoreStoryFromDiskInfo.CurrentAppTarget.Copy(),
+                                        AppContentFolder = _restoreStoryFromDiskInfo.AppContentFolder,
+                                        DafaultContentFolder = _restoreStoryFromDiskInfo.DefaultFolder,
                                         
                                         TargetApp = _restoreStoryFromDiskInfo.TargetApp,
                                         SourceApp = _restoreStoryFromDiskInfo.SourceApp
@@ -202,6 +204,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public NameAndIdAndLastReloadTime CurrentAppSource;
         public NameAndIdAndLastReloadTime CurrentAppTarget;
         public NameAndIdAndLastReloadTime CurrentStory;
+        
+        public string AppContentFolder;
+        public string DefaultFolder;
+
         public string StoryFolder;
         
 
@@ -209,6 +215,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         {
             anotherInfo.SourceApp = SourceApp;
             anotherInfo.TargetApp = TargetApp;
+            anotherInfo.AppContentFolder = AppContentFolder;
+            anotherInfo.DefaultFolder = DefaultFolder;
             anotherInfo.CurrentAppSource = CurrentAppSource.Copy();
             anotherInfo.CurrentAppTarget = CurrentAppTarget.Copy();
             anotherInfo.CurrentStory = CurrentStory.Copy();

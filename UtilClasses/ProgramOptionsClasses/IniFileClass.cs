@@ -45,6 +45,15 @@ namespace UtilClasses.ProgramOptionsClasses
             {
                 Options.AppContentPath = _iniFileObj.Read("AppContentPath", "Paths");
             }
+            if (!_iniFileObj.KeyExists("Images", "OverwriteExistingContent"))
+            {
+                _iniFileObj.Write("Images", "false", "OverwriteExistingContent");
+                Options.OverwriteExistingContentImages = false;
+            }
+            else
+            {
+                Options.OverwriteExistingContentImages = Boolean.Parse(_iniFileObj.Read("Images", "OverwriteExistingContent"));
+            }
             Options.LocalAddress = _iniFileObj.Read("LocAddr", "LocalAddr");
             Options.RemoteAddress = _iniFileObj.Read("RemAddr", "RemoteAddr");
 
@@ -71,6 +80,7 @@ namespace UtilClasses.ProgramOptionsClasses
             _iniFileObj.Write("AppContentPath", opts.AppContentPath, "Paths");
             _iniFileObj.Write("LocAddr", opts.LocalAddress, "LocalAddr");
             _iniFileObj.Write("RemAddr", opts.RemoteAddress, "RemoteAddr");
+            _iniFileObj.Write("Images",opts.OverwriteExistingContentImages.ToString(), "OverwriteExistingContent");
 
         }
 
@@ -94,6 +104,7 @@ namespace UtilClasses.ProgramOptionsClasses
             anotherOptions.LocalAddress = LocalAddress;
             anotherOptions.RemoteAddress = RemoteAddress;
             anotherOptions.AppContentPath = AppContentPath;
+            anotherOptions.OverwriteExistingContentImages = OverwriteExistingContentImages;
         }
 
         public bool IsServer()
@@ -108,8 +119,8 @@ namespace UtilClasses.ProgramOptionsClasses
             {
                 LocalAddress = this.LocalAddress,
                 RemoteAddress = this.RemoteAddress,
-                AppContentPath = this.AppContentPath
-                
+                AppContentPath = this.AppContentPath,
+                OverwriteExistingContentImages = this.OverwriteExistingContentImages
             };
         }
 
@@ -119,6 +130,8 @@ namespace UtilClasses.ProgramOptionsClasses
 
         public string RemoteAddress { get; set; }
         public string AppContentPath { get; set; }
+
+        public bool OverwriteExistingContentImages { get; set; }
     }
 
     public class ProgramOptionsEventArgs : EventArgs

@@ -19,7 +19,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private readonly RestoreInfo _restoreInfo =new ();
 
-        private IApp _appSource;
+        //private IApp _appSource;
         private IApp _appTarget;
 
         private readonly ProgramOptions _programOptions = new();
@@ -92,11 +92,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             try
             {
 
-                IAppIdentifier sourceAppId = _location.GetConnection().AppWithId(_restoreInfo.SourceApp.Id);
+                //IAppIdentifier sourceAppId = _location.GetConnection().AppWithId(_restoreInfo.SourceApp.Id);
                 IAppIdentifier targetAppId = _location.GetConnection().AppWithId(_restoreInfo.TargetApp.Id);
 
 
-                _appSource = _location.GetConnection().App(sourceAppId);
+                //_appSource = _location.GetConnection().App(sourceAppId);
                 
                 _appTarget = _location.GetConnection().App(targetAppId);
             }
@@ -109,6 +109,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
             string searchFileAppInStore = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, mNameSelectedApp, "*.xml");
+
+            string appcontentFolder = Path.GetFileNameWithoutExtension(searchFileAppInStore) + "\\" + "appcontent";
+            
+            string defaultFolder = Path.GetFileNameWithoutExtension(searchFileAppInStore) + "\\" + "default";
 
             var xmlDocument = new XmlDocument();
 
@@ -154,11 +158,14 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                         {
                                             RestoreStoryFromDiskInfo info = new RestoreStoryFromDiskInfo
                                             {
-                                                SourceApp = _appSource,
+                                                SourceApp = null,
                                                 TargetApp = _appTarget,
 
                                                 CurrentAppSource = _restoreInfo.SourceApp.Copy(),
                                                 CurrentAppTarget = _restoreInfo.TargetApp.Copy(),
+
+                                                AppContentFolder = appcontentFolder,
+                                                DefaultFolder = defaultFolder,
                                                
                                                 CurrentStory = searchStory.Copy(),
                                                 StoryFolder = _programOptions.RepositoryPath + "\\" +
@@ -184,6 +191,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             string name = Path.GetFileNameWithoutExtension(_restoreInfo.SourceApp.Name);
             string tryName;
 
+            StaticContentList lys = _appTarget.GetLibraryContent("appcontent");
+
+
             while (true)
             {
                 ik++;
@@ -207,13 +217,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     break;
             }
             
-            //_appSource.DoSave();
+            _appTarget.SaveObjects();
             _appTarget.DoSave();
-            //_appSource.SaveAs(tryName);
-            _appSource.Dispose();
+            
+            
             _appTarget.Dispose();
             
-            _appSource = null;
+            
             _appTarget = null;
 
 
