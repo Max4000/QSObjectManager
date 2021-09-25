@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -227,11 +226,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     if (_programOptions.IsServer())
                     {
-                        if (valueSrcPath.Contains("Qlik_default_green.png"))
-                        {
-                            string st = "1";
-                        }
-                        if (valueSrcPath.Contains("/content/Default")) // в папке default
+                        
+                        if (valueSrcPath.ToLower().Contains("/content/default")) // в папке default
                         {
                             if (!File.Exists(
                                 _programOptions.AppContentPath + "\\Content\\Default\\" + stringPathToImage))
@@ -242,21 +238,21 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                               stringPathToImage;
 
                                 File.Copy(source, dest);
-                                Thread.Sleep(1000);
                             }
 
                             else
                             {
                                 if (_programOptions.OverwriteExistingContentImages)
                                 {
+                                    // ReSharper disable once UnusedVariable
                                     string source = _programOptions.RepositoryPath + "\\" +
                                                     _restoreSlideInfo.DafaultContentFolder + "\\" + stringPathToImage;
+                                    // ReSharper disable once UnusedVariable
                                     string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
                                                   stringPathToImage;
-                                    File.Delete(dest);
+                                    //File.Delete(dest);
 
-                                    File.Copy(source, dest);
-                                    Thread.Sleep(1000);
+                                    //File.Copy(source, dest);
 
                                 }
                             }
@@ -274,7 +270,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                 string dest = _programOptions.AppContentPath + "\\AppContent\\" +
                                               _restoreSlideInfo.CurrentTarget.Id + "\\" + stringPathToImage;
                                 File.Copy(source, dest);
-                                Thread.Sleep(1000);
 
                             }
                             else
@@ -290,7 +285,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                     File.Delete(dest);
 
                                     File.Copy(source, dest);
-                                    Thread.Sleep(1000);
 
                                 }
 

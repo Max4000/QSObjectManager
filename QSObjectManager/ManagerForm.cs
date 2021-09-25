@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
 using UtilClasses.ProgramOptionsClasses;
@@ -104,6 +105,7 @@ namespace QSObjectManager
 
         private void buttonConnectToServer_Click(object sender, EventArgs e)
         {
+            Thread.Sleep(3000);
             try
             {
                 _programOptions.RemoteAddress = textBox4.Text;
@@ -152,9 +154,10 @@ namespace QSObjectManager
                     buttonDisconnectFromServer.Visible = _isConnected;
                     buttonConnectToLocalHub.Visible = false;
                     buttonConnectToServer.Visible = false;
-
+                    
                     ButtonSelectAllHistToWrite.Visible = true;
                     ButtonSelectAllHistToRestore.Visible = true;
+                    
 
                     OnNewConnectionStatusInfo(
                         new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
@@ -260,14 +263,7 @@ namespace QSObjectManager
             ButtonSelectAllHistToWrite.Visible = false;
             groupBoxAppsFromHubOnRestoreTab.Visible = false;
 
-            textBoxIdSource.Visible = false;
-            textBoxIdTarget.Visible = false;
-            labelidSource.Visible = false;
-            labelidTarget.Visible = false;
-
-           
-            checkBoxOverwriteImages.Visible = false;
-            
+            SetVisibleGroup(false);
 
 
         }
@@ -325,14 +321,7 @@ namespace QSObjectManager
 
             ButtonSelectAllHistToWrite.Visible = false;
 
-            textBoxIdSource.Visible = false;
-            textBoxIdTarget.Visible = false;
-            labelidSource.Visible = false;
-            labelidTarget.Visible = false;
-            checkBoxOverwriteImages.Visible = false;
-
-            buttonOpenContentSource.Visible = false;
-            buttonOpenContentTarget.Visible = false;
+            SetVisibleGroup(false);
 
         }
 
@@ -464,25 +453,11 @@ namespace QSObjectManager
                 textBoxIdSource.Text = _lstAppsInStore[listBoxAppsInStoreOnRestoreTab.SelectedIndex].Id;
                 textBoxIdTarget.Text = _lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Id;
 
-                textBoxIdSource.Visible = true;
-                textBoxIdTarget.Visible = true;
-                labelidSource.Visible = true;
-                labelidTarget.Visible = true;
-                buttonOpenContentSource.Visible = true;
-                buttonOpenContentTarget.Visible = true;
-                checkBoxOverwriteImages.Visible = true;
+                SetVisibleGroup(true);
             }
             else
             {
-                textBoxIdSource.Visible = false;
-                textBoxIdTarget.Visible = false;
-                labelidSource.Visible = false;
-                labelidTarget.Visible = false;
-
-                buttonOpenContentSource.Visible = false;
-                buttonOpenContentTarget.Visible = false;
-                checkBoxOverwriteImages.Visible = false;
-
+                SetVisibleGroup(false);
             }
 
             string mNameSelectedApp = Path.GetFileNameWithoutExtension(_lstAppsInStore[listBoxAppsInStoreOnRestoreTab.SelectedIndex].Name);
@@ -530,6 +505,7 @@ namespace QSObjectManager
         {
             try
             {
+                Thread.Sleep(3000);
                 _programOptions.RemoteAddress = textBoxAddrServer.Text;
 
                 OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
@@ -545,6 +521,7 @@ namespace QSObjectManager
                     listBoxAppsFromHubOnRestoreTab.Items.Add(app);
                 }
                 _connectedToRemoteServer = true;
+                UpdateFormOnRestoreTab();
             }
             catch (Exception)
             {
@@ -552,36 +529,44 @@ namespace QSObjectManager
                 _connectedToRemoteServer = false;
                 _locationObject = null;
             }
-            UpdateFormOnRestoreTab();
+            
+        }
+
+
+        private void SetVisibleGroup(bool vis)
+        {
+            textBoxIdSource.Visible = vis;
+            textBoxIdTarget.Visible = vis;
+            labelidSource.Visible = vis;
+            labelidTarget.Visible = vis;
+
+
+            buttonOpenContentSource.Visible = vis;
+            buttonOpenContentTarget.Visible = vis;
+            checkBoxOverwriteImages.Visible = vis;
+            buttonCopyToClipBoard.Visible = vis;
         }
 
         private void UpdateFormOnRestoreTab()
         {
-            if (_locationObject.IsConnected())
+            if (_locationObject != null && _locationObject.IsConnected())
             {
-                
                 SetVisibleElementsOnRestoreTab();
-
                 _isConnected = true;
-
                 buttonDisconnectFromLocalHostOnRestoreTab.Visible = _isConnected;
                 buttonDisconnectFromServerOnRestoreTab.Visible = _isConnected;
                 buttonConnectionToLocalHostOnRestoreTab.Visible = false;
                 buttonConnectToServerOnRestoreTab.Visible = false;
-
                 buttonRestoreHistoryOnRestoreTab.Visible = _isConnected;
                 groupBoxAppsFromHubOnRestoreTab.Visible = _isConnected;
-
+                ButtonSelectAllHistToRestore.Visible = true;
                 
-                
-
                 OnNewConnectionStatusInfo(new ConnectionStatusInfoEventArgs(new ConnectionStatusInfo(_locationObject)));
             }
             else
             {
-
+                SetVisibleGroup(false);
             }
-
         }
 
         private void SetVisibleElementsOnRestoreTab()
@@ -603,18 +588,14 @@ namespace QSObjectManager
         [SuppressMessage("ReSharper", "StringLiteralTypo")]
         private void buttonRestoreHistoryOnRestoreTab_Click(object sender, EventArgs e)
         {
-            if (!(_locationObject != null && listBoxHistorysInStoreOnRestoreTab.SelectedIndices.Count == 1 &&
+            if (!(_locationObject != null && listBoxAppsFromHubOnRestoreTab.SelectedIndices.Count == 1 &&
                   listBoxAppsInStoreOnRestoreTab.SelectedIndices.Count == 1 && listBoxHistorysInStoreOnRestoreTab.SelectedIndices.Count >= 1))
             {
                 ShowMessageForm("Надо выбрать одно приложение цель, одно приложение источник  и не менее одной истории", "Ошибка");
                 return;
             }
 
-            //if (string.CompareOrdinal(textBoxIdSource.Text, textBoxIdTarget.Text) == 0)
-            //{
-            //    ShowMessageForm("Целевое приложение и приложение источник должны отличаться друг от друга", "Ошибка");
-            //    return;
-            //}
+            
 
             if (string.IsNullOrEmpty(_programOptions.AppContentPath))
             {
@@ -642,28 +623,12 @@ namespace QSObjectManager
 
             try
             {
-                //NameAndIdAndLastReloadTime prIdName = null;
+                OnNewRestoreInfo(new RestoreInfoEventArgs(
+                    new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames,
+                        _lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Copy())));
 
-                //foreach (var pair in Utils.GetApps(_locationObject.GetConnection()))
-                //{
-                //    if ((string.CompareOrdinal(pair.Name, _lstAppsInStore[_selectedIndexAppInStore].Name) == 0) &&
-                //        (string.CompareOrdinal(pair.LastReloadTime, _lstAppsInStore[_selectedIndexAppInStore].LastReloadTime)==0))
-                //    {
-                //        prIdName = pair.Copy();
-                //        break;
-                //    }
-
-                //}
-
-
-
-                if (true)
-                {
-                    OnNewRestoreInfo(new RestoreInfoEventArgs(
-                        new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames,_lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Copy())));
-
-                    ShowMessageForm("Выбранные истории восстановлены", "");
-                }
+                ShowMessageForm("Выбранные истории восстановлены", "");
+               
             }
             catch (Exception ex)
             {
@@ -721,36 +686,21 @@ namespace QSObjectManager
 
         private void listBoxAppsFromHubOnRestoreTab_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if ((listBoxAppsFromHubOnRestoreTab.SelectedIndices.Count == 1) &&
-                (listBoxAppsInStoreOnRestoreTab.SelectedIndices.Count == 1))
-            {
-                textBoxIdSource.Text = _lstAppsInStore[listBoxAppsInStoreOnRestoreTab.SelectedIndex].Id;
-                textBoxIdTarget.Text = _lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Id;
+           
+                if ((listBoxAppsFromHubOnRestoreTab.SelectedIndices.Count == 1) &&
+                    (listBoxAppsInStoreOnRestoreTab.SelectedIndices.Count == 1))
+                {
+                    textBoxIdSource.Text = _lstAppsInStore[listBoxAppsInStoreOnRestoreTab.SelectedIndex].Id;
+                    textBoxIdTarget.Text = _lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Id;
 
-                textBoxIdSource.Visible = true;
-                textBoxIdTarget.Visible = true;
-                labelidSource.Visible = true;
-                labelidTarget.Visible = true;
-                buttonOpenContentSource.Visible = checkBox1.Checked;
-                buttonOpenContentTarget.Visible = checkBox1.Checked;
+                    SetVisibleGroup(true);
+                }
+                else
+                {
+                    SetVisibleGroup(false);
 
-                buttonOpenContentSource.Visible = true;
-                buttonOpenContentTarget.Visible = true;
-                checkBoxOverwriteImages.Visible = true;
-            }
-            else
-            {
-                textBoxIdSource.Visible = false;
-                textBoxIdTarget.Visible = false;
-                labelidSource.Visible = false;
-                labelidTarget.Visible = false;
-
-                buttonOpenContentSource.Visible = false;
-                buttonOpenContentTarget.Visible = false;
-                checkBoxOverwriteImages.Visible = false;
-
-            }
-
+                }
+            
         }
 
         private void buttonOpenContentTarget_Click(object sender, EventArgs e)
@@ -768,16 +718,17 @@ namespace QSObjectManager
            
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void checkBoxOverwriteImages_CheckedChanged(object sender, EventArgs e)
         {
             _programOptions.OverwriteExistingContentImages = checkBoxOverwriteImages.Checked;
 
             OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(_programOptions.AppContentPath + "\\AppContent\\" + textBoxIdTarget.Text);
+            ShowMessageForm("Раположение папки контента приложения цели скопировано в буффе обмена!","Сообщение");
         }
     }
 }

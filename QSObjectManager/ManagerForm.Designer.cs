@@ -43,8 +43,9 @@ namespace QSObjectManager
             this.buttonHistoryPath = new System.Windows.Forms.Button();
             this.textBoxHistoryPath = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.tabPageRestore = new System.Windows.Forms.TabPage();
+            this.buttonCopyToClipBoard = new System.Windows.Forms.Button();
+            this.checkBoxOverwriteImages = new System.Windows.Forms.CheckBox();
             this.buttonOpenContentSource = new System.Windows.Forms.Button();
             this.buttonOpenContentTarget = new System.Windows.Forms.Button();
             this.labelidSource = new System.Windows.Forms.Label();
@@ -91,7 +92,6 @@ namespace QSObjectManager
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.buttonDisconnectFromLoacalHub = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.checkBoxOverwriteImages = new System.Windows.Forms.CheckBox();
             this.menuStrip1.SuspendLayout();
             this.tabPageAppConfiguration.SuspendLayout();
             this.groupBoxOptionsPaths.SuspendLayout();
@@ -162,7 +162,7 @@ namespace QSObjectManager
             this.tabPageAppConfiguration.Location = new System.Drawing.Point(4, 24);
             this.tabPageAppConfiguration.Name = "tabPageAppConfiguration";
             this.tabPageAppConfiguration.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageAppConfiguration.Size = new System.Drawing.Size(991, 473);
+            this.tabPageAppConfiguration.Size = new System.Drawing.Size(991, 499);
             this.tabPageAppConfiguration.TabIndex = 2;
             this.tabPageAppConfiguration.Text = "Настройки";
             this.tabPageAppConfiguration.UseVisualStyleBackColor = true;
@@ -235,23 +235,13 @@ namespace QSObjectManager
             this.label2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label2.Location = new System.Drawing.Point(6, 37);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(275, 15);
+            this.label2.Size = new System.Drawing.Size(281, 15);
             this.label2.TabIndex = 0;
-            this.label2.Text = "Папка для сохранения ползовательских историй";
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.checkBox1.Location = new System.Drawing.Point(4, 531);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(12, 11);
-            this.checkBox1.TabIndex = 1;
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.label2.Text = "Папка для сохранения пользовательских историй";
             // 
             // tabPageRestore
             // 
+            this.tabPageRestore.Controls.Add(this.buttonCopyToClipBoard);
             this.tabPageRestore.Controls.Add(this.checkBoxOverwriteImages);
             this.tabPageRestore.Controls.Add(this.buttonOpenContentSource);
             this.tabPageRestore.Controls.Add(this.buttonOpenContentTarget);
@@ -277,11 +267,32 @@ namespace QSObjectManager
             this.tabPageRestore.Enter += new System.EventHandler(this.tabPageRestore_Enter);
             this.tabPageRestore.Leave += new System.EventHandler(this.tabPageRestore_Leave);
             // 
+            // buttonCopyToClipBoard
+            // 
+            this.buttonCopyToClipBoard.Location = new System.Drawing.Point(439, 365);
+            this.buttonCopyToClipBoard.Name = "buttonCopyToClipBoard";
+            this.buttonCopyToClipBoard.Size = new System.Drawing.Size(164, 65);
+            this.buttonCopyToClipBoard.TabIndex = 18;
+            this.buttonCopyToClipBoard.Text = "Расположение папки контента  приложения цели в буффер обмена";
+            this.buttonCopyToClipBoard.UseVisualStyleBackColor = true;
+            this.buttonCopyToClipBoard.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // checkBoxOverwriteImages
+            // 
+            this.checkBoxOverwriteImages.AutoSize = true;
+            this.checkBoxOverwriteImages.Location = new System.Drawing.Point(106, 435);
+            this.checkBoxOverwriteImages.Name = "checkBoxOverwriteImages";
+            this.checkBoxOverwriteImages.Size = new System.Drawing.Size(283, 19);
+            this.checkBoxOverwriteImages.TabIndex = 17;
+            this.checkBoxOverwriteImages.Text = "Перезаписывать существующие изображения";
+            this.checkBoxOverwriteImages.UseVisualStyleBackColor = true;
+            this.checkBoxOverwriteImages.CheckedChanged += new System.EventHandler(this.checkBoxOverwriteImages_CheckedChanged);
+            // 
             // buttonOpenContentSource
             // 
-            this.buttonOpenContentSource.Location = new System.Drawing.Point(411, 394);
+            this.buttonOpenContentSource.Location = new System.Drawing.Point(372, 394);
             this.buttonOpenContentSource.Name = "buttonOpenContentSource";
-            this.buttonOpenContentSource.Size = new System.Drawing.Size(97, 23);
+            this.buttonOpenContentSource.Size = new System.Drawing.Size(61, 23);
             this.buttonOpenContentSource.TabIndex = 16;
             this.buttonOpenContentSource.Text = "Контент";
             this.buttonOpenContentSource.UseVisualStyleBackColor = true;
@@ -289,9 +300,9 @@ namespace QSObjectManager
             // 
             // buttonOpenContentTarget
             // 
-            this.buttonOpenContentTarget.Location = new System.Drawing.Point(411, 365);
+            this.buttonOpenContentTarget.Location = new System.Drawing.Point(372, 365);
             this.buttonOpenContentTarget.Name = "buttonOpenContentTarget";
-            this.buttonOpenContentTarget.Size = new System.Drawing.Size(97, 23);
+            this.buttonOpenContentTarget.Size = new System.Drawing.Size(61, 23);
             this.buttonOpenContentTarget.TabIndex = 15;
             this.buttonOpenContentTarget.Text = "Контент";
             this.buttonOpenContentTarget.UseVisualStyleBackColor = true;
@@ -320,7 +331,7 @@ namespace QSObjectManager
             this.textBoxIdSource.Enabled = false;
             this.textBoxIdSource.Location = new System.Drawing.Point(106, 394);
             this.textBoxIdSource.Name = "textBoxIdSource";
-            this.textBoxIdSource.Size = new System.Drawing.Size(299, 23);
+            this.textBoxIdSource.Size = new System.Drawing.Size(252, 23);
             this.textBoxIdSource.TabIndex = 12;
             // 
             // textBoxIdTarget
@@ -328,7 +339,7 @@ namespace QSObjectManager
             this.textBoxIdTarget.Enabled = false;
             this.textBoxIdTarget.Location = new System.Drawing.Point(106, 365);
             this.textBoxIdTarget.Name = "textBoxIdTarget";
-            this.textBoxIdTarget.Size = new System.Drawing.Size(299, 23);
+            this.textBoxIdTarget.Size = new System.Drawing.Size(252, 23);
             this.textBoxIdTarget.TabIndex = 11;
             // 
             // groupBoxAppsFromHubOnRestoreTab
@@ -354,9 +365,9 @@ namespace QSObjectManager
             // 
             // ButtonSelectAllHistToRestore
             // 
-            this.ButtonSelectAllHistToRestore.Location = new System.Drawing.Point(514, 365);
+            this.ButtonSelectAllHistToRestore.Location = new System.Drawing.Point(609, 365);
             this.ButtonSelectAllHistToRestore.Name = "ButtonSelectAllHistToRestore";
-            this.ButtonSelectAllHistToRestore.Size = new System.Drawing.Size(148, 65);
+            this.ButtonSelectAllHistToRestore.Size = new System.Drawing.Size(86, 65);
             this.ButtonSelectAllHistToRestore.TabIndex = 9;
             this.ButtonSelectAllHistToRestore.Text = "Выделить все истории";
             this.ButtonSelectAllHistToRestore.UseVisualStyleBackColor = true;
@@ -546,7 +557,7 @@ namespace QSObjectManager
             this.tabPageSave.Location = new System.Drawing.Point(4, 24);
             this.tabPageSave.Name = "tabPageSave";
             this.tabPageSave.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSave.Size = new System.Drawing.Size(991, 473);
+            this.tabPageSave.Size = new System.Drawing.Size(991, 499);
             this.tabPageSave.TabIndex = 0;
             this.tabPageSave.Text = "Сохранение";
             this.tabPageSave.UseVisualStyleBackColor = true;
@@ -576,7 +587,7 @@ namespace QSObjectManager
             // groupBoxActionsForImportToLocalStore
             // 
             this.groupBoxActionsForImportToLocalStore.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBoxActionsForImportToLocalStore.Location = new System.Drawing.Point(3, 433);
+            this.groupBoxActionsForImportToLocalStore.Location = new System.Drawing.Point(3, 459);
             this.groupBoxActionsForImportToLocalStore.Name = "groupBoxActionsForImportToLocalStore";
             this.groupBoxActionsForImportToLocalStore.Size = new System.Drawing.Size(985, 37);
             this.groupBoxActionsForImportToLocalStore.TabIndex = 4;
@@ -748,24 +759,12 @@ namespace QSObjectManager
             this.tabControl1.Size = new System.Drawing.Size(999, 527);
             this.tabControl1.TabIndex = 3;
             // 
-            // checkBoxOverwriteImages
-            // 
-            this.checkBoxOverwriteImages.AutoSize = true;
-            this.checkBoxOverwriteImages.Location = new System.Drawing.Point(106, 435);
-            this.checkBoxOverwriteImages.Name = "checkBoxOverwriteImages";
-            this.checkBoxOverwriteImages.Size = new System.Drawing.Size(283, 19);
-            this.checkBoxOverwriteImages.TabIndex = 17;
-            this.checkBoxOverwriteImages.Text = "Перезаписывать существующие изображения";
-            this.checkBoxOverwriteImages.UseVisualStyleBackColor = true;
-            this.checkBoxOverwriteImages.CheckedChanged += new System.EventHandler(this.checkBoxOverwriteImages_CheckedChanged);
-            // 
             // ManagerForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(999, 573);
-            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
@@ -869,8 +868,8 @@ namespace QSObjectManager
         private System.Windows.Forms.TextBox textBoxIdSource;
         private System.Windows.Forms.Button buttonOpenContentSource;
         private System.Windows.Forms.Button buttonOpenContentTarget;
-        private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.CheckBox checkBoxOverwriteImages;
+        private System.Windows.Forms.Button buttonCopyToClipBoard;
     }
 }
 

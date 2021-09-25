@@ -242,7 +242,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private void  CopyImageToRepAppContentFolder(ISlideItem item)
         {
-            if (item.Layout.SrcPath.StaticContentUrl.Url.Contains("appcontent"))
+            if (item.Layout.SrcPath.StaticContentUrl.Url.ToLower().Contains("/appcontent/"))
             {
                 string file = Utils.GetNameImage(item.Layout.SrcPath.StaticContentUrl.Url);
 
@@ -254,7 +254,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     File.Copy(source,destination);
             }
 
-            if (item.Layout.SrcPath.StaticContentUrl.Url.Contains("default"))
+            if (item.Layout.SrcPath.StaticContentUrl.Url.ToLower().Contains("/content/default/"))
             {
                 string file = Utils.GetNameImage(item.Layout.SrcPath.StaticContentUrl.Url);
 
@@ -262,7 +262,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 string destination = _itemInfo.DefaultContnetFolder + "\\" + file;
 
-                File.Copy(source, destination);
+
+                if (!File.Exists(destination))
+                    File.Copy(source, destination);
             }
 
 
