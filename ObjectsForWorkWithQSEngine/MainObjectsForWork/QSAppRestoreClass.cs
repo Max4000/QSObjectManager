@@ -191,7 +191,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             string name = Path.GetFileNameWithoutExtension(_restoreInfo.SourceApp.Name);
             string tryName;
 
-            StaticContentList lys = _appTarget.GetLibraryContent("appcontent");
+            //StaticContentList lys = _appTarget.GetLibraryContent("appcontent");
 
 
             while (true)
@@ -217,7 +217,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     break;
             }
             
-            _appTarget.SaveObjects();
+            
             _appTarget.DoSave();
             
             
