@@ -1,5 +1,7 @@
 ﻿using Qlik.Engine;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Xml;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
@@ -210,6 +212,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public string StoryFolder;
         
+        public IList<string> AddContentList;
+        public string FolderNameWithAddContent;
+        
 
         public void Copy(RestoreStoryFromDiskInfo anotherInfo)
         {
@@ -221,6 +226,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             anotherInfo.CurrentAppTarget = CurrentAppTarget.Copy();
             anotherInfo.CurrentStory = CurrentStory.Copy();
             anotherInfo.StoryFolder = StoryFolder;
+            anotherInfo.AddContentList = AddContentList;
+            anotherInfo.FolderNameWithAddContent = FolderNameWithAddContent;
         }
 
     }

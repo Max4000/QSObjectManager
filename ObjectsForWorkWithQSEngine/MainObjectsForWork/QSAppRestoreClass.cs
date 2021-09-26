@@ -9,7 +9,7 @@ using UtilClasses.ServiceClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsAppRestoreClass :   IRestoreInfoEvent, IRestoreStoryFromDisk,IProgramOptionsEvent
+    public class QsAppRestoreClass :   IRestoreInfoEvent, IRestoreStoryFromDisk,IProgramOptionsEvent , IResultDigest
     {
         //private string RepositoryPath { get; set; }
 
@@ -28,11 +28,18 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public event RestoreInfoHandler NewRestoreInfoSend;
         public event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
         public event ProgramOptionsHandler NewProgramOptionsSend;
+        public event ResultDigestInfoHandler NewResultDigestInfoSend;
 
         private void OnNewProgramOptions(ProgramOptionsEventArgs e)
         {
             if (NewProgramOptionsSend != null)
                 NewProgramOptionsSend(this, e);
+        }
+
+        private void OnNewResultDigestInfo(ResultDigestInfoEventArgs e)
+        {
+            if (NewResultDigestInfoSend != null)
+                NewResultDigestInfoSend(this, e);
         }
 
         public  IList<NameAndIdAndLastReloadTime> GetAppsFromStore()
@@ -81,13 +88,45 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             DoRestore();
         }
 
+        private string CreateOrEmptyFolderForAddContent()
+        {
+            string user = UtilClasses.CurrentUser.GetExplorerUser();
+
+            int pos = user.LastIndexOf("\\", StringComparison.Ordinal);
+
+            string folderForAddContent = "C:\\Users\\" + user.Substring(pos + 1) +
+                                         "\\Desktop\\ПАПКА_С_НОВЫМ_КОНТЕНТОМ_ДЛЯ_" + _restoreInfo.TargetApp.Name;
+            if (Directory.Exists(folderForAddContent))
+            {
+                foreach (var file in Directory.GetFiles(folderForAddContent))
+                {
+                    File.Delete(file);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(folderForAddContent);
+            }
+
+            return folderForAddContent;
+
+        }
+
         private void DoRestore()
         {
+
+
             if (_location == null)
                 return;
 
             if (!Directory.Exists(_programOptions.RepositoryPath))
                 return;
+
+            string user = UtilClasses.CurrentUser.GetExplorerUser();
+
+            int pos = user.LastIndexOf("\\", StringComparison.Ordinal);
+
+            
 
             try
             {
