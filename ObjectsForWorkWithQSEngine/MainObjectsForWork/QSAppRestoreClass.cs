@@ -24,6 +24,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private readonly ProgramOptions _programOptions = new();
 
+        private string _folderForAddContent;
+
         
         public event RestoreInfoHandler NewRestoreInfoSend;
         public event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
@@ -102,11 +104,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 {
                     File.Delete(file);
                 }
+                Directory.Delete(folderForAddContent);
             }
-            else
-            {
-                Directory.CreateDirectory(folderForAddContent);
-            }
+
+            Directory.CreateDirectory(folderForAddContent);
+            
 
             return folderForAddContent;
 
@@ -122,10 +124,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             if (!Directory.Exists(_programOptions.RepositoryPath))
                 return;
 
-            string user = UtilClasses.CurrentUser.GetExplorerUser();
 
-            int pos = user.LastIndexOf("\\", StringComparison.Ordinal);
-
+            _folderForAddContent = CreateOrEmptyFolderForAddContent();
             
 
             try
@@ -209,7 +209,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                                 CurrentStory = searchStory.Copy(),
                                                 StoryFolder = _programOptions.RepositoryPath + "\\" +
                                                               Path.GetFileNameWithoutExtension(searchFileAppInStore) +
-                                                              "\\stories\\" + searchStory.Id
+                                                              "\\stories\\" + searchStory.Id,
+                                                FolderNameWithAddContent = _folderForAddContent,
+                                                AddContentList = new List<string>()
                                             };
 
                                             RestoreStoryFromDiskEventArgs args = new RestoreStoryFromDiskEventArgs(info);
