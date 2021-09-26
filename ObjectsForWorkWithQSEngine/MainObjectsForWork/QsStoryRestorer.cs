@@ -1,6 +1,5 @@
 ﻿using Qlik.Engine;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using Microsoft.VisualBasic;
@@ -138,7 +137,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                         DafaultContentFolder = _restoreStoryFromDiskInfo.DefaultFolder,
                                         
                                         TargetApp = _restoreStoryFromDiskInfo.TargetApp,
-                                        SourceApp = _restoreStoryFromDiskInfo.SourceApp
+                                        SourceApp = _restoreStoryFromDiskInfo.SourceApp,
+                                        FolderForAddContent = _restoreStoryFromDiskInfo.FolderNameWithAddContent,
+                                        AddListContent = _restoreStoryFromDiskInfo.AddContentList
                                     };
 
                                     OnNewRestoreSlideInfoFromDisk(new RestoreSlideInfoEventArgs(restInfo));

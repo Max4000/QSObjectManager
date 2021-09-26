@@ -311,6 +311,8 @@ namespace QSObjectManager
             checkBoxOverwriteImages.Checked = _programOptions.OverwriteExistingContentImages;
 
             _qsAppRestoreObject = new QsAppRestoreClass(this,this,this,this);
+
+            _qsAppRestoreObject.NewResultDigestInfoSend += ResultDigestRestoreInfoHandler;
             
             QsAppWriter = new QsAppWriterClass(this, this,this);
 
@@ -323,6 +325,81 @@ namespace QSObjectManager
 
             SetVisibleGroup(false);
 
+        }
+
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
+        private void ResultDigestRestoreInfoHandler(object sender, ResultDigestInfoEventArgs e)
+        {
+            bool HaveDefault()
+            {
+                foreach (var item in e.ResultInfo.AddContentList)
+                {
+                    if (item.Contains("default\\"))
+                        return true;
+                }
+
+                return false;
+            }
+
+            bool HaveAppcontent()
+            {
+                int count = 0;
+                foreach (var item in e.ResultInfo.AddContentList)
+                {
+                    if (!item.Contains("default\\"))
+                        count ++;
+                }
+
+                return count > 0;
+            }
+
+
+            if (e.ResultInfo.AddContentList.Count > 0)
+            {
+                string result = "При восстановлении обнаружен добавленный контент:\n\n";
+
+                if (HaveDefault())
+                {
+                    result += "В папке Content\\Default:\n\n";
+                    foreach (var item in e.ResultInfo.AddContentList)
+                    {
+                        if (item.Contains("default\\"))
+                        {
+                            int pos2 = item.LastIndexOf("\\", StringComparison.Ordinal);
+
+                            result += item.Substring(pos2 + 1) + " уже скопирован" + ",\n";
+                        }
+                    }
+                }
+
+                if (HaveAppcontent())
+                {
+                    result += "\n";
+
+                    result += "В папке AppContent:\n\n";
+
+                    foreach (var item in e.ResultInfo.AddContentList)
+                    {
+                        if (!item.Contains("default\\"))
+                        {
+                            result += item + ",\n";
+                        }
+                    }
+
+
+                    result += "\n\n";
+
+                    result += "Не забудьте загрузить его из папки на рабочем столе\n\n";
+
+                    int pos = e.ResultInfo.FolderWithAddContent.LastIndexOf("\\", StringComparison.Ordinal);
+
+                    result += "Наименование папки: \n\n" + e.ResultInfo.FolderWithAddContent.Substring(pos + 1);
+
+                    
+                }
+                ShowMessageForm(result, "Инфо");
+            }
+        
         }
 
         private void buttonHistoryPath_Click(object sender, EventArgs e)

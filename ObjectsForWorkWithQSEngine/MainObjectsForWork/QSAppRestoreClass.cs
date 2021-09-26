@@ -26,7 +26,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private string _folderForAddContent;
 
-        
+        private IList<string> _listAddcontent;
+
+
         public event RestoreInfoHandler NewRestoreInfoSend;
         public event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
         public event ProgramOptionsHandler NewProgramOptionsSend;
@@ -100,6 +102,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                          "\\Desktop\\ПАПКА_С_НОВЫМ_КОНТЕНТОМ_ДЛЯ_" + _restoreInfo.TargetApp.Name;
             if (Directory.Exists(folderForAddContent))
             {
+                if (Directory.Exists(folderForAddContent + "\\default"))
+                {
+                    foreach (var file in Directory.GetFiles(folderForAddContent + "\\default"))
+                    {
+                        File.Delete(file);
+                    }
+                    Directory.Delete(folderForAddContent + "\\default");
+                }
+
                 foreach (var file in Directory.GetFiles(folderForAddContent))
                 {
                     File.Delete(file);
@@ -126,6 +137,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
             _folderForAddContent = CreateOrEmptyFolderForAddContent();
+            _listAddcontent = new List<string>();
             
 
             try
@@ -211,7 +223,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                                               Path.GetFileNameWithoutExtension(searchFileAppInStore) +
                                                               "\\stories\\" + searchStory.Id,
                                                 FolderNameWithAddContent = _folderForAddContent,
-                                                AddContentList = new List<string>()
+                                                AddContentList = _listAddcontent
                                             };
 
                                             RestoreStoryFromDiskEventArgs args = new RestoreStoryFromDiskEventArgs(info);
@@ -266,6 +278,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             
             
             _appTarget = null;
+           
+            OnNewResultDigestInfo(new ResultDigestInfoEventArgs(new ResultDigestInfo()
+            {
+                AddContentList = _listAddcontent,
+                FolderWithAddContent = _folderForAddContent
+            }));
 
 
 

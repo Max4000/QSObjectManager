@@ -234,10 +234,27 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             {
                                 string source = _programOptions.RepositoryPath + "\\" +
                                                 _restoreSlideInfo.DafaultContentFolder + "\\" + stringPathToImage;
-                                string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
+                                
+                                //string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
+                                //              stringPathToImage;
+
+                                string dest = _restoreSlideInfo.FolderForAddContent + "\\" + "default" + "\\" +
                                               stringPathToImage;
 
-                                File.Copy(source, dest);
+                                if (!Directory.Exists(_restoreSlideInfo.FolderForAddContent + "\\default"))
+                                    Directory.CreateDirectory(_restoreSlideInfo.FolderForAddContent + "\\default");
+
+                                if (!File.Exists(dest))
+                                {
+                                    _restoreSlideInfo.AddListContent.Add("default\\"+stringPathToImage);
+                                    File.Copy(source, dest);
+                                }
+                                
+                                dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
+                                              stringPathToImage;
+                                
+                                File.Copy(source,dest);
+
                             }
 
                             else
@@ -250,9 +267,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                     // ReSharper disable once UnusedVariable
                                     string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
                                                   stringPathToImage;
-                                    //File.Delete(dest);
+                                    File.Delete(dest);
 
-                                    //File.Copy(source, dest);
+                                    File.Copy(source, dest);
 
                                 }
                             }
@@ -267,9 +284,17 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                 string source = _programOptions.RepositoryPath + "\\" +
                                                 _restoreSlideInfo.AppContentFolder + "\\" + stringPathToImage;
 
-                                string dest = _programOptions.AppContentPath + "\\AppContent\\" +
-                                              _restoreSlideInfo.CurrentTarget.Id + "\\" + stringPathToImage;
-                                File.Copy(source, dest);
+                                //string dest = _programOptions.AppContentPath + "\\AppContent\\" +
+                                //              _restoreSlideInfo.CurrentTarget.Id + "\\" + stringPathToImage;
+
+                                string dest = _restoreSlideInfo.FolderForAddContent + "\\" + stringPathToImage;
+
+                                if (!File.Exists(dest))
+                                {
+                                    _restoreSlideInfo.AddListContent.Add(stringPathToImage);
+                                    
+                                    File.Copy(source, dest);
+                                }
 
                             }
                             else
@@ -768,6 +793,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         public NameAndIdAndLastReloadTime CurrentSource;
         public NameAndIdAndLastReloadTime CurrentTarget;
 
+        public string FolderForAddContent;
+        public IList<string> AddListContent;
+
         public void Copy(RestoreSlideInfo anotherInfo)
         {
             anotherInfo.TargetApp = TargetApp;
@@ -779,6 +807,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             anotherInfo.Story = Story;
             anotherInfo.FullPathToSlideFolder = FullPathToSlideFolder;
             anotherInfo.SlideFolder = SlideFolder;
+            anotherInfo.FolderForAddContent = FolderForAddContent;
+            anotherInfo.AddListContent = AddListContent;
         }
     }
 
