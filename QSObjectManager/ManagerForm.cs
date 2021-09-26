@@ -316,6 +316,9 @@ namespace QSObjectManager
             
             QsAppWriter = new QsAppWriterClass(this, this,this);
 
+            checkBoxOverwriteImages.Checked = false;
+            _programOptions.OverwriteExistingContentImages = false;
+
             OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
 
 
@@ -324,6 +327,16 @@ namespace QSObjectManager
             ButtonSelectAllHistToWrite.Visible = false;
 
             SetVisibleGroup(false);
+
+            if (UtilClasses.CurrentRole.IsAdministrator())
+            {
+                // ReSharper disable once StringLiteralTypo
+                this.Text += @" (Администратор)";
+            }
+
+            checkBoxOverwriteImages.Enabled = UtilClasses.CurrentRole.IsAdministrator();
+            buttonOpenContentSource.Enabled = UtilClasses.CurrentRole.IsAdministrator();
+            buttonOpenContentTarget.Enabled = UtilClasses.CurrentRole.IsAdministrator();
 
         }
 
@@ -389,7 +402,7 @@ namespace QSObjectManager
 
                     result += "\n\n";
 
-                    result += "Не забудьте загрузить его из папки на рабочем столе\n\n";
+                    result += "Необходимо загрузить его из папки на рабочем столе\n\n";
 
                     int pos = e.ResultInfo.FolderWithAddContent.LastIndexOf("\\", StringComparison.Ordinal);
 
@@ -398,6 +411,11 @@ namespace QSObjectManager
                     
                 }
                 ShowMessageForm(result, "Инфо");
+            }
+            else
+            {
+                Directory.Delete(e.ResultInfo.FolderWithAddContent);
+                ShowMessageForm("Выбранные истории восстановлены ","Инфо");
             }
         
         }
@@ -498,6 +516,9 @@ namespace QSObjectManager
 
         private void listBoxAppsInStore_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!(listBoxAppsInStoreOnRestoreTab.SelectedIndex >= 0))
+                return;
+
             if (listBoxAppsInStoreOnRestoreTab.SelectedIndices.Count > 1)
             {
                 ShowMessageForm("Есть возможность выбора не более одного приложения","Ошибка");
@@ -621,7 +642,7 @@ namespace QSObjectManager
             buttonOpenContentSource.Visible = vis;
             buttonOpenContentTarget.Visible = vis;
             checkBoxOverwriteImages.Visible = vis;
-            buttonCopyToClipBoard.Visible = vis;
+            //buttonCopyToClipBoard.Visible = vis;
         }
 
         private void UpdateFormOnRestoreTab()
@@ -704,7 +725,7 @@ namespace QSObjectManager
                     new RestoreInfo(_lstAppsInStore[_selectedIndexAppInStore].Copy(), listStoryNames,
                         _lstAppsFromHubOnRestoreTab[listBoxAppsFromHubOnRestoreTab.SelectedIndex].Copy())));
 
-                ShowMessageForm("Выбранные истории восстановлены", "");
+                //ShowMessageForm("Выбранные истории восстановлены", "");
                
             }
             catch (Exception ex)
@@ -800,12 +821,6 @@ namespace QSObjectManager
             _programOptions.OverwriteExistingContentImages = checkBoxOverwriteImages.Checked;
 
             OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            Clipboard.SetText(_programOptions.AppContentPath + "\\AppContent\\" + textBoxIdTarget.Text);
-            ShowMessageForm("Раположение папки контента приложения цели скопировано в буффе обмена!","Сообщение");
         }
     }
 }

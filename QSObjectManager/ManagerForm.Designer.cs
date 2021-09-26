@@ -44,7 +44,6 @@ namespace QSObjectManager
             this.textBoxHistoryPath = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.tabPageRestore = new System.Windows.Forms.TabPage();
-            this.buttonCopyToClipBoard = new System.Windows.Forms.Button();
             this.checkBoxOverwriteImages = new System.Windows.Forms.CheckBox();
             this.buttonOpenContentSource = new System.Windows.Forms.Button();
             this.buttonOpenContentTarget = new System.Windows.Forms.Button();
@@ -241,7 +240,6 @@ namespace QSObjectManager
             // 
             // tabPageRestore
             // 
-            this.tabPageRestore.Controls.Add(this.buttonCopyToClipBoard);
             this.tabPageRestore.Controls.Add(this.checkBoxOverwriteImages);
             this.tabPageRestore.Controls.Add(this.buttonOpenContentSource);
             this.tabPageRestore.Controls.Add(this.buttonOpenContentTarget);
@@ -267,16 +265,6 @@ namespace QSObjectManager
             this.tabPageRestore.Enter += new System.EventHandler(this.tabPageRestore_Enter);
             this.tabPageRestore.Leave += new System.EventHandler(this.tabPageRestore_Leave);
             // 
-            // buttonCopyToClipBoard
-            // 
-            this.buttonCopyToClipBoard.Location = new System.Drawing.Point(439, 365);
-            this.buttonCopyToClipBoard.Name = "buttonCopyToClipBoard";
-            this.buttonCopyToClipBoard.Size = new System.Drawing.Size(164, 65);
-            this.buttonCopyToClipBoard.TabIndex = 18;
-            this.buttonCopyToClipBoard.Text = "Расположение папки контента  приложения цели в буффер обмена";
-            this.buttonCopyToClipBoard.UseVisualStyleBackColor = true;
-            this.buttonCopyToClipBoard.Click += new System.EventHandler(this.button2_Click);
-            // 
             // checkBoxOverwriteImages
             // 
             this.checkBoxOverwriteImages.AutoSize = true;
@@ -290,7 +278,8 @@ namespace QSObjectManager
             // 
             // buttonOpenContentSource
             // 
-            this.buttonOpenContentSource.Location = new System.Drawing.Point(372, 394);
+            this.buttonOpenContentSource.Enabled = false;
+            this.buttonOpenContentSource.Location = new System.Drawing.Point(530, 394);
             this.buttonOpenContentSource.Name = "buttonOpenContentSource";
             this.buttonOpenContentSource.Size = new System.Drawing.Size(61, 23);
             this.buttonOpenContentSource.TabIndex = 16;
@@ -300,7 +289,8 @@ namespace QSObjectManager
             // 
             // buttonOpenContentTarget
             // 
-            this.buttonOpenContentTarget.Location = new System.Drawing.Point(372, 365);
+            this.buttonOpenContentTarget.Enabled = false;
+            this.buttonOpenContentTarget.Location = new System.Drawing.Point(530, 365);
             this.buttonOpenContentTarget.Name = "buttonOpenContentTarget";
             this.buttonOpenContentTarget.Size = new System.Drawing.Size(61, 23);
             this.buttonOpenContentTarget.TabIndex = 15;
@@ -331,7 +321,7 @@ namespace QSObjectManager
             this.textBoxIdSource.Enabled = false;
             this.textBoxIdSource.Location = new System.Drawing.Point(106, 394);
             this.textBoxIdSource.Name = "textBoxIdSource";
-            this.textBoxIdSource.Size = new System.Drawing.Size(252, 23);
+            this.textBoxIdSource.Size = new System.Drawing.Size(406, 23);
             this.textBoxIdSource.TabIndex = 12;
             // 
             // textBoxIdTarget
@@ -339,7 +329,7 @@ namespace QSObjectManager
             this.textBoxIdTarget.Enabled = false;
             this.textBoxIdTarget.Location = new System.Drawing.Point(106, 365);
             this.textBoxIdTarget.Name = "textBoxIdTarget";
-            this.textBoxIdTarget.Size = new System.Drawing.Size(252, 23);
+            this.textBoxIdTarget.Size = new System.Drawing.Size(406, 23);
             this.textBoxIdTarget.TabIndex = 11;
             // 
             // groupBoxAppsFromHubOnRestoreTab
@@ -869,7 +859,6 @@ namespace QSObjectManager
         private System.Windows.Forms.Button buttonOpenContentSource;
         private System.Windows.Forms.Button buttonOpenContentTarget;
         private System.Windows.Forms.CheckBox checkBoxOverwriteImages;
-        private System.Windows.Forms.Button buttonCopyToClipBoard;
     }
 }
 
