@@ -332,11 +332,18 @@ namespace QSObjectManager
             {
                 // ReSharper disable once StringLiteralTypo
                 this.Text += @" (Администратор)";
+                checkBoxOverwriteImages.Enabled = true;
+                buttonOpenContentSource.Enabled = true;
+                buttonOpenContentTarget.Enabled = true;
+            }
+            else
+            {
+                checkBoxOverwriteImages.Enabled = false;
+                buttonOpenContentSource.Enabled = false;
+                buttonOpenContentTarget.Enabled = false;
             }
 
-            checkBoxOverwriteImages.Enabled = UtilClasses.CurrentRole.IsAdministrator();
-            buttonOpenContentSource.Enabled = UtilClasses.CurrentRole.IsAdministrator();
-            buttonOpenContentTarget.Enabled = UtilClasses.CurrentRole.IsAdministrator();
+            
 
         }
 
@@ -374,6 +381,7 @@ namespace QSObjectManager
                 if (HaveDefault())
                 {
                     result += "В папке Content\\Default:\n\n";
+                    //result += "\n\n";
                     foreach (var item in e.ResultInfo.AddContentList)
                     {
                         if (item.Contains("default\\"))
@@ -387,9 +395,9 @@ namespace QSObjectManager
 
                 if (HaveAppcontent())
                 {
-                    result += "\n";
+                    result += "\n\n";
 
-                    result += "В папке AppContent:\n\n";
+                    //result += "В папке AppContent:\n\n";
 
                     foreach (var item in e.ResultInfo.AddContentList)
                     {
@@ -402,13 +410,14 @@ namespace QSObjectManager
 
                     result += "\n\n";
 
-                    result += "Необходимо загрузить его из папки на рабочем столе\n\n";
+                    result += "Необходимо загрузить его из папки на вашем рабочем столе в приложение Qlik Sense\n\n";
 
                     int pos = e.ResultInfo.FolderWithAddContent.LastIndexOf("\\", StringComparison.Ordinal);
 
                     result += "Наименование папки: \n\n" + e.ResultInfo.FolderWithAddContent.Substring(pos + 1);
+                    result += "\n\nИ еще раз сделать восстановление историй в приложение Qlik Sense";
 
-                    
+
                 }
                 ShowMessageForm(result, "Инфо");
             }

@@ -239,36 +239,36 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     }
                 }
 
-            int ik = 0;
+            //int ik = 0;
 
-            string name = Path.GetFileNameWithoutExtension(_restoreInfo.SourceApp.Name);
-            string tryName;
+            //string name = Path.GetFileNameWithoutExtension(_restoreInfo.SourceApp.Name);
+            //string tryName;
 
-            //StaticContentList lys = _appTarget.GetLibraryContent("appcontent");
+            ////StaticContentList lys = _appTarget.GetLibraryContent("appcontent");
 
 
-            while (true)
-            {
-                ik++;
+            //while (true)
+            //{
+            //    ik++;
 
-                if (_programOptions.IsServer())
-                    tryName = name + " (copy" + ik.ToString() + ")";
-                else
-                {
-                    tryName = name + " (copy" + ik.ToString() + ")" + ".qvf";
-                }
+            //    if (_programOptions.IsServer())
+            //        tryName = name + " (copy" + ik.ToString() + ")";
+            //    else
+            //    {
+            //        tryName = name + " (copy" + ik.ToString() + ")" + ".qvf";
+            //    }
 
-                bool found = false;
+            //    bool found = false;
 
-                foreach (var pair in Utils.GetApps(_location.GetConnection()))
-                {
-                    if (string.CompareOrdinal(tryName, pair.Name) == 0)
-                        found = true;
-                }
+            //    foreach (var pair in Utils.GetApps(_location.GetConnection()))
+            //    {
+            //        if (string.CompareOrdinal(tryName, pair.Name) == 0)
+            //            found = true;
+            //    }
 
-                if (!found)
-                    break;
-            }
+            //    if (!found)
+            //        break;
+            //}
             
             
             _appTarget.DoSave();
@@ -277,7 +277,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             _appTarget.Dispose();
             
             
-            _appTarget = null;
+            //_appTarget = null;
            
             OnNewResultDigestInfo(new ResultDigestInfoEventArgs(new ResultDigestInfo()
             {
