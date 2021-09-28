@@ -15,7 +15,7 @@ using UtilClasses.ProgramOptionsClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsStoryWriter : IWriteStoryItemToDisk, IDeleteInfoFromDisk
+    public class QsStoryWriter : IWriteStoryItemToDisk, IDeleteInfoFromDisk, IProgramOptionsEvent
     {
         private ProgramOptions Options { get; } = new();
 
@@ -26,6 +26,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         public event WriteStoryItemToDiskHandler NewStoryItemToDiskSend;
         public event DeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
+        public event ProgramOptionsHandler NewProgramOptionsSend;
 
         public QsStoryWriter(IProgramOptionsEvent programOptionsEvent,  
             IWriteStoryToDisk writeStoryToDisk,IDeleteStoryFromDisk deleteStory)
@@ -40,7 +41,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             IDeleteStoryFromDisk delStory = deleteStory;
             delStory.NewDeleteStoryFromDiskSend += DeleteStoryFromDiskReceived;
 
-            var unused = new QsSlideWriter(this,this);
+            var unused = new QsSlideWriter(this,this,this);
         }
 
         private void OnNewDeleteItemFromDisk(DeleteItemFromDiskEventArgs e)
@@ -110,7 +111,17 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private void WriteStoryToDisk()
         {
+            
             string pathToStories = Options.RepositoryPath + "\\" + _storyToDiskInfo.StoreFolder;
+            string pathToContent = Options.RepositoryPath + "\\" + _storyToDiskInfo.AppContentFolder;
+            string pathToDefault = Options.RepositoryPath + "\\" + _storyToDiskInfo.DefaultContentFolder;
+
+            if (!Directory.Exists(pathToDefault))
+                Directory.CreateDirectory(pathToDefault);
+
+            if (!Directory.Exists(pathToContent))
+                Directory.CreateDirectory(pathToContent);
+
 
             if (!Directory.Exists(pathToStories))
                 Directory.CreateDirectory(pathToStories);
@@ -220,9 +231,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                             OnNewStoryItemWriteToDisk(new StoryItemInfoEventArgs(new StoryItemInfo()
                             {
+                                Container = item, Id = item.Info.Id, 
+                                LocalRootFolder = pathToStore,
+                                Story = _currentStoryToWrite,
                                 App = _storyToDiskInfo.App,
-                                Container = item, Id = item.Info.Id, LocalRootFolder = pathToStore,
-                                Story = _currentStoryToWrite
+                                CurrentApp = _storyToDiskInfo.CurrentApp.Copy(),
+                                AppContentFolder = pathToContent,
+                                DefaultContnetFolder = pathToDefault
                             }));
 
                             xmlWriter.WriteEndElement();
@@ -268,6 +283,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private void ProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(Options);
+            if (this.NewProgramOptionsSend != null)
+            {
+                NewProgramOptionsSend(this, e);
+            }
+            
         }
 
         
@@ -275,18 +295,25 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public class StoryItemInfo
     {
-        public IApp App;
         public IStoryChildListContainer Container;
         public IStory Story;
+        public IApp App;
+        public NameAndIdAndLastReloadTime CurrentApp;
         public string Id;
         public string LocalRootFolder;
+        public string AppContentFolder;
+        public string DefaultContnetFolder;
+
         public void Copy(ref StoryItemInfo anotherItem)
         {
-            anotherItem.App = App;
+            anotherItem.AppContentFolder = AppContentFolder;
             anotherItem.Container = Container;
+            anotherItem.CurrentApp = CurrentApp.Copy();
+            anotherItem.App = App;
             anotherItem.Id = Id;
             anotherItem.LocalRootFolder = LocalRootFolder;
             anotherItem.Story = Story;
+            anotherItem.DefaultContnetFolder = DefaultContnetFolder;
         }
 
     }
@@ -312,11 +339,13 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public class WriteStoryToDiskInfo
     {
-        public NameAndIdPair CurrentApp;
-        public NameAndIdPair CurrentStory;
+        public NameAndIdAndLastReloadTime CurrentApp;
+        public NameAndIdAndLastReloadTime CurrentStory;
         public string StoreFolder;
         public IApp App;
         public XmlTextWriter CurrentXmlTextWriter;
+        public string AppContentFolder;
+        public string DefaultContentFolder;
 
         public void Copy(ref WriteStoryToDiskInfo anotherInfo)
         {
@@ -325,6 +354,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             anotherInfo.CurrentStory = CurrentStory.Copy();
             anotherInfo.StoreFolder = StoreFolder;
             anotherInfo.CurrentXmlTextWriter = CurrentXmlTextWriter;
+            anotherInfo.AppContentFolder = AppContentFolder;
+            anotherInfo.DefaultContentFolder = DefaultContentFolder;
         }
 
     }

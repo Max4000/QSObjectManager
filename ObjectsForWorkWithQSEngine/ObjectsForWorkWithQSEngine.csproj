@@ -12,13 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="QlikSense.NetSDK" Version="15.5.0" />
+    <PackageReference Include="QlikSense.NetSDK" Version="15.4.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConsoleApp2\MyBookmark.csproj" />
-    <ProjectReference Include="..\MConnect\MConnect.csproj" />
-    <ProjectReference Include="..\Request\MyRequest.csproj" />
     <ProjectReference Include="..\UtilClasses\UtilClasses.csproj" />
   </ItemGroup>
 

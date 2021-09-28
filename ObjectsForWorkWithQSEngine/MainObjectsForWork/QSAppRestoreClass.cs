@@ -2,41 +2,37 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using MConnect.Location;
 using Qlik.Engine;
-using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 using UtilClasses.ServiceClasses;
 // ReSharper disable StringLiteralTypo
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsAppRestoreClass :   IRestoreInfoEvent, IRestoreStoryFromDisk,IProgramOptionsEvent
+    public class QsAppRestoreClass :   IRestoreInfoEvent, IRestoreStoryFromDisk,IProgramOptionsEvent , IResultDigest
     {
         //private string RepositoryPath { get; set; }
 
         private IConnect _location;
 
-        private NameAndIdPair _selectedApp;
+        private NameAndIdAndLastReloadTime _selectedApp;
 
         private readonly RestoreInfo _restoreInfo =new ();
 
-        private IApp _app;
+        //private IApp _appSource;
+        private IApp _appTarget;
 
         private readonly ProgramOptions _programOptions = new();
 
-        
+        private string _folderForAddContent;
+
+        private IList<string> _listAddcontent;
+
+
         public event RestoreInfoHandler NewRestoreInfoSend;
         public event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
         public event ProgramOptionsHandler NewProgramOptionsSend;
-        
-
-
-        //private void OnNewRestoreSnapshotsFromDisk(SnapshotWriteInfoEventArgs e)
-        //{
-        //    if (this.NewSnapshotFromDiskSend != null)
-        //        NewSnapshotFromDiskSend(this, e);
-        //}
+        public event ResultDigestInfoHandler NewResultDigestInfoSend;
 
         private void OnNewProgramOptions(ProgramOptionsEventArgs e)
         {
@@ -44,11 +40,17 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 NewProgramOptionsSend(this, e);
         }
 
-        public  IList<NameAndIdPair> GetAppsFromStore()
+        private void OnNewResultDigestInfo(ResultDigestInfoEventArgs e)
+        {
+            if (NewResultDigestInfoSend != null)
+                NewResultDigestInfoSend(this, e);
+        }
+
+        public  IList<NameAndIdAndLastReloadTime> GetAppsFromStore()
         {
             if (string.IsNullOrEmpty(_programOptions.RepositoryPath))
                 return null;
-            IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
+            IList<NameAndIdAndLastReloadTime> lstResult = new List<NameAndIdAndLastReloadTime>();
             
             foreach (var file in Directory.GetFiles(_programOptions.RepositoryPath, "*.xml"))
             {
@@ -81,7 +83,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             restoreInfoEvent.NewRestoreInfoSend += RestoreInfoReceived;
 
             var unused = new QsStoryRestorer(this,this,this);
-            //var unused2 = new CsAppSnapshotsRestorer(this, this);
         }
 
         private void RestoreInfoReceived(object sender, RestoreInfoEventArgs e)
@@ -91,56 +92,78 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             DoRestore();
         }
 
-        private string IdForName(string name)
+        private string CreateOrEmptyFolderForAddContent()
         {
-            
-            foreach (NameAndIdPair elem in Utils.GetApps(_location.GetConnection()))
+            string user = UtilClasses.CurrentUser.GetExplorerUser();
+
+            int pos = user.LastIndexOf("\\", StringComparison.Ordinal);
+
+            string folderForAddContent = "C:\\Users\\" + user.Substring(pos + 1) +
+                                         "\\Desktop\\ПАПКА_С_НОВЫМ_КОНТЕНТОМ_ДЛЯ_" + _restoreInfo.TargetApp.Name;
+            if (Directory.Exists(folderForAddContent))
             {
-                if (String.CompareOrdinal(elem.Name, name) == 0)
+                if (Directory.Exists(folderForAddContent + "\\default"))
                 {
-                    return elem.Id;
+                    foreach (var file in Directory.GetFiles(folderForAddContent + "\\default"))
+                    {
+                        File.Delete(file);
+                    }
+                    Directory.Delete(folderForAddContent + "\\default");
                 }
+
+                foreach (var file in Directory.GetFiles(folderForAddContent))
+                {
+                    File.Delete(file);
+                }
+                Directory.Delete(folderForAddContent);
             }
 
-            return string.Empty;
+            Directory.CreateDirectory(folderForAddContent);
+            
+
+            return folderForAddContent;
+
         }
 
         private void DoRestore()
         {
+
+
             if (_location == null)
                 return;
 
             if (!Directory.Exists(_programOptions.RepositoryPath))
                 return;
 
+
+            _folderForAddContent = CreateOrEmptyFolderForAddContent();
+            _listAddcontent = new List<string>();
+            
+
             try
             {
-                string foundId = IdForName(_restoreInfo.SelectedApp.Name);
 
-                IAppIdentifier appId = _location.GetConnection().AppWithId(foundId);
+                //IAppIdentifier sourceAppId = _location.GetConnection().AppWithId(_restoreInfo.SourceApp.Id);
+                IAppIdentifier targetAppId = _location.GetConnection().AppWithId(_restoreInfo.TargetApp.Id);
 
-                _app = _location.GetConnection().App(appId);
+
+                //_appSource = _location.GetConnection().App(sourceAppId);
+                
+                _appTarget = _location.GetConnection().App(targetAppId);
             }
             catch (Exception ex)
             {
                 throw new Exception("Не удалось подключиться к приложению", ex);
             }
 
-            string mNameSelectedApp = Path.GetFileNameWithoutExtension(_restoreInfo.SelectedApp.Name);
+            string mNameSelectedApp = Path.GetFileNameWithoutExtension(_restoreInfo.SourceApp.Name);
 
 
             string searchFileAppInStore = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, mNameSelectedApp, "*.xml");
 
-            //SnapshotWriteInfo appArgs = new SnapshotWriteInfo
-            //{
-            //    App = _app,
-            //    ItemFolder = _programOptions.RepositoryPath + "\\" +
-            //                Path.GetFileNameWithoutExtension(searchFileAppInStore),
-            //    Location = _location.GetConnection()
-
-            //};
-
-            //OnNewRestoreSnapshotsFromDisk(new SnapshotWriteInfoEventArgs(appArgs));
+            string appcontentFolder = Path.GetFileNameWithoutExtension(searchFileAppInStore) + "\\" + "appcontent";
+            
+            string defaultFolder = Path.GetFileNameWithoutExtension(searchFileAppInStore) + "\\" + "default";
 
             var xmlDocument = new XmlDocument();
 
@@ -163,7 +186,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                                     foreach (XmlNode element in stories.ChildNodes)
                                     {
-                                        NameAndIdPair story = new NameAndIdPair();
+                                        NameAndIdAndLastReloadTime story = new NameAndIdAndLastReloadTime();
 
                                         foreach (XmlNode mStory in element.ChildNodes)
                                         {
@@ -186,12 +209,21 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                         {
                                             RestoreStoryFromDiskInfo info = new RestoreStoryFromDiskInfo
                                             {
-                                                App = _app,
-                                                CurrentApp = _restoreInfo.SelectedApp.Copy(),
+                                                SourceApp = null,
+                                                TargetApp = _appTarget,
+
+                                                CurrentAppSource = _restoreInfo.SourceApp.Copy(),
+                                                CurrentAppTarget = _restoreInfo.TargetApp.Copy(),
+
+                                                AppContentFolder = appcontentFolder,
+                                                DefaultFolder = defaultFolder,
+                                               
                                                 CurrentStory = searchStory.Copy(),
                                                 StoryFolder = _programOptions.RepositoryPath + "\\" +
                                                               Path.GetFileNameWithoutExtension(searchFileAppInStore) +
-                                                              "\\stories\\" + searchStory.Id
+                                                              "\\stories\\" + searchStory.Id,
+                                                FolderNameWithAddContent = _folderForAddContent,
+                                                AddContentList = _listAddcontent
                                             };
 
                                             RestoreStoryFromDiskEventArgs args = new RestoreStoryFromDiskEventArgs(info);
@@ -207,38 +239,51 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     }
                 }
 
-            int ik = 0;
+            //int ik = 0;
 
-            string name = Path.GetFileNameWithoutExtension(_restoreInfo.SelectedApp.Name);
-            string tryName;
+            //string name = Path.GetFileNameWithoutExtension(_restoreInfo.SourceApp.Name);
+            //string tryName;
 
-            while (true)
-            {
-                ik++;
+            ////StaticContentList lys = _appTarget.GetLibraryContent("appcontent");
 
-                if (_programOptions.IsServer())
-                    tryName = name + " (copy" + ik.ToString() + ")";
-                else
-                {
-                    tryName = name + " (copy" + ik.ToString() + ")" + ".qvf";
-                }
 
-                bool found = false;
+            //while (true)
+            //{
+            //    ik++;
 
-                foreach (var pair in Utils.GetApps(_location.GetConnection()))
-                {
-                    if (string.CompareOrdinal(tryName, pair.Name) == 0)
-                        found = true;
-                }
+            //    if (_programOptions.IsServer())
+            //        tryName = name + " (copy" + ik.ToString() + ")";
+            //    else
+            //    {
+            //        tryName = name + " (copy" + ik.ToString() + ")" + ".qvf";
+            //    }
 
-                if (!found)
-                    break;
-            }
+            //    bool found = false;
+
+            //    foreach (var pair in Utils.GetApps(_location.GetConnection()))
+            //    {
+            //        if (string.CompareOrdinal(tryName, pair.Name) == 0)
+            //            found = true;
+            //    }
+
+            //    if (!found)
+            //        break;
+            //}
             
-
-            _app.SaveAs(tryName);
-            _app.Dispose();
-            _app = null;
+            
+            _appTarget.DoSave();
+            
+            
+            _appTarget.Dispose();
+            
+            
+            //_appTarget = null;
+           
+            OnNewResultDigestInfo(new ResultDigestInfoEventArgs(new ResultDigestInfo()
+            {
+                AddContentList = _listAddcontent,
+                FolderWithAddContent = _folderForAddContent
+            }));
 
 
 
@@ -273,9 +318,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
 
-        public NameAndIdPair GetNameAnIdAppFromFile(string mFileApp)
+        public NameAndIdAndLastReloadTime GetNameAnIdAppFromFile(string mFileApp)
         {
-            NameAndIdPair result = new NameAndIdPair();
+            NameAndIdAndLastReloadTime result = new NameAndIdAndLastReloadTime();
             var xmlDocument = new XmlDocument();
 
             xmlDocument.Load(mFileApp);
@@ -301,6 +346,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                                 break;
                             }
+                            case "LastReloadTime":
+                            {
+                                result.LastReloadTime = nodeProperty.InnerText;
+
+                                break;
+                            }
                         }
                     }
                 }
@@ -309,12 +360,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
 
         
-        public  IList<NameAndIdPair> GetHistoryListForSelectedApp()
+        public  IList<NameAndIdAndLastReloadTime> GetHistoryListForSelectedApp()
         {
             
             string fileApp = FindFiles.SearchFileAppInStore(_programOptions.RepositoryPath, Path.GetFileNameWithoutExtension(_selectedApp.Name),"*.xml");
             
-            IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
+            IList<NameAndIdAndLastReloadTime> lstResult = new List<NameAndIdAndLastReloadTime>();
 
             var xmlDocument = new XmlDocument();
 
@@ -336,7 +387,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                                 foreach (XmlNode element in stories.ChildNodes)
                                 {
-                                    NameAndIdPair story = new NameAndIdPair();
+                                    NameAndIdAndLastReloadTime story = new NameAndIdAndLastReloadTime();
 
                                     foreach (XmlNode mStory in element.ChildNodes)
                                     {
@@ -371,10 +422,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     public class SelectedAppEventArgs : EventArgs
     {
 
-        public readonly NameAndIdPair SelectedApp;
+        public readonly NameAndIdAndLastReloadTime SelectedApp;
 
         
-        public SelectedAppEventArgs(NameAndIdPair record)
+        public SelectedAppEventArgs(NameAndIdAndLastReloadTime record)
         {
             SelectedApp = record;
         }
@@ -390,12 +441,15 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
     
     public class RestoreInfo
     {
-        public NameAndIdPair SelectedApp;
-        public IList<NameAndIdPair> SelectedStories;
+        public NameAndIdAndLastReloadTime SourceApp;
+        public IList<NameAndIdAndLastReloadTime> SelectedStories;
+        public NameAndIdAndLastReloadTime TargetApp;
 
-        public RestoreInfo(NameAndIdPair selectedApp, IList<NameAndIdPair> selectedStories)
+
+        public RestoreInfo(NameAndIdAndLastReloadTime sourceApp, IList<NameAndIdAndLastReloadTime> selectedStories, NameAndIdAndLastReloadTime targetApp)
         {
-            SelectedApp = selectedApp;
+            SourceApp = sourceApp;
+            TargetApp = targetApp;
             SelectedStories = selectedStories;
         }
 
@@ -405,8 +459,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         }
         public void Copy(RestoreInfo anotherWriteInfo)
         {
-            anotherWriteInfo.SelectedApp = SelectedApp.Copy();
-            anotherWriteInfo.SelectedStories = new List<NameAndIdPair>();
+            anotherWriteInfo.TargetApp = TargetApp.Copy();
+            anotherWriteInfo.SourceApp = SourceApp.Copy();
+            anotherWriteInfo.SelectedStories = new List<NameAndIdAndLastReloadTime>();
             foreach (var story in this.SelectedStories)
             {
                 anotherWriteInfo.SelectedStories.Add(story.Copy());

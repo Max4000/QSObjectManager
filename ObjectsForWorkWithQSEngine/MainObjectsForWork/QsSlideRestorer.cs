@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,7 +10,6 @@ using Qlik.Engine;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Snapshot;
 using Qlik.Sense.Client.Storytelling;
-using UtilClasses;
 using UtilClasses.ProgramOptionsClasses;
 
 // ReSharper disable IdentifierTypo
@@ -21,7 +19,7 @@ using UtilClasses.ProgramOptionsClasses;
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
-    public class QsSlideRestorer : IRestoreSnapshotsFromDisk
+    public class QsSlideRestorer
     {
 
         private readonly RestoreSlideInfo _restoreSlideInfo = new();
@@ -29,8 +27,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         private readonly Dictionary<string, XmlPair> _currentItemDict = new();
 
         private readonly ProgramOptions _programOptions = new();
-
-        public event SnapshotRestoreInfo NewSnapshotFromDiskSend;
 
         public QsSlideRestorer(
              IRestoreSlideInfoFromDisk slideInfoFromDisk, IProgramOptionsEvent programOptions)
@@ -43,15 +39,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
             prOptions.NewProgramOptionsSend += ProgramOptionsReceived;
 
-            var unused = new CsAppSnapshotsRestorer(this);
-
-        }
-
-        // ReSharper disable once UnusedMember.Local
-        private void OnNewSnapshotRestore(SnapshotWriteInfoEventArgs e)
-        {
-            if (this.NewSnapshotFromDiskSend != null)
-                NewSnapshotFromDiskSend(this, e);
         }
 
         private void ProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
@@ -96,60 +83,47 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 {
                     case "snapshot":
                     {
-                        // ReSharper disable once UnusedVariable
-                        SnapshotWriteInfo snapshotWriteInfo = new SnapshotWriteInfo()
+                        SlideStyle slideStyle = new SlideStyle();
+
+                        JsonTextReader reader = Utils.MakeTextReader(_restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder + "\\Style.json");
+
+                        slideStyle.ReadJson(reader);
+
+                        reader.Close();
+                        
+
+                        ISnapshot snapshot = _restoreSlideInfo.TargetApp.GetSnapshot(slideStyle.Id);
+
+                        if (snapshot == null)
                         {
-                            App = _restoreSlideInfo.App,
-                            ItemFolder = _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder,
-                            SlideItem = null
-                        };
-
-                        OnNewSnapshotRestore(new SnapshotWriteInfoEventArgs(snapshotWriteInfo));
-
-
-                        SlideItemProperties proper = new SlideItemProperties();
-
-                        proper.ReadJson(new JsonTextReader(new StreamReader(
-                                new FileStream(
-                                    _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
-                                    "\\SlideItemProperties.json", FileMode.Open), Encoding.UTF8)));
 
 
 
+                            SnapshotProperties prop = new SnapshotProperties();
 
+                            JsonTextReader rd = Utils.MakeTextReader(_restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
+                                                                     "\\SnapshotProperties.json");
 
-                            //SlideStyle style = new SlideStyle();
+                            prop.ReadJson(rd);
 
-                            //style.ReadJson(new JsonTextReader(new StreamReader(
-                            //    new FileStream(
-                            //        _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
-                            //        "\\Style.json", FileMode.Open), Encoding.UTF8)));
+                            _restoreSlideInfo.TargetApp.CreateSnapshot(slideStyle.Id, prop);
 
+                            rd.Close();
 
+                            prop.Dispose();
 
+                        }
+                        
+                        slideStyle.Dispose();
 
-                            //SlideItemProperties prop = CreateSnapshotSlideItemProperties(_currentItemDict["id"].Value,style.Id);
+                        using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
+                            _currentItemDict["id"].Value, slideItem.Folder, "snapshot");
 
-                            ////slide.CreateSlideItem(_currentItemDict["id"].Value, prop);
-
-
-                            //SlideItemProperties prop = new SlideItemProperties();
-
-                            //prop.ReadJson(new JsonTextReader(new StreamReader(
-                            //    new FileStream(
-                            //        _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
-                            //        "\\SlideItemProperties.json", FileMode.Open), Encoding.UTF8)));
-
-                            //using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
-                            //    _currentItemDict["id"].Value, slideItem.Folder, "snapshot");
-
-                            slide.CreateSlideItem(_currentItemDict["id"].Value,proper);
+                        slide.CreateSnapshotSlideItem(_currentItemDict["id"].Value, itemProperties);
 
                         
-                            
 
-                            break;
-
+                        break;
                     }
                     case "image":
                     {
@@ -157,6 +131,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             _currentItemDict["id"].Value, slideItem.Folder, "image");
 
                         slide.CreateSlideItem(_currentItemDict["id"].Value, itemProperties) ;
+
+                       
 
                         break;
                     }
@@ -197,78 +173,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         }
 
-        private string GetPath(string fromString)
-        {
-            int pos1 = fromString.IndexOf('/', 0);
-            int pos2 = fromString.IndexOf('/', pos1 + 1);
-            int pos3 = fromString.IndexOf('/', pos2 + 1);
-            return fromString.Substring(pos3 + 1);
-        }
-        public SlideItemProperties CreateSnapshotSlideItemProperties(
-            string id = null,
-            string snapshotId = null)
-        {
-            SlideItemProperties slideItemProperties = this.CreateSlideItemProperties(id);
-            if (snapshotId == null)
-                return slideItemProperties;
-            
-            var  bookmark =  _restoreSlideInfo.App.GetGenericBookmark(snapshotId);
+        
 
-            SnapshotData snapshotData = bookmark.Properties.Get<SnapshotData>("snapshotData");
-
-
-            float w1 = snapshotData.Object.Size.W;
-            float h1 = snapshotData.Object.Size.H;
-            float w2 = snapshotData.Parent.W;
-            float h2 = snapshotData.Parent.H;
-            
-            float num1 = (float)((double)w1 / (double)w2 * 100.0);
-            float num2 = (float)((double)h1 / (double)h2 * 100.0);
-            string str1 = num1.ToString((IFormatProvider)CultureInfo.InvariantCulture) + "%";
-            string str2 = num2.ToString((IFormatProvider)CultureInfo.InvariantCulture) + "%";
-            
-            slideItemProperties.Position = new SlidePosition()
-            {
-                Height = str2,
-                Width = str1,
-                Left = "0%",
-                Top = "0%",
-                ZIndex = 1
-            };
-            
-            slideItemProperties.Visualization = "snapshot";
-
-            
-
-            string visualType = bookmark.Properties.Get<string>("visualizationType");
-
-            slideItemProperties.VisualizationType = visualType;
-            slideItemProperties.Style = new SlideStyle()
-            {
-                Id = snapshotId
-            };
-            slideItemProperties.Ratio = true;
-           
-            return slideItemProperties;
-        }
-
-        private SlideItemProperties CreateSlideItemProperties(string id)
-        {
-            SlideItemProperties slideItemProperties1 = new SlideItemProperties();
-            slideItemProperties1.Info = new NxInfo()
-            {
-                Id = ClientExtension.GetCid(),
-                Type = "slideitem"
-            };
-            SlideItemProperties slideItemProperties2 = slideItemProperties1;
-            if (id != null)
-                slideItemProperties2.Info.Id = id.Replace(" ", "");
-            return slideItemProperties2;
-        }
-
-
-
-
+        [SuppressMessage("ReSharper", "CommentTypo")]
         private SlideItemProperties CreateSlideItemProperties(ISlide slide, string id, string itemFolder, string itemType)
         {
             SlideItemProperties result = null;
@@ -299,13 +206,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 valueSrcPath = jtokenChild.Value<string>("qUrl");
             }
 
+
             switch (itemType)
             {
                 case "snapshot":
                 {
                     string ids = style.Get<string>("id");
-
-                    //IGenericBookmark ss = _restoreSlideInfo.App.GetGenericBookmark("6c9cdc5c-fcc9-425d-8561-780a3c30acb9");
 
                     result = slide.CreateSnapshotSlideItemProperties(id, ids);
 
@@ -313,22 +219,119 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 }
                 case "image":
                 {
-                    if (valueSrcPath.Length > 0) stringPathToImage = GetPath(valueSrcPath);
+                    if (valueSrcPath.Length > 0)
+                        stringPathToImage = Utils.GetNameImage(valueSrcPath);
 
                     result = slide.CreateImageSlideItemProperties(id, stringPathToImage);
 
-                    if (_programOptions.IsServer()) result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
+                    if (_programOptions.IsServer())
+                    {
+                        
+                        if (valueSrcPath.ToLower().Contains("/content/default")) // в папке default
+                        {
+                            if (!File.Exists(
+                                _programOptions.AppContentPath + "\\Content\\Default\\" + stringPathToImage))
+                            {
+                                string source = _programOptions.RepositoryPath + "\\" +
+                                                _restoreSlideInfo.DafaultContentFolder + "\\" + stringPathToImage;
+                                
+                                //string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
+                                //              stringPathToImage;
+
+                                string dest = _restoreSlideInfo.FolderForAddContent + "\\" + "default" + "\\" +
+                                              stringPathToImage;
+
+                                if (!Directory.Exists(_restoreSlideInfo.FolderForAddContent + "\\default"))
+                                    Directory.CreateDirectory(_restoreSlideInfo.FolderForAddContent + "\\default");
+
+                                if (!File.Exists(dest))
+                                {
+                                    _restoreSlideInfo.AddListContent.Add("default\\"+stringPathToImage);
+                                    File.Copy(source, dest);
+                                }
+                                
+                                dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
+                                              stringPathToImage;
+                                
+                                File.Copy(source,dest);
+
+                            }
+
+                            else
+                            {
+                                if (_programOptions.OverwriteExistingContentImages)
+                                {
+                                    // ReSharper disable once UnusedVariable
+                                    string source = _programOptions.RepositoryPath + "\\" +
+                                                    _restoreSlideInfo.DafaultContentFolder + "\\" + stringPathToImage;
+                                    // ReSharper disable once UnusedVariable
+                                    string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
+                                                  stringPathToImage;
+                                    File.Delete(dest);
+
+                                    File.Copy(source, dest);
+
+                                }
+                            }
+
+                            result.SrcPath.StaticContentUrlDef.Set("qUrl", valueSrcPath);
+                        }
+                        else
+                        {
+                            if (!File.Exists(_programOptions.AppContentPath + "\\AppContent\\" +
+                                             _restoreSlideInfo.CurrentTarget.Id + "\\" + stringPathToImage))
+                            {
+                                string source = _programOptions.RepositoryPath + "\\" +
+                                                _restoreSlideInfo.AppContentFolder + "\\" + stringPathToImage;
+
+                                //string dest = _programOptions.AppContentPath + "\\AppContent\\" +
+                                //              _restoreSlideInfo.CurrentTarget.Id + "\\" + stringPathToImage;
+
+                                string dest = _restoreSlideInfo.FolderForAddContent + "\\" + stringPathToImage;
+
+                                if (!File.Exists(dest))
+                                {
+                                    _restoreSlideInfo.AddListContent.Add(stringPathToImage);
+                                    
+                                    File.Copy(source, dest);
+                                }
+
+                            }
+                            else
+                            {
+                                if (_programOptions.OverwriteExistingContentImages)
+                                {
+                                    string source = _programOptions.RepositoryPath + "\\" +
+                                                    _restoreSlideInfo.AppContentFolder + "\\" + stringPathToImage;
+
+                                    string dest = _programOptions.AppContentPath + "\\AppContent\\" +
+                                                  _restoreSlideInfo.CurrentTarget.Id + "\\" + stringPathToImage;
+
+                                    File.Delete(dest);
+
+                                    File.Copy(source, dest);
+
+                                }
+
+
+                            }
+
+                            string url = "/appcontent/" + _restoreSlideInfo.CurrentTarget.Id + "/" + stringPathToImage;
+
+                            result.SrcPath.StaticContentUrlDef.Set("qUrl", url);
+                        }
+                    }
 
                     break;
                 }
                 case "text":
                 {
                     string textValue = style.Get<string>("text");
-
+                    
                     string visualType = _currentItemDict["VisualizationType"].Value;
 
                     Slide.TextType textType = Slide.TextType.Title;
-
+                    
                     switch (visualType)
                     {
                         case "title":
@@ -355,16 +358,18 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     Slide.Shapes visualType = ShapeType(visual);
 
-                    result = slide.CreateShapeSlideItemProperties(id, visualType, colorValue);
-
+                    result = slide.CreateShapeSlideItemProperties(id, visualType,colorValue);
+                    
                     break;
                 }
                 case "sheet":
                 {
-                    if (id != null) result = slide.CreateTextSlideItemProperties(id);
+                    if (id != null) 
+                        result = slide.CreateTextSlideItemProperties(id);
 
                     break;
                 }
+
             }
 
             
@@ -374,19 +379,19 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 #region GenericObjectProperties
 
-                    //NxInfo nxInfo = JsonConvert.DeserializeObject<NxInfo>(
-                    //    Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Info.json"));
+                    NxInfo nxInfo = JsonConvert.DeserializeObject<NxInfo>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Info.json"));
                     
-                    //result.Set("qInfo",nxInfo);
+                    result.Set("qInfo",nxInfo);
 
-                    //result.Set("qExtendsId",_currentItemDict["ExtendsId"].Value);
+                    result.Set("qExtendsId",_currentItemDict["ExtendsId"].Value);
 
-                    //NxMetaDef nxMetaDef = JsonConvert.DeserializeObject<NxMetaDef>(
-                    //    Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\MetaDef.json"));
+                    NxMetaDef nxMetaDef = JsonConvert.DeserializeObject<NxMetaDef>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\MetaDef.json"));
 
-                    ////result.Set("qMetaDef",nxMetaDef);
+                    result.Set("qMetaDef",nxMetaDef);
 
-                    //result.Set("qStateName", _currentItemDict["StateName"].Value);
+                    result.Set("qStateName", _currentItemDict["StateName"].Value);
 
                 #endregion
 
@@ -397,35 +402,35 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     string ratio = _currentItemDict["Ratio"].Value;
                     result.Set("ratio", bool.Parse(ratio));
 
-                    //SlidePosition slideposition = JsonConvert.DeserializeObject<SlidePosition>(
-                    //    Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Position.json"));
+                    SlidePosition slideposition = JsonConvert.DeserializeObject<SlidePosition>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Position.json"));
                     
-                    //result.Set("position", slideposition);
+                    result.Set("position", slideposition);
 
-                    //string dataPath = this._currentItemDict["DataPath"].Value;
-                    //result.Set("dataPath", dataPath);
-
-
-                    //result.Set("visualization", _currentItemDict["Visualization"].Value);
-
-                    //result.Set("visualizationType", _currentItemDict["VisualizationType"].Value);
-
-                    //result.Set("style", style);
-
-                    //result.Set("sheetId", _currentItemDict["SheetId"].Value);
+                    string dataPath = this._currentItemDict["DataPath"].Value;
+                    result.Set("dataPath", dataPath);
 
 
-                //SelectionState selectionState = JsonConvert.DeserializeObject<SelectionState>(
-                //    Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SelectionState.json"));
+                    result.Set("visualization", _currentItemDict["Visualization"].Value);
 
-                //result.Set("selectionState", selectionState);
+                    result.Set("visualizationType", _currentItemDict["VisualizationType"].Value);
+
+                    result.Set("style", style);
+
+                    result.Set("sheetId", _currentItemDict["SheetId"].Value);
 
 
-                //SnapshotProperties embeddedSnapshotDef = JsonConvert.DeserializeObject<SnapshotProperties>(
-                //Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder +
-                //                   "\\EmbeddedSnapshotDef.json"));
+                    SelectionState selectionState = JsonConvert.DeserializeObject<SelectionState>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SelectionState.json"));
 
-                //result.Set("qEmbeddedSnapshotDef", embeddedSnapshotDef);
+                    result.Set("selectionState", selectionState);
+
+                    
+                    SnapshotProperties embeddedSnapshotDef = JsonConvert.DeserializeObject<SnapshotProperties>(
+                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder +
+                                           "\\EmbeddedSnapshotDef.json"));
+
+                    result.Set("qEmbeddedSnapshotDef", embeddedSnapshotDef);
 
                 #endregion
                 return result;
@@ -778,17 +783,32 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public class RestoreSlideInfo
     {
-        public IApp App;
         public IStory Story;
         public string FullPathToSlideFolder;
         public string SlideFolder;
+        public IApp TargetApp;
+        public IApp SourceApp;
+        public string AppContentFolder;
+        public string DafaultContentFolder;
+        public NameAndIdAndLastReloadTime CurrentSource;
+        public NameAndIdAndLastReloadTime CurrentTarget;
+
+        public string FolderForAddContent;
+        public IList<string> AddListContent;
 
         public void Copy(RestoreSlideInfo anotherInfo)
         {
-            anotherInfo.App = App;
+            anotherInfo.TargetApp = TargetApp;
+            anotherInfo.SourceApp = SourceApp;
+            anotherInfo.AppContentFolder = AppContentFolder;
+            anotherInfo.DafaultContentFolder = DafaultContentFolder;
+            anotherInfo.CurrentSource = CurrentSource.Copy();
+            anotherInfo.CurrentTarget = CurrentTarget.Copy();
             anotherInfo.Story = Story;
             anotherInfo.FullPathToSlideFolder = FullPathToSlideFolder;
             anotherInfo.SlideFolder = SlideFolder;
+            anotherInfo.FolderForAddContent = FolderForAddContent;
+            anotherInfo.AddListContent = AddListContent;
         }
     }
 

@@ -2,10 +2,10 @@
 using System.Diagnostics.CodeAnalysis;
 using Qlik.Engine;
 
-namespace MConnect.Location
+namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
 
-    public interface IConnect : IDisposable
+    public interface  IConnect : IDisposable
     {
         public bool Connect();
 

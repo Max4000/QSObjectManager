@@ -6,11 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="QlikSense.NetSDK" Version="15.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ObjectsForWorkWithQSEngine\ObjectsForWorkWithQSEngine.csproj" />
     <ProjectReference Include="..\UtilClasses\UtilClasses.csproj" />
   </ItemGroup>
 

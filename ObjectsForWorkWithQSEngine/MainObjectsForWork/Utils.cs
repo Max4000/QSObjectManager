@@ -2,14 +2,16 @@
 using System.IO;
 using System.Text;
 using System.Xml;
+using Newtonsoft.Json;
 using Qlik.Engine;
 using Qlik.Sense.Client;
+using UtilClasses;
 using Formatting = Newtonsoft.Json.Formatting;
 // ReSharper disable CommentTypo
 
 #pragma warning disable 618
 
-namespace UtilClasses
+namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class Utils
     {
@@ -20,13 +22,14 @@ namespace UtilClasses
         /// </summary>
         /// <param name="location"></param>
         /// <returns>Список приложений</returns>
-        public static IList<NameAndIdPair> GetApps(ILocation location)
+        public static IList<NameAndIdAndLastReloadTime> GetApps(ILocation location)
         {
-            IList<NameAndIdPair> arr = new List<NameAndIdPair>();
+            IList<NameAndIdAndLastReloadTime> arr = new List<NameAndIdAndLastReloadTime>();
 
             foreach ( var app in location.GetAppIdentifiers())
             {
-               arr.Add(new NameAndIdPair(app.AppName,app.AppId)); 
+               arr.Add(new NameAndIdAndLastReloadTime(app.AppName,app.AppId, app.LastReloadTime));
+               
             }
 
             return arr;
@@ -40,9 +43,9 @@ namespace UtilClasses
         /// <param name="location"></param>
         /// <param name="appid"></param>
         /// <returns></returns>
-        public static IList<NameAndIdPair> GetStories(ILocation location, string appid)
+        public static IList<NameAndIdAndLastReloadTime> GetStories(ILocation location, string appid)
         {
-            IList<NameAndIdPair> lstResult = new List<NameAndIdPair>();
+            IList<NameAndIdAndLastReloadTime> lstResult = new List<NameAndIdAndLastReloadTime>();
 
             IAppIdentifier appId = location.AppWithId(appid);
             
@@ -59,7 +62,7 @@ namespace UtilClasses
                 if (mStory != null)
                 {
                     string name = mStory.Layout.Meta.Title;
-                    lstResult.Add(new NameAndIdPair(name,item.Info.Id));
+                    lstResult.Add(new NameAndIdAndLastReloadTime(name,item.Info.Id,""));
                 }
             }
 
@@ -103,8 +106,7 @@ namespace UtilClasses
         /// <param name="abstractStructure"></param>
         public static void PrintStructureToFile(string nameOfElement, string id, string type, string name, XmlTextWriter xmlTextWriter, string fileName, IAbstractStructure abstractStructure)
         {
-            if (xmlTextWriter != null) 
-                CreateElement(nameOfElement, id, type, name, xmlTextWriter);
+            CreateElement(nameOfElement, id, type, name, xmlTextWriter);
 
             string json = "";
 
@@ -129,6 +131,20 @@ namespace UtilClasses
 
             return streamRead.ReadToEnd();
 
+        }
+
+        public static JsonTextReader MakeTextReader(string file)
+        {
+            return new JsonTextReader(new StreamReader(
+                new FileStream(
+                    file, FileMode.Open), Encoding.UTF8));
+        }
+        public static string GetNameImage(string fromString)
+        {
+            int pos1 = fromString.IndexOf('/', 0);
+            int pos2 = fromString.IndexOf('/', pos1 + 1);
+            int pos3 = fromString.IndexOf('/', pos2 + 1);
+            return fromString.Substring(pos3 + 1);
         }
     }
 
