@@ -52,6 +52,36 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             DoRestore();
         }
 
+        
+
+        private void RestoreSnapshotInAppIfNotExists(ItemPair slideItem)
+        {
+            SlideStyle slideStyle = new SlideStyle();
+
+            ReaderAbstractStructureClass.ReadObjectFromJsonFile(slideStyle,
+                _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder + "\\Style.json");
+
+
+            ISnapshot snapshot = _restoreSlideInfo.TargetApp.GetSnapshot(slideStyle.Id);
+
+            if (snapshot == null)
+            {
+
+                SnapshotProperties prop = new SnapshotProperties();
+
+                ReaderAbstractStructureClass.ReadObjectFromJsonFile(prop,
+                    _restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
+                                                                          "\\SnapshotProperties.json");
+
+                _restoreSlideInfo.TargetApp.CreateSnapshot(slideStyle.Id, prop);
+
+                prop.Dispose();
+
+            }
+
+            slideStyle.Dispose();
+        }
+
         private void DoRestore()
         {
 
@@ -62,6 +92,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
             string childListDefFile = _restoreSlideInfo.FullPathToSlideFolder + "\\ISlide.Properties.ChildListDef.json";
+
 
             SlideChildListDef childListDef = JsonConvert.DeserializeObject<SlideChildListDef>(
                 Utils.ReadJsonFile(childListDefFile));
@@ -83,45 +114,12 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 {
                     case "snapshot":
                     {
-                        SlideStyle slideStyle = new SlideStyle();
-
-                        JsonTextReader reader = Utils.MakeTextReader(_restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder + "\\Style.json");
-
-                        slideStyle.ReadJson(reader);
-
-                        reader.Close();
-                        
-
-                        ISnapshot snapshot = _restoreSlideInfo.TargetApp.GetSnapshot(slideStyle.Id);
-
-                        if (snapshot == null)
-                        {
-
-
-
-                            SnapshotProperties prop = new SnapshotProperties();
-
-                            JsonTextReader rd = Utils.MakeTextReader(_restoreSlideInfo.FullPathToSlideFolder + "\\" + slideItem.Folder +
-                                                                     "\\SnapshotProperties.json");
-
-                            prop.ReadJson(rd);
-
-                            _restoreSlideInfo.TargetApp.CreateSnapshot(slideStyle.Id, prop);
-
-                            rd.Close();
-
-                            prop.Dispose();
-
-                        }
-                        
-                        slideStyle.Dispose();
+                        RestoreSnapshotInAppIfNotExists(slideItem);
 
                         using SlideItemProperties itemProperties = CreateSlideItemProperties(slide,
                             _currentItemDict["id"].Value, slideItem.Folder, "snapshot");
 
                         slide.CreateSnapshotSlideItem(_currentItemDict["id"].Value, itemProperties);
-
-                        
 
                         break;
                     }
@@ -131,8 +129,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             _currentItemDict["id"].Value, slideItem.Folder, "image");
 
                         slide.CreateSlideItem(_currentItemDict["id"].Value, itemProperties) ;
-
-                       
 
                         break;
                     }
@@ -166,9 +162,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 }
 
-
-
-                DoRestoreItemSlide();
             }
 
         }
@@ -190,9 +183,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 jObject = JObject.Parse(Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" +
                                                                    itemFolder + "\\SrcPath.json"));
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // ignored
+                throw new Exception("",e); // ignored
             }
 
             JProperty property = jObject?.Property("qStaticContentUrl");
@@ -219,6 +212,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 }
                 case "image":
                 {
+                    #region Востанаовление медиа в специальную папку с добавленным контентом
+
                     if (valueSrcPath.Length > 0)
                         stringPathToImage = Utils.GetNameImage(valueSrcPath);
 
@@ -321,7 +316,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                             result.SrcPath.StaticContentUrlDef.Set("qUrl", url);
                         }
                     }
-
+                    #endregion
                     break;
                 }
                 case "text":
@@ -379,15 +374,21 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                 #region GenericObjectProperties
 
-                    NxInfo nxInfo = JsonConvert.DeserializeObject<NxInfo>(
-                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Info.json"));
+                    NxInfo nxInfo = new NxInfo();
+
+                    ReaderAbstractStructureClass.ReadObjectFromJsonFile(nxInfo,
+                        _restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Info.json");
+
                     
                     result.Set("qInfo",nxInfo);
 
                     result.Set("qExtendsId",_currentItemDict["ExtendsId"].Value);
 
-                    NxMetaDef nxMetaDef = JsonConvert.DeserializeObject<NxMetaDef>(
-                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\MetaDef.json"));
+                    NxMetaDef nxMetaDef = new NxMetaDef();
+
+                    ReaderAbstractStructureClass.ReadObjectFromJsonFile(nxMetaDef,
+                        _restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\MetaDef.json");
+
 
                     result.Set("qMetaDef",nxMetaDef);
 
@@ -402,9 +403,11 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                     string ratio = _currentItemDict["Ratio"].Value;
                     result.Set("ratio", bool.Parse(ratio));
 
-                    SlidePosition slideposition = JsonConvert.DeserializeObject<SlidePosition>(
-                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Position.json"));
-                    
+                    SlidePosition slideposition = new SlidePosition();
+
+                    ReaderAbstractStructureClass.ReadObjectFromJsonFile(slideposition,
+                        _restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Position.json");
+
                     result.Set("position", slideposition);
 
                     string dataPath = this._currentItemDict["DataPath"].Value;
@@ -419,13 +422,14 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
                     result.Set("sheetId", _currentItemDict["SheetId"].Value);
 
+                    SelectionState selectionState = new SelectionState();
 
-                    SelectionState selectionState = JsonConvert.DeserializeObject<SelectionState>(
-                        Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SelectionState.json"));
+                    ReaderAbstractStructureClass.ReadObjectFromJsonFile(selectionState,
+                        _restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\SelectionState.json");
+                
 
                     result.Set("selectionState", selectionState);
 
-                    
                     SnapshotProperties embeddedSnapshotDef = JsonConvert.DeserializeObject<SnapshotProperties>(
                         Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder +
                                            "\\EmbeddedSnapshotDef.json"));
@@ -436,7 +440,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 return result;
             }
 
-            return null;
+            return new SlideItemProperties();
         }
 
         private Slide.Shapes ShapeType(string visual)
@@ -684,11 +688,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                         }
                     }
                 }
-        }
-
-        private void DoRestoreItemSlide()
-        {
-
         }
 
         private void ReadXmlFileOfSlide(ref float rank, IList<ItemPair> listOfItem)

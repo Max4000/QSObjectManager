@@ -108,19 +108,21 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
         {
             CreateElement(nameOfElement, id, type, name, xmlTextWriter);
 
-            string json = "";
+            string json;
 
-            using (var propertyFile = new AppEntryWriter(fileName))
+            using var propertyFile = new AppEntryWriter(fileName);
+
+            if (abstractStructure != null)
             {
-
-                if (abstractStructure != null)
-                {
-                    json = abstractStructure.PrintStructure(Formatting.Indented);
-                }
-
-                propertyFile.Writer.Write(json);
-                propertyFile.Writer.Close();
+                json = abstractStructure.PrintStructure(Formatting.Indented);
             }
+            else
+            {
+                json = new AbstractStructure().PrintStructure(Formatting.Indented);
+            }
+
+            propertyFile.Writer.Write(json);
+            propertyFile.Writer.Close();
 
         }
 

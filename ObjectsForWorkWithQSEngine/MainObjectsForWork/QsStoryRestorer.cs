@@ -1,15 +1,8 @@
-﻿using Qlik.Engine;
-using System;
-using System.Collections.Generic;
-using System.Xml;
+﻿using System.Xml;
 using Microsoft.VisualBasic;
-using Newtonsoft.Json;
 using Qlik.Sense.Client;
 using Qlik.Sense.Client.Storytelling;
 using UtilClasses.ProgramOptionsClasses;
-
-// ReSharper disable IdentifierTypo
-
 
 #pragma warning disable CS0618
 
@@ -46,7 +39,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
         private void OnNewProgramOptions(ProgramOptionsEventArgs e)
         {
-            if (this.NewProgramOptionsSend != null)
+            if (NewProgramOptionsSend != null)
                 NewProgramOptionsSend(this, e);
         }
 
@@ -68,8 +61,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             DoRestore();
         }
 
-        
-
         private void DoRestore()
         {
             string searchFileStoryInStore = _restoreStoryFromDiskInfo.StoryFolder + "\\" +
@@ -79,28 +70,27 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             
 
             MetaAttributesDef metaAttributes = new MetaAttributesDef();
-            JsonTextReader rdMetaDef =
-                Utils.MakeTextReader(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.MetaDef.json");
-            metaAttributes.ReadJson(rdMetaDef);
-            rdMetaDef.Close();
 
+            ReaderAbstractStructureClass.ReadObjectFromJsonFile(metaAttributes,
+                _restoreStoryFromDiskInfo.StoryFolder + "\\Properties.MetaDef.json");
+            
             StoryChildListDef childListDef = new StoryChildListDef();
-            JsonTextReader rdchildListDef =
-                Utils.MakeTextReader(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.ChildListDef.json");
-            childListDef.ReadJson(rdchildListDef);
-            rdchildListDef.Close();
-
+            
+            ReaderAbstractStructureClass.ReadObjectFromJsonFile(childListDef,
+                _restoreStoryFromDiskInfo.StoryFolder + "\\Properties.ChildListDef.json");
+            
             StaticContentUrlContainerDef thumbail = new StaticContentUrlContainerDef();
-            JsonTextReader rdthumbail =
-                Utils.MakeTextReader(_restoreStoryFromDiskInfo.StoryFolder + "\\Properties.Thumbnail.json");
-            thumbail.ReadJson(rdthumbail);
-            rdthumbail.Close();
+
+            ReaderAbstractStructureClass.ReadObjectFromJsonFile(thumbail,
+                _restoreStoryFromDiskInfo.StoryFolder + "\\Properties.Thumbnail.json");
+
 
             StoryProperties mStory = new StoryProperties();
             mStory.Set("qMetaDef", metaAttributes);
             mStory.Set("qChildListDef", childListDef);
             mStory.Set("rank", GetRank(searchFileStoryInStore));
             mStory.Set("thumbnail", thumbail);
+            
             IStory currentStory =
                 _restoreStoryFromDiskInfo.TargetApp.CreateStory(_restoreStoryFromDiskInfo.CurrentStory.Id, mStory);
 
@@ -137,7 +127,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                         DafaultContentFolder = _restoreStoryFromDiskInfo.DefaultFolder,
                                         
                                         TargetApp = _restoreStoryFromDiskInfo.TargetApp,
-                                        SourceApp = _restoreStoryFromDiskInfo.SourceApp,
+                                        
                                         FolderForAddContent = _restoreStoryFromDiskInfo.FolderNameWithAddContent,
                                         AddListContent = _restoreStoryFromDiskInfo.AddContentList
                                     };
@@ -175,7 +165,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                     string value = item.Attributes.GetNamedItem("id")?.Value;
 
                                     if (string.CompareOrdinal(value, "Properties.Rank") == 0)
-                                        return float.Parse(Strings.Replace(item.Attributes.GetNamedItem("name")?.Value,".",",") ?? string.Empty);
+                                        return float.Parse(Strings.Replace(item.Attributes.GetNamedItem("name")?.Value,
+                                            ".", ",") ?? string.Empty);
 
                                 }
                             }
@@ -187,8 +178,6 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                 }
 
             return -1.0f;
-
-
         }
 
         private void RestoreInfoReceived(object sender, RestoreInfoEventArgs e)
@@ -196,60 +185,10 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             e.RestoreInfo.Copy(_restoreInfo);
         }
 
-
         
     }
 
-    public class RestoreStoryFromDiskInfo
-    {
-        public IApp SourceApp;
-        public IApp TargetApp;
-        public NameAndIdAndLastReloadTime CurrentAppSource;
-        public NameAndIdAndLastReloadTime CurrentAppTarget;
-        public NameAndIdAndLastReloadTime CurrentStory;
-        
-        public string AppContentFolder;
-        public string DefaultFolder;
-
-        public string StoryFolder;
-        
-        public IList<string> AddContentList;
-        public string FolderNameWithAddContent;
-        
-
-        public void Copy(RestoreStoryFromDiskInfo anotherInfo)
-        {
-            anotherInfo.SourceApp = SourceApp;
-            anotherInfo.TargetApp = TargetApp;
-            anotherInfo.AppContentFolder = AppContentFolder;
-            anotherInfo.DefaultFolder = DefaultFolder;
-            anotherInfo.CurrentAppSource = CurrentAppSource.Copy();
-            anotherInfo.CurrentAppTarget = CurrentAppTarget.Copy();
-            anotherInfo.CurrentStory = CurrentStory.Copy();
-            anotherInfo.StoryFolder = StoryFolder;
-            anotherInfo.AddContentList = AddContentList;
-            anotherInfo.FolderNameWithAddContent = FolderNameWithAddContent;
-        }
-
-    }
-
-    public class RestoreStoryFromDiskEventArgs : EventArgs
-    {
-
-        public readonly RestoreStoryFromDiskInfo RestoreInfo;
-
-        
-        public RestoreStoryFromDiskEventArgs(RestoreStoryFromDiskInfo record)
-        {
-            RestoreInfo = record;
-        }
-    }
-
-    public interface IRestoreStoryFromDisk
-    {
-        event RestoreStoryFromDiskHandler NewRestoreStoryFromDiskSend;
-    }
-
-    public delegate void RestoreStoryFromDiskHandler(object sender, RestoreStoryFromDiskEventArgs e);
+   
+  
 
 }
