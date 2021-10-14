@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
+﻿namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {
     public class ConnectionStatusInfo
     {
