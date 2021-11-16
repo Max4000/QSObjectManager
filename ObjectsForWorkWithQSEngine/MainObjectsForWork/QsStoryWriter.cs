@@ -25,7 +25,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
 
         public event WriteStoryItemToDiskHandler NewStoryItemToDiskSend;
-        public event DeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
+        public event DeleteInfoFromDiskHandler NewDeleteItemFromDiskSend;
         public event ProgramOptionsHandler NewProgramOptionsSend;
 
         public QsStoryWriter(IProgramOptionsEvent programOptionsEvent,  

@@ -8,6 +8,8 @@
         public string RemoteAddress { get; set; }
         public string AppContentPath { get; set; }
 
+        public string ContentDefault { get; set; }
+
         public bool OverwriteExistingContentImages { get; set; }
 
         public ProgramOptions(string repositoryPath)
@@ -26,6 +28,7 @@
             anotherOptions.LocalAddress = LocalAddress;
             anotherOptions.RemoteAddress = RemoteAddress;
             anotherOptions.AppContentPath = AppContentPath;
+            anotherOptions.ContentDefault = ContentDefault;
             anotherOptions.OverwriteExistingContentImages = OverwriteExistingContentImages;
         }
 
@@ -42,6 +45,7 @@
                 LocalAddress = this.LocalAddress,
                 RemoteAddress = this.RemoteAddress,
                 AppContentPath = this.AppContentPath,
+                ContentDefault = this.ContentDefault,
                 OverwriteExistingContentImages = this.OverwriteExistingContentImages
             };
         }

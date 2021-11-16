@@ -37,6 +37,9 @@ namespace QSObjectManager
             this.folderBrowserDialogPathsHistoru = new System.Windows.Forms.FolderBrowserDialog();
             this.tabPageAppConfiguration = new System.Windows.Forms.TabPage();
             this.groupBoxOptionsPaths = new System.Windows.Forms.GroupBox();
+            this.buttonContentDefaultPathSelect = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.textBoxDefaultPath = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.textBoxContentPath = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -168,6 +171,9 @@ namespace QSObjectManager
             // 
             // groupBoxOptionsPaths
             // 
+            this.groupBoxOptionsPaths.Controls.Add(this.buttonContentDefaultPathSelect);
+            this.groupBoxOptionsPaths.Controls.Add(this.label7);
+            this.groupBoxOptionsPaths.Controls.Add(this.textBoxDefaultPath);
             this.groupBoxOptionsPaths.Controls.Add(this.button1);
             this.groupBoxOptionsPaths.Controls.Add(this.textBoxContentPath);
             this.groupBoxOptionsPaths.Controls.Add(this.label6);
@@ -177,10 +183,38 @@ namespace QSObjectManager
             this.groupBoxOptionsPaths.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxOptionsPaths.Location = new System.Drawing.Point(3, 3);
             this.groupBoxOptionsPaths.Name = "groupBoxOptionsPaths";
-            this.groupBoxOptionsPaths.Size = new System.Drawing.Size(985, 121);
+            this.groupBoxOptionsPaths.Size = new System.Drawing.Size(985, 161);
             this.groupBoxOptionsPaths.TabIndex = 0;
             this.groupBoxOptionsPaths.TabStop = false;
             this.groupBoxOptionsPaths.Text = "Папки";
+            // 
+            // buttonContentDefaultPathSelect
+            // 
+            this.buttonContentDefaultPathSelect.Location = new System.Drawing.Point(705, 102);
+            this.buttonContentDefaultPathSelect.Name = "buttonContentDefaultPathSelect";
+            this.buttonContentDefaultPathSelect.Size = new System.Drawing.Size(75, 23);
+            this.buttonContentDefaultPathSelect.TabIndex = 8;
+            this.buttonContentDefaultPathSelect.Text = "Выбрать";
+            this.buttonContentDefaultPathSelect.UseVisualStyleBackColor = true;
+            this.buttonContentDefaultPathSelect.Click += new System.EventHandler(this.buttonContentDefaultPathSelect_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label7.Location = new System.Drawing.Point(6, 105);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(237, 15);
+            this.label7.TabIndex = 7;
+            this.label7.Text = "Расположение папки с контентом Default";
+            // 
+            // textBoxDefaultPath
+            // 
+            this.textBoxDefaultPath.Enabled = false;
+            this.textBoxDefaultPath.Location = new System.Drawing.Point(329, 102);
+            this.textBoxDefaultPath.Name = "textBoxDefaultPath";
+            this.textBoxDefaultPath.Size = new System.Drawing.Size(345, 23);
+            this.textBoxDefaultPath.TabIndex = 6;
             // 
             // button1
             // 
@@ -206,9 +240,9 @@ namespace QSObjectManager
             this.label6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label6.Location = new System.Drawing.Point(6, 70);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(189, 15);
+            this.label6.Size = new System.Drawing.Size(270, 15);
             this.label6.TabIndex = 3;
-            this.label6.Text = "Располжение папки с контентом";
+            this.label6.Text = "Расположение папки с контентом приложений";
             // 
             // buttonHistoryPath
             // 
@@ -859,6 +893,9 @@ namespace QSObjectManager
         private System.Windows.Forms.Button buttonOpenContentSource;
         private System.Windows.Forms.Button buttonOpenContentTarget;
         private System.Windows.Forms.CheckBox checkBoxOverwriteImages;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox textBoxDefaultPath;
+        private System.Windows.Forms.Button buttonContentDefaultPathSelect;
     }
 }
 

@@ -176,7 +176,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             SlideStyle style = JsonConvert.DeserializeObject<SlideStyle>(
                 Utils.ReadJsonFile(_restoreSlideInfo.FullPathToSlideFolder + "\\" + itemFolder + "\\Style.json"));
 
-            JObject jObject = null;
+            JObject jObject;
             try
             {
 
@@ -224,30 +224,33 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                         
                         if (valueSrcPath.ToLower().Contains("/content/default")) // в папке default
                         {
+                            // если соответсвующего файла в Default нет
                             if (!File.Exists(
-                                _programOptions.AppContentPath + "\\Content\\Default\\" + stringPathToImage))
+                                _programOptions.ContentDefault + "\\" + stringPathToImage))
                             {
+                                // берем его из папки с охраненными историями источник
                                 string source = _programOptions.RepositoryPath + "\\" +
                                                 _restoreSlideInfo.DafaultContentFolder + "\\" + stringPathToImage;
                                 
-                                //string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
-                                //              stringPathToImage;
-
+                                // файл в папке с добавленным контентом 
                                 string dest = _restoreSlideInfo.FolderForAddContent + "\\" + "default" + "\\" +
                                               stringPathToImage;
-
+                                
+                                // если папки с добавленным контентом Default нет создаем ее
                                 if (!Directory.Exists(_restoreSlideInfo.FolderForAddContent + "\\default"))
                                     Directory.CreateDirectory(_restoreSlideInfo.FolderForAddContent + "\\default");
 
                                 if (!File.Exists(dest))
                                 {
                                     _restoreSlideInfo.AddListContent.Add("default\\"+stringPathToImage);
+                                    
+                                    // копируем его
+                                    
                                     File.Copy(source, dest);
                                 }
-                                
-                                dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
-                                              stringPathToImage;
-                                
+
+                                dest = _programOptions.ContentDefault + "\\" + stringPathToImage;
+
                                 File.Copy(source,dest);
 
                             }
@@ -260,8 +263,8 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
                                     string source = _programOptions.RepositoryPath + "\\" +
                                                     _restoreSlideInfo.DafaultContentFolder + "\\" + stringPathToImage;
                                     // ReSharper disable once UnusedVariable
-                                    string dest = _programOptions.AppContentPath + "\\Content\\Default\\" +
-                                                  stringPathToImage;
+                                    string dest = _programOptions.ContentDefault + "\\" + stringPathToImage;
+                                    
                                     File.Delete(dest);
 
                                     File.Copy(source, dest);

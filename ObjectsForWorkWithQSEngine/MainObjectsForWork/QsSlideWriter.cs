@@ -258,7 +258,7 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
             {
                 string file = Utils.GetNameImage(item.Layout.SrcPath.StaticContentUrl.Url);
 
-                string source = _options.AppContentPath + "\\Content\\Default\\" + file;
+                string source = _options.ContentDefault + "\\" + file;
 
                 string destination = _itemInfo.DefaultContnetFolder + "\\" + file;
 
@@ -430,9 +430,9 @@ namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 
     public interface IDeleteInfoFromDisk
     {
-        event DeleteInfoFromDisktHandler NewDeleteItemFromDiskSend;
+        event DeleteInfoFromDiskHandler NewDeleteItemFromDiskSend;
     }
 
-    public delegate void DeleteInfoFromDisktHandler(object sender, DeleteItemFromDiskEventArgs e);
+    public delegate void DeleteInfoFromDiskHandler(object sender, DeleteItemFromDiskEventArgs e);
 
 }

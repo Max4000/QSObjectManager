@@ -6,6 +6,7 @@ using System.Xml;
 using Qlik.Engine;
 using UtilClasses.ProgramOptionsClasses;
 using UtilClasses.ServiceClasses;
+// ReSharper disable StringLiteralTypo
 
 namespace ObjectsForWorkWithQSEngine.MainObjectsForWork
 {

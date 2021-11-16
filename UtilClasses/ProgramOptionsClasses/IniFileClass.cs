@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+// ReSharper disable StringLiteralTypo
 
 namespace UtilClasses.ProgramOptionsClasses
 {
@@ -21,7 +22,7 @@ namespace UtilClasses.ProgramOptionsClasses
 
             ReadOptionsFromFile();
 
-            programOptionsEvent.NewProgramOptionsSend += NewProgramOptionsReceived;
+            programOptionsEvent.NewProgramOptionsSend += ProgramOptionsReceived;
 
         }
 
@@ -36,6 +37,7 @@ namespace UtilClasses.ProgramOptionsClasses
             {
                 Options.RepositoryPath = _iniFileObj.Read("PathHistorysRoot", "Paths");
             }
+            
             if (!_iniFileObj.KeyExists("AppContentPath", "Paths"))
             {
                 _iniFileObj.Write("AppContentPath", "", "Paths");
@@ -45,6 +47,17 @@ namespace UtilClasses.ProgramOptionsClasses
             {
                 Options.AppContentPath = _iniFileObj.Read("AppContentPath", "Paths");
             }
+            
+            if (!_iniFileObj.KeyExists("ContentDefault", "Paths"))
+            {
+                _iniFileObj.Write("ContentDefault", "", "Paths");
+                Options.ContentDefault = "";
+            }
+            else
+            {
+                Options.ContentDefault = _iniFileObj.Read("ContentDefault", "Paths");
+            }
+            
             if (!_iniFileObj.KeyExists("Images", "OverwriteExistingContent"))
             {
                 _iniFileObj.Write("Images", "false", "OverwriteExistingContent");
@@ -54,12 +67,13 @@ namespace UtilClasses.ProgramOptionsClasses
             {
                 Options.OverwriteExistingContentImages = Boolean.Parse(_iniFileObj.Read("Images", "OverwriteExistingContent"));
             }
+            
             Options.LocalAddress = _iniFileObj.Read("LocAddr", "LocalAddr");
             Options.RemoteAddress = _iniFileObj.Read("RemAddr", "RemoteAddr");
 
         }
 
-        private void NewProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
+        private void ProgramOptionsReceived(object sender, ProgramOptionsEventArgs e)
         {
             e.ProgramOptions.Copy(Options);
             
@@ -78,6 +92,7 @@ namespace UtilClasses.ProgramOptionsClasses
         {
             _iniFileObj.Write("PathHistorysRoot", opts.RepositoryPath, "Paths");
             _iniFileObj.Write("AppContentPath", opts.AppContentPath, "Paths");
+            _iniFileObj.Write("ContentDefault", opts.ContentDefault, "Paths");
             _iniFileObj.Write("LocAddr", opts.LocalAddress, "LocalAddr");
             _iniFileObj.Write("RemAddr", opts.RemoteAddress, "RemoteAddr");
             _iniFileObj.Write("Images",opts.OverwriteExistingContentImages.ToString(), "OverwriteExistingContent");

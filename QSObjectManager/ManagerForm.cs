@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using ObjectsForWorkWithQSEngine.MainObjectsForWork;
 using UtilClasses.ProgramOptionsClasses;
 using UtilClasses.ServiceClasses;
+// ReSharper disable StringLiteralTypo
 
 namespace QSObjectManager
 {
@@ -307,6 +308,7 @@ namespace QSObjectManager
             textBox1.Text = _programOptions.LocalAddress;
             textBox4.Text = _programOptions.RemoteAddress;
             textBoxContentPath.Text = _programOptions.AppContentPath;
+            textBoxDefaultPath.Text = _programOptions.ContentDefault;
 
             checkBoxOverwriteImages.Checked = _programOptions.OverwriteExistingContentImages;
 
@@ -488,6 +490,11 @@ namespace QSObjectManager
                 return;
             }
 
+            if (string.IsNullOrEmpty(_programOptions.ContentDefault))
+            {
+                ShowMessageForm("Установите путь на папку с контентом Default на сервере", "Ошибка");
+                return;
+            }
             try
             {
                 textBoxAdressLocalHostOnRestoreTab.Text = _programOptions.LocalAddress;
@@ -710,6 +717,13 @@ namespace QSObjectManager
                 return;
             }
 
+            if (string.IsNullOrEmpty(_programOptions.ContentDefault))
+            {
+                ShowMessageForm("Установите путь на папку с контентом Default на сервере", "Ошибка");
+                return;
+            }
+
+
             if (string.IsNullOrEmpty(_programOptions.RepositoryPath))
             {
                 ShowMessageForm("Установите путь на папку с содержимым историй приложений на сервере", "Ошибка");
@@ -830,6 +844,20 @@ namespace QSObjectManager
             _programOptions.OverwriteExistingContentImages = checkBoxOverwriteImages.Checked;
 
             OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
+        }
+
+        private void buttonContentDefaultPathSelect_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialogPathsHistoru.SelectedPath = textBoxDefaultPath.Text;
+            if (folderBrowserDialogPathsHistoru.ShowDialog() == DialogResult.OK)
+            {
+                textBoxDefaultPath.Text = folderBrowserDialogPathsHistoru.SelectedPath;
+                
+                _programOptions.ContentDefault = textBoxDefaultPath.Text;
+
+                OnNewOptions(new ProgramOptionsEventArgs(_programOptions.Copy()));
+
+            }
         }
     }
 }
